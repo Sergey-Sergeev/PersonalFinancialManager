@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Xml.Linq;
 
 namespace PersonalFinancialManager.source
 {
@@ -11,24 +7,13 @@ namespace PersonalFinancialManager.source
         public List<Product> listOfProducts;
         public double TotalPrice { get; private set; }
 
+        public QRCodeData QRData { get; private set; }
 
-
-        public Receipt(List<Product> products)
+        public Receipt(QRCodeData qRData, List<Product> products) 
         {
+            QRData = qRData;
+            TotalPrice = Double.Parse(QRData.S.Replace('.', ','));
             listOfProducts = products;
-            SetTotalPrice();
         }
-
-        private void SetTotalPrice()
-        {
-            TotalPrice = 0;
-
-            for (int i = 0; i < listOfProducts.Count; i++)
-            {
-                TotalPrice += listOfProducts[i].Price * listOfProducts[i].Count;
-            }
-        }
-
-
     }
 }
