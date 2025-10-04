@@ -3,41 +3,66 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZXing;
 
 namespace PersonalFinancialManager.source
 {
     public class QRCodeData
     {
-        public string Fn { get; private set; }            // fn number
-        public string I { get; private set; }             // receipt number
-        public string Fp { get; private set; }            // fiscal sing
-        public string S { get; private set; }             // total sum
-        public string T { get; private set; }             // date
-        public string N { get; private set; }             // in/out sing
+        private string fn;
+        private string i;
+        private string fp;
+        private string s;
+        private string t;
+        private string n;
+
+        public string Fn { get => fn; private set => fn = value; }            // fn number
+        public string I { get => i; private set => i = value; }             // receipt number
+        public string Fp { get => fp; private set => fp = value; }            // fiscal sing
+        public string S { get => s; private set => s = value; }             // total sum
+        public string T { get => t; private set => t = value; }             // date
+        public string N { get => n; private set => n = value; }             // in/out sing
 
         // example = t=20251002T1530&s=1234.56&fn=9281000100001234&i=12345&fp=678901234&n=1
 
-        public QRCodeData(string QRData)
+        private QRCodeData() { }
+
+        public static bool ParseQRCodeData(string QRData, out QRCodeData? result)
         {
-            T = ParseParameterFromQRData("t=", ref QRData);
-            S = ParseParameterFromQRData("s=", ref QRData);
-            Fn = ParseParameterFromQRData("fn=", ref QRData);
-            I = ParseParameterFromQRData("i=", ref QRData);
-            Fp = ParseParameterFromQRData("fp=", ref QRData);
-            N = ParseParameterFromQRData("n=", ref QRData);
+            result = new QRCodeData();
+
+            if (
+                ParseParameterFromQRData("t=", ref QRData, out result.t) &&
+                ParseParameterFromQRData("s=", ref QRData, out result.s) &&
+                ParseParameterFromQRData("fn=", ref QRData, out result.fn) &&
+                ParseParameterFromQRData("i=", ref QRData, out result.i) &&
+                ParseParameterFromQRData("fp=", ref QRData, out result.fp) &&
+                ParseParameterFromQRData("n=", ref QRData, out result.n)
+                )
+            {
+                return true;
+            }
+
+            result = null;
+            return false;
         }
 
 
-        private static string ParseParameterFromQRData(string paramName, ref string QRData)
+        private static bool ParseParameterFromQRData(string paramName, ref string QRData, out string data)
         {
-            string res = "";
+            data = "";
             for (int i = QRData.IndexOf(paramName); i < QRData.Length; i++)
             {
+                if (i == 0 || i < 0)
+                {
+                    return false;
+                }
+
                 if (QRData[i] == '&')
                     break;
-                res += QRData[i];
+                data += QRData[i];
             }
-            return res;
+            return true;
         }
     }
 }

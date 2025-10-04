@@ -6,9 +6,14 @@ namespace PersonalFinancialManager
 {
     public partial class MainForm : Form
     {
+        FTS fts;
         public MainForm()
-        {
+        {            
+
+
+
             InitializeComponent();
+            //fts = FTS.FTSFabric();          // TO DO: Get login and password from user
         }
 
         private void loadQRCodesButton_Click(object sender, EventArgs e)
