@@ -15,5 +15,15 @@ namespace PersonalFinancialManager.source
             TotalPrice = Double.Parse(QRData.S.Replace('.', ','));
             listOfProducts = products;
         }
+
+        public static List<Product> ParseProductsFromJSON(string json)
+        {
+            List<Product> list = new List<Product>();
+
+            //    TO DO: Parser
+
+
+            return list;
+        }
     }
 }
