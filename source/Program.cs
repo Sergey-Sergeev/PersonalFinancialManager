@@ -1,5 +1,7 @@
 
 
+using Application = System.Windows.Forms.Application;
+
 namespace PersonalFinancialManager.source
 {
     internal static class Program

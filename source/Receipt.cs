@@ -12,13 +12,14 @@ namespace PersonalFinancialManager.source
         public Receipt(QRCodeData qRData, List<Product> products) 
         {
             QRData = qRData;
-            TotalPrice = Double.Parse(QRData.S.Replace('.', ','));
+            TotalPrice = Double.Parse(QRData.S) / 100;
             listOfProducts = products;
         }
 
         public static List<Product> ParseProductsFromJSON(string json)
         {
             List<Product> list = new List<Product>();
+
 
             //    TO DO: Parser
 
