@@ -32,14 +32,16 @@ namespace PersonalFinancialManager.source
             result = new QRCodeData();
 
             if (
-                ParseParameterFromQRData("t=", ref QRData, out result.t) &&
-                ParseParameterFromQRData("s=", ref QRData, out result.s) &&
-                ParseParameterFromQRData("fn=", ref QRData, out result.fn) &&
-                ParseParameterFromQRData("i=", ref QRData, out result.i) &&
-                ParseParameterFromQRData("fp=", ref QRData, out result.fp) &&
-                ParseParameterFromQRData("n=", ref QRData, out result.n)
+                ParseParameterFromQRData("&t=", ref QRData, out result.t) &&
+                ParseParameterFromQRData("&s=", ref QRData, out result.s) &&
+                ParseParameterFromQRData("&fn=", ref QRData, out result.fn) &&
+                ParseParameterFromQRData("&i=", ref QRData, out result.i) &&
+                ParseParameterFromQRData("&fp=", ref QRData, out result.fp) &&
+                ParseParameterFromQRData("&n=", ref QRData, out result.n)
                 )
             {
+                result.s = result.s.Replace(".", "");
+                result.t = ConvertDate(result.t);
                 return true;
             }
 
@@ -47,11 +49,17 @@ namespace PersonalFinancialManager.source
             return false;
         }
 
+        private static string ConvertDate(string qrDate)
+        {
+
+            return qrDate;
+        }
+
 
         private static bool ParseParameterFromQRData(string paramName, ref string QRData, out string data)
         {
             data = "";
-            for (int i = QRData.IndexOf(paramName); i < QRData.Length; i++)
+            for (int i = QRData.IndexOf(paramName) + paramName.Length; i < QRData.Length; i++)
             {
                 if (i == 0 || i < 0)
                 {

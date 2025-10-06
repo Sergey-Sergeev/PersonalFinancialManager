@@ -13,7 +13,7 @@ namespace PersonalFinancialManager
 
 
             InitializeComponent();
-            //fts = FTS.FTSFabric();          // TO DO: Get login and password from user
+            fts = FTS.FTSFabric("0", "0!");          // TO DO: Get login and password from user
         }
 
         private void loadQRCodesButton_Click(object sender, EventArgs e)
@@ -28,7 +28,7 @@ namespace PersonalFinancialManager
 
             if (ofd.ShowDialog() != DialogResult.Cancel && ofd.FileNames.Length != 0)
             {
-                //FTS.GetReceiptsFromQRCodes(ofd.FileNames);
+                fts.GetReceiptsFromQRCodes(ofd.FileNames);
             }
 
         }

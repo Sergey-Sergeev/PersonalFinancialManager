@@ -1,4 +1,10 @@
-﻿namespace PersonalFinancialManager
+﻿using System.Drawing;
+using Button = System.Windows.Forms.Button;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
+using SizeF = System.Drawing.SizeF;
+
+namespace PersonalFinancialManager
 {
     partial class MainForm
     {
@@ -107,7 +113,7 @@
 
         private PrintPreviewDialog printPreviewDialog1;
         private System.Windows.Forms.DataVisualization.Charting.Chart mainChart;
-        private Button loadQRCodesButton;
+        private System.Windows.Forms.Button loadQRCodesButton;
         private TreeView treeView1;
     }
 }
