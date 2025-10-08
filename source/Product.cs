@@ -10,16 +10,18 @@ namespace PersonalFinancialManager.source
     {
         public string Name { get; private set; }
         public double Price { get; private set; }   
-        public int Count { get; private set; }
+        public double Quantity { get; private set; }
+        public double Sum { get; private set; }
         public ProductCategory Category { get; set; }
 
 
-        public Product(string Name, double Price, int Count, ProductCategory Category)
+        public Product(string name, double price, double quantity, double sum, ProductCategory category)
         {
-            this.Name = Name;
-            this.Price = Price;
-            this.Count = Count;
-            this.Category = Category;
+            Name = name;
+            Price = price;
+            Quantity = quantity;
+            Sum = sum;
+            Category = category;
         }
 
     }
