@@ -1,11 +1,15 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Policy;
 using System.Text;
+using System.Text.Json;
 using ZXing;
 using ZXing.Common;
 using ZXing.Windows.Compatibility;
+using static PersonalFinancialManager.source.FTSDecodingReceiptsResult;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace PersonalFinancialManager.source
@@ -15,155 +19,87 @@ namespace PersonalFinancialManager.source
         private static HttpClient httpClient = null;
 
         private static FTS? singleFTS = null;
-        private static readonly object locker = new object();   // for safe stream
 
-        private FTS() { }
+        private readonly Uri BASE_URI = new Uri("https://proverkacheka.com/api/v1/check/get");
+        private readonly string USER_TOKEN;
+        private FTS(string userToken) => USER_TOKEN = userToken;
 
-        public static FTS FTSFabric(string login, string password)
+        public static FTS FTSFabric(string userToken)
         {
             if (singleFTS != null) return singleFTS;
 
-            lock (locker)
+            httpClient = new HttpClient()
             {
-                httpClient = new HttpClient()
-                {
-                    Timeout = TimeSpan.FromSeconds(30)
-                };
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                byte[] bytes = Encoding.ASCII.GetBytes($"{login}:{password}");
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(bytes));
-
-                singleFTS = new FTS();
-            }
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+            singleFTS = new FTS(userToken);
 
             return singleFTS;
         }
 
-        public async Task<FTSDecodingReceiptsResult> GetReceiptsFromQRCodes(string[] files)
+        public async Task<FTSDecodingReceiptsResult> GetReceiptsFromQRCodesImages(string[] files)
         {
             FTSDecodingReceiptsResult fTSResult = new FTSDecodingReceiptsResult();
 
+            bool QRDecoded;
             FTSResponseResult fTSResponseResult = null;
+            FailGettingReceiptData.ErrorCode errorCode = FailGettingReceiptData.ErrorCode.UnknownError;
 
             for (int i = 0; i < files.Length; i++)
             {
-                //if (ParseDataFromQR(files[i], out QRCodeData? qRCodeData) && ((fTSResponseResult = await FTSRequest(qRCodeData)).Response != null))
-                if (ParseDataFromQR(files[i], out QRCodeData? qRCodeData))
+                if ((QRDecoded = QRCodeData.ParseDataFromQR(files[i], out QRCodeData? qRCodeData)) &&
+                    ((fTSResponseResult = await FTSRequest(qRCodeData)).StatusCode == FTSResponseResult.ServerResponseCode.Success) &&
+                    ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, out Receipt? receipt)) == FailGettingReceiptData.ErrorCode.Success))
                 {
-                    //Console.WriteLine(fTSResponseResult.Response);
-                    //Console.WriteLine(fTSResponseResult.StatusCode);
-                    //List<Product> products = Receipt.ParseProductsFromJSON(fTSResponseResult.Response);
-                    //fTSResult.Receipts.Add(new Receipt(qRCodeData, products));
+                    fTSResult.Receipts.Add(receipt);
                 }
                 else
                 {
-                    fTSResult.FailDecoding.Add(files[i] + (fTSResponseResult?.Response == null ? $", Error Code: {fTSResponseResult?.StatusCode}" : String.Empty));
+                    FailGettingReceiptData failGettingReceiptData = new FailGettingReceiptData();
+                    failGettingReceiptData.FileName = files[i];
+
+                    if (!QRDecoded)
+                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.DecodingQRFail;
+                    else if (fTSResponseResult.StatusCode != FTSResponseResult.ServerResponseCode.Success)
+                        failGettingReceiptData.Code = FailGettingReceiptData.RecognizeServerStatus(fTSResponseResult.StatusCode);
+                    else failGettingReceiptData.Code = errorCode;
+
+                    failGettingReceiptData.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
+                    fTSResult.FailDecoding.Add(failGettingReceiptData);
                 }
             }
 
             return fTSResult;
         }
 
-        private bool ParseDataFromQR(string file, out QRCodeData? qRCodeData)
-        {
-            qRCodeData = null;
-
-            using var src = Cv2.ImRead(file, ImreadModes.Color);
-            if (src.Empty())
-                return false;
-
-            using var gray = new Mat();
-            Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
-
-            using var blurred = new Mat();
-            Cv2.GaussianBlur(gray, blurred, new OpenCvSharp.Size(9, 9), 0);
-
-            using var th = new Mat();
-            Cv2.AdaptiveThreshold(blurred, th, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 41, 0);
-
-            using var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
-            using var morph = new Mat();
-            Cv2.MorphologyEx(th, morph, MorphTypes.Close, kernel);
-
-
-            // Try all
-            var candidates = new[] { morph, th, gray, src, blurred };
-
-            var reader = new BarcodeReader
-            {
-                AutoRotate = true,
-                Options = new DecodingOptions
-                {
-                    TryHarder = true,
-                    TryInverted = true,
-                    PossibleFormats = new List<BarcodeFormat>
-                    {
-                        BarcodeFormat.QR_CODE,
-                        BarcodeFormat.DATA_MATRIX,
-                        BarcodeFormat.PDF_417,
-                        BarcodeFormat.AZTEC
-                    }
-                }
-            };
-
-            Result result;
-
-            foreach (var mat in candidates)
-            {
-                using var scaled = new Mat();
-                Cv2.Resize(mat, scaled, new OpenCvSharp.Size(mat.Width * 2, mat.Height * 2), 0, 0, InterpolationFlags.Nearest);
-
-                foreach (var tryInvert in new[] { false, true })
-                {
-                    Mat toDecode;
-                    if (tryInvert)
-                    {
-                        toDecode = new Mat();
-                        Cv2.BitwiseNot(scaled, toDecode);
-                    }
-                    else
-                    {
-                        toDecode = scaled;
-                    }
-
-                    using Bitmap bmp = BitmapConverter.ToBitmap(toDecode);
-
-                    using var bmp24 = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format24bppRgb);
-                    using (var g = Graphics.FromImage(bmp24)) g.DrawImage(bmp, 0, 0);
-
-                    result = reader.Decode(bmp24);
-                    if (result != null)
-                    {
-                        //Console.WriteLine(result.Text);
-                        return QRCodeData.ParseQRCodeData(result.Text, out qRCodeData);
-                    }
-                }
-            }
-            return false;
-        }
-
-
         private async Task<FTSResponseResult> FTSRequest(QRCodeData qrData)
         {
             FTSResponseResult fTSResponseResult = new FTSResponseResult();
-            Uri uri = new Uri(
-                $"https://proverkacheka.nalog.ru:9999/v1/ofds/*/inns/*/fss/{qrData.Fn}/operations/{qrData.N}/tickets/{qrData.I}?fiscalSign={qrData.Fp}&date={qrData.T}&sum={qrData.S}"
-                //$"https://proverkacheka.nalog.ru:9999/v1/inns/*/kkts/*/fss/{qrData.Fn}/tickets/{qrData.I}?fiscalSign={qrData.Fp}&date={qrData.T}&sum={qrData.S}"
-                );
+
+            using StringContent jsonContent = new(
+            JsonSerializer.Serialize(new
+            {
+                fn = qrData.Fn,
+                fd = qrData.I,
+                fp = qrData.Fp,
+                t = qrData.T,
+                n = qrData.N,
+                s = qrData.S,
+                qr = 1,
+                token = USER_TOKEN
+            }),
+            Encoding.UTF8, "application/json");
 
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync(uri);
+                HttpResponseMessage response = await httpClient.PostAsync(BASE_URI, jsonContent);
 
-                fTSResponseResult.StatusCode = (int)response.StatusCode;
+                fTSResponseResult.ResponseCode = (int)response.StatusCode;
+                fTSResponseResult.StatusCode = FTSResponseResult.RecognizeServerResponseCode((int)response.StatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     fTSResponseResult.Response = await response.Content.ReadAsStringAsync();
-
-                    //--------------------------------------
-                    Console.WriteLine(fTSResponseResult.Response);
-                    //--------------------------------------
                 }
                 else
                 {
@@ -173,7 +109,8 @@ namespace PersonalFinancialManager.source
             catch (HttpRequestException ex)
             {
                 fTSResponseResult.Response = null;
-                fTSResponseResult.StatusCode = (int)(ex.StatusCode ?? 0);
+                fTSResponseResult.StatusCode = FTSResponseResult.ServerResponseCode.ServerError;
+                fTSResponseResult.ResponseCode = (ex.StatusCode == null ? -1 : (int)ex.StatusCode);
             }
 
             return fTSResponseResult;

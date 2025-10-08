@@ -1,9 +1,14 @@
-﻿using System;
+﻿using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZXing;
+using ZXing.Common;
+using ZXing.Windows.Compatibility;
 
 namespace PersonalFinancialManager.source
 {
@@ -32,7 +37,7 @@ namespace PersonalFinancialManager.source
             result = new QRCodeData();
 
             if (
-                ParseParameterFromQRData("&t=", ref QRData, out result.t) &&
+                ParseParameterFromQRData("t=", ref QRData, out result.t) &&
                 ParseParameterFromQRData("&s=", ref QRData, out result.s) &&
                 ParseParameterFromQRData("&fn=", ref QRData, out result.fn) &&
                 ParseParameterFromQRData("&i=", ref QRData, out result.i) &&
@@ -40,8 +45,6 @@ namespace PersonalFinancialManager.source
                 ParseParameterFromQRData("&n=", ref QRData, out result.n)
                 )
             {
-                result.s = result.s.Replace(".", "");
-                result.t = ConvertDate(result.t);
                 return true;
             }
 
@@ -49,12 +52,87 @@ namespace PersonalFinancialManager.source
             return false;
         }
 
-        private static string ConvertDate(string qrDate)
+        public static bool ParseDataFromQR(string file, out QRCodeData? qRCodeData)
         {
+            qRCodeData = null;
 
-            return qrDate;
+            using var src = Cv2.ImRead(file, ImreadModes.Color);
+            if (src.Empty())
+                return false;
+
+            using var gray = new Mat();
+            Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
+
+            using var blurred = new Mat();
+            Cv2.GaussianBlur(gray, blurred, new OpenCvSharp.Size(9, 9), 0);
+
+            using var th = new Mat();
+            Cv2.AdaptiveThreshold(blurred, th, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 41, 0);
+
+            using var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            using var morph = new Mat();
+            Cv2.MorphologyEx(th, morph, MorphTypes.Close, kernel);
+
+
+            // Try all
+            var candidates = new[] { morph, th, gray, src, blurred };
+
+            var reader = new BarcodeReader
+            {
+                AutoRotate = true,
+                Options = new DecodingOptions
+                {
+                    TryHarder = true,
+                    TryInverted = true,
+                    PossibleFormats = new List<BarcodeFormat>
+                    {
+                        BarcodeFormat.QR_CODE,
+                        BarcodeFormat.DATA_MATRIX,
+                        BarcodeFormat.PDF_417,
+                        BarcodeFormat.AZTEC
+                    }
+                }
+            };
+
+            Result result;
+
+            foreach (var mat in candidates)
+            {
+                using var scaled = new Mat();
+                Cv2.Resize(mat, scaled, new OpenCvSharp.Size(mat.Width * 2, mat.Height * 2), 0, 0, InterpolationFlags.Nearest);
+
+                foreach (var tryInvert in new[] { false, true })
+                {
+                    Mat toDecode;
+                    if (tryInvert)
+                    {
+                        toDecode = new Mat();
+                        Cv2.BitwiseNot(scaled, toDecode);
+                    }
+                    else
+                    {
+                        toDecode = scaled;
+                    }
+
+                    using Bitmap bmp = BitmapConverter.ToBitmap(toDecode);
+
+                    using var bmp24 = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format24bppRgb);
+                    using (var g = Graphics.FromImage(bmp24)) g.DrawImage(bmp, 0, 0);
+
+                    result = reader.Decode(bmp24);
+                    if (result != null)
+                    {
+                        return QRCodeData.ParseQRCodeData(result.Text, out qRCodeData);
+                    }
+                }
+            }
+            return false;
         }
 
+        public override string ToString()
+        {
+            return $"t={t}&s={s}&fn={fn}&i={i}&fp={fp}&n={n}";
+        }
 
         private static bool ParseParameterFromQRData(string paramName, ref string QRData, out string data)
         {
