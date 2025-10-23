@@ -1,78 +1,98 @@
-
-
 using PersonalFinancialManager.source;
+using ZXing;
 
 namespace PersonalFinancialManager
 {
     public partial class MainForm : Form
     {
         const string FILE_FILTER = "Изображения (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|JPEG (*.jpeg)|*.jpeg";
-        FTS fts;
+        private FTS fts;
+        private DataBase dataBase;
+
         public MainForm()
         {
-
-
             InitializeComponent();
 
-            fts = FTS.FTSFabric("token");          // TO DO: Get login and password from user
+            dataBase = DataBase.Fabric();
+            if (!dataBase.IsUserAuthorizated())
+            {
+                AskUserToken(false);
+            }
+
+            fts = FTS.FTSFabric(dataBase.UserToken);
+
+            LoadAllReceiptsInDatabaseWindow();
         }
 
         private async void loadQRCodesButton_Click(object sender, EventArgs e)
         {
-
             OpenFileDialog ofd = new OpenFileDialog();
-
             ofd.Filter = FILE_FILTER;
             ofd.FilterIndex = 0;
             ofd.Multiselect = true;
 
-
             if (ofd.ShowDialog() != DialogResult.Cancel && ofd.FileNames.Length != 0)
             {
                 FTSDecodingReceiptsResult result = await fts.GetReceiptsFromQRCodesImages(ofd.FileNames);
+                dataBase.AddNewReceipts(result.Receipts);
 
-
-                for (int i = 0; i < result.Receipts.Count; i++)
+                if (result.FailDecoding.Count != 0)
                 {
-                    Console.WriteLine("----------------------------------------");
-                    Console.WriteLine("---SUCCESS---");
-                    Console.WriteLine();
-
-                    Console.WriteLine(result.Receipts[i].RetailPlaceAddress);
-                    Console.WriteLine(result.Receipts[i].DateAndTime);
-
-                    for (int k = 0; k < result.Receipts[i].ListOfProducts.Count; k++)
+                    if (result.FailDecoding[0].Code == FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.IncorrectAPIKey)
                     {
-                        Console.WriteLine("Name: " + result.Receipts[i].ListOfProducts[k].Name);
-                        Console.WriteLine("Price: " + result.Receipts[i].ListOfProducts[k].Price);
-                        Console.WriteLine("Count: " + result.Receipts[i].ListOfProducts[k].Quantity);
-                        Console.WriteLine("Sum: " + result.Receipts[i].ListOfProducts[k].Sum);
-                        Console.WriteLine("Category: " + result.Receipts[i].ListOfProducts[k].Category);
+                        AskUserToken(true);
                     }
-
-                    Console.WriteLine("Cash: " + result.Receipts[i].CashTotalSum);
-                    Console.WriteLine("Ecash: " + result.Receipts[i].EcashTotalSum);
-                    Console.WriteLine("Total price: " + result.Receipts[i].TotalPrice);
-                    Console.WriteLine("----------------------------------------");
+                    else
+                    {
+                        new FailGetReceiptsForm(result.FailDecoding).ShowDialog();
+                    }
                 }
-
-                Console.WriteLine();
-
-                for (int i = 0; i < result.FailDecoding.Count; i++)
-                {
-                    Console.WriteLine("----------------------------------------");
-                    Console.WriteLine("---FAIL---");
-                    Console.WriteLine(result.FailDecoding[i].FileName);
-                    Console.WriteLine(result.FailDecoding[i].Code);
-                    Console.WriteLine(result.FailDecoding[i].ServerResponseCode);
-                    Console.WriteLine("----------------------------------------");
-                }
+                else LoadAllReceiptsInDatabaseWindow();
             }
-
-
-
         }
 
+        private void LoadAllReceiptsInDatabaseWindow()
+        {
+
+            foreach (Receipt receipt in dataBase.GetAllReceipts())
+            {
+                if (IsDataBaseWindowContainReceipt($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}"))
+                    continue;
+
+                TreeNode treeNode = new TreeNode(
+                    $"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
+                    receipt.ListOfProducts.ConvertAll<TreeNode>((product) => new TreeNode(
+                        $"{product.Name}\n",
+                        new TreeNode[] {
+                            new TreeNode($"Категория:  {product.Category}"),
+                            new TreeNode($"Цена:  {product.Price}\n"),
+                            new TreeNode($"Количество:  {product.Quantity}\n"),
+                            new TreeNode($"Сумма:  {product.Sum}\n")}
+                        )).ToArray());
+
+                databaseWindow.Nodes.Add(treeNode);
+            }
+        }
+
+        private bool IsDataBaseWindowContainReceipt(string receiptHeader)
+        {
+            for (int i = 0; i < databaseWindow.Nodes.Count; i++)
+            {
+                if (databaseWindow.Nodes[i].Text == receiptHeader)
+                    return true;
+            }
+            return false;
+        }
+
+        private void AskUserToken(bool isWrongAPI)
+        {
+            UserTokenForm utf = new UserTokenForm(isWrongAPI);
+            utf.ShowDialog();
+            dataBase.SetUserData(utf.UserToken);
+
+            if (isWrongAPI)            
+                fts.UpdateUserToken(ref dataBase);            
+        }
 
     }
 }

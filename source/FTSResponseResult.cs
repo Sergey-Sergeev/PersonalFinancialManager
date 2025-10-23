@@ -15,6 +15,7 @@ namespace PersonalFinancialManager.source
         public static ServerResponseCode RecognizeServerResponseCode(int code)
         {
             if (code >= 200 && code < 300) return ServerResponseCode.Success;
+            else if (code == 401) return ServerResponseCode.IncorrectAPIKey;
             else if (code >= 400 && code < 500) return ServerResponseCode.ClientError;
             else if (code >= 500) return ServerResponseCode.ServerError;
             else return ServerResponseCode.OtherError;
@@ -25,6 +26,7 @@ namespace PersonalFinancialManager.source
             Success,
             ClientError,
             ServerError,
+            IncorrectAPIKey,
             OtherError
         }
     }

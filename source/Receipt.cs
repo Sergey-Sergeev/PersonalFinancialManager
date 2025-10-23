@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Xml.Linq;
+using static PersonalFinancialManager.source.JsonServerClass;
 
 namespace PersonalFinancialManager.source
 {
@@ -8,14 +9,34 @@ namespace PersonalFinancialManager.source
         public List<Product> ListOfProducts { get; private set; }
         public double TotalPrice { get; private set; }
 
-        public string DateAndTime { get; private set; }
+        public string DateAndTimeString { get => dateAndTimeString;
+            private set {
+                DateAndTime = DateTime.Parse(value);
+                dateAndTimeString = value;
+            }
+        }
+        private string dateAndTimeString;
+
+
+        public DateTime DateAndTime { get; private set; }
+
         public double CashTotalSum { get; private set; }
         public double EcashTotalSum { get; private set; }
         public string RetailPlaceAddress { get; private set; }
 
-        private Receipt() 
+        private Receipt()
         {
             ListOfProducts = new List<Product>();
+        }
+
+        public Receipt(List<Product> listOfProducts, double totalPrice, string dateAndTimeString, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress)
+        {
+            ListOfProducts = listOfProducts;
+            TotalPrice = totalPrice;
+            DateAndTimeString = dateAndTimeString;
+            CashTotalSum = cashTotalSum;
+            EcashTotalSum = ecashTotalSum;
+            RetailPlaceAddress = retailPlaceAddress;
         }
 
 
@@ -24,7 +45,7 @@ namespace PersonalFinancialManager.source
             FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode result;
             JsonServerClass? jsonClass = null;
             receipt = null;
-            
+
             try
             {
                 jsonClass = JsonSerializer.Deserialize<JsonServerClass>(json, new JsonSerializerOptions()
@@ -35,27 +56,48 @@ namespace PersonalFinancialManager.source
             }
             catch { }
 
-            if(jsonClass == null)
-                return FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.FailDeserializeJSON;
 
+            if (jsonClass == null)
+            {
+                JsonServerCode? jsServerCode = null;
+                try
+                {
+                    jsServerCode = JsonSerializer.Deserialize<JsonServerCode>(json, new JsonSerializerOptions()
+                    {
+                        ReadCommentHandling = JsonCommentHandling.Skip,
+                        AllowTrailingCommas = true,
+                    });
+                }
+                catch { }
+
+                if (jsServerCode == null)
+                {
+                    return FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.FailDeserializeJSON;
+                }
+                return FTSDecodingReceiptsResult.FailGettingReceiptData.RecognizeServerCodeFromJson(jsServerCode.code);
+            }
 
             result = FTSDecodingReceiptsResult.FailGettingReceiptData.RecognizeServerCodeFromJson(jsonClass.code);
 
             if (result == FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.Success)
             {
+                if (jsonClass.data.json.items.Count == 0)
+                {
+                    return FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.FailDeserializeJSON;
+                }
+
                 receipt = new Receipt();
 
-                receipt.DateAndTime = jsonClass.data.json.dateTime;
+                receipt.DateAndTimeString = jsonClass.data.json.dateTime;     // "2025-10-07T18:20:00"
                 receipt.TotalPrice = (Double)(jsonClass.data.json.totalSum) / 100;  // convert to rubs
                 receipt.EcashTotalSum = (Double)(jsonClass.data.json.ecashTotalSum) / 100;
                 receipt.CashTotalSum = (Double)(jsonClass.data.json.cashTotalSum) / 100;
-                receipt.RetailPlaceAddress = jsonClass.data.json.retailPlaceAddress;
-
+                receipt.RetailPlaceAddress = jsonClass.data.json.retailPlaceAddress.Replace("\"", "'");
 
                 for (int i = 0; i < jsonClass.data.json.items.Count; i++)
                 {
                     Product product = new Product(
-                        jsonClass.data.json.items[i].name,
+                        jsonClass.data.json.items[i].name.Replace("\"", "'"),
                         (Double)(jsonClass.data.json.items[i].price) / 100,
                         jsonClass.data.json.items[i].quantity,
                         (Double)(jsonClass.data.json.items[i].sum) / 100,
@@ -67,6 +109,12 @@ namespace PersonalFinancialManager.source
             }
 
             return result;
+        }
+
+        private class JsonServerCode
+        {
+            public int code { get; set; }
+            public string data { get; set; }
         }
     }
 }
