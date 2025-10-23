@@ -35,15 +35,20 @@ namespace PersonalFinancialManager
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            TreeNode treeNode3 = new TreeNode("1. Конфеты");
-            TreeNode treeNode4 = new TreeNode("10.12.2024", new TreeNode[] { treeNode3 });
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             printPreviewDialog1 = new PrintPreviewDialog();
-            mainChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             loadQRCodesButton = new Button();
-            treeView1 = new TreeView();
+            databaseWindow = new TreeView();
+            tabControl1 = new TabControl();
+            mainPage = new TabPage();
+            textBox1 = new TextBox();
+            tabPage2 = new TabPage();
+            mainChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            tabControl1.SuspendLayout();
+            mainPage.SuspendLayout();
+            tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)mainChart).BeginInit();
             SuspendLayout();
             // 
@@ -57,54 +62,98 @@ namespace PersonalFinancialManager
             printPreviewDialog1.Name = "printPreviewDialog1";
             printPreviewDialog1.Visible = false;
             // 
-            // mainChart
-            // 
-            chartArea2.Name = "ChartArea1";
-            mainChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            mainChart.Legends.Add(legend2);
-            mainChart.Location = new Point(12, 12);
-            mainChart.Name = "mainChart";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            mainChart.Series.Add(series2);
-            mainChart.Size = new Size(665, 403);
-            mainChart.TabIndex = 0;
-            mainChart.Text = "chart1";
-            // 
             // loadQRCodesButton
             // 
-            loadQRCodesButton.Location = new Point(22, 444);
+            loadQRCodesButton.Font = new Font("Calibri", 12F);
+            loadQRCodesButton.Location = new Point(6, 6);
             loadQRCodesButton.Name = "loadQRCodesButton";
-            loadQRCodesButton.Size = new Size(111, 24);
+            loadQRCodesButton.Size = new Size(127, 30);
             loadQRCodesButton.TabIndex = 1;
             loadQRCodesButton.Text = "Загрузить QR код";
             loadQRCodesButton.UseVisualStyleBackColor = true;
             loadQRCodesButton.Click += loadQRCodesButton_Click;
             // 
-            // treeView1
+            // databaseWindow
             // 
-            treeView1.Location = new Point(683, 12);
-            treeView1.Name = "treeView1";
-            treeNode3.Name = "123";
-            treeNode3.Text = "1. Конфеты";
-            treeNode4.Name = "10.12.2024";
-            treeNode4.Text = "10.12.2024";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode4 });
-            treeView1.Size = new Size(420, 567);
-            treeView1.TabIndex = 2;
+            databaseWindow.BackColor = Color.WhiteSmoke;
+            databaseWindow.Font = new Font("Calibri", 12F);
+            databaseWindow.Location = new Point(443, 38);
+            databaseWindow.Name = "databaseWindow";
+            databaseWindow.Size = new Size(634, 495);
+            databaseWindow.TabIndex = 2;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Controls.Add(mainPage);
+            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Location = new Point(12, 12);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(1091, 567);
+            tabControl1.TabIndex = 3;
+            // 
+            // mainPage
+            // 
+            mainPage.Controls.Add(textBox1);
+            mainPage.Controls.Add(loadQRCodesButton);
+            mainPage.Controls.Add(databaseWindow);
+            mainPage.Location = new Point(4, 24);
+            mainPage.Name = "mainPage";
+            mainPage.Padding = new Padding(3);
+            mainPage.Size = new Size(1083, 539);
+            mainPage.TabIndex = 0;
+            mainPage.Text = "Главная";
+            mainPage.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            textBox1.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            textBox1.Location = new Point(443, 6);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(634, 27);
+            textBox1.TabIndex = 3;
+            // 
+            // tabPage2
+            // 
+            tabPage2.Controls.Add(mainChart);
+            tabPage2.Location = new Point(4, 24);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(1083, 539);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "tabPage2";
+            tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // mainChart
+            // 
+            chartArea1.Name = "ChartArea1";
+            mainChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            mainChart.Legends.Add(legend1);
+            mainChart.Location = new Point(6, 6);
+            mainChart.Name = "mainChart";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            mainChart.Series.Add(series1);
+            mainChart.Size = new Size(1071, 527);
+            mainChart.TabIndex = 1;
+            mainChart.Text = "chart1";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(1115, 591);
-            Controls.Add(treeView1);
-            Controls.Add(loadQRCodesButton);
-            Controls.Add(mainChart);
+            Controls.Add(tabControl1);
+            MaximumSize = new Size(1131, 630);
+            MinimumSize = new Size(1131, 630);
             Name = "MainForm";
             Text = "Личный Финансовый Менеджер";
+            tabControl1.ResumeLayout(false);
+            mainPage.ResumeLayout(false);
+            mainPage.PerformLayout();
+            tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)mainChart).EndInit();
             ResumeLayout(false);
         }
@@ -112,8 +161,12 @@ namespace PersonalFinancialManager
         #endregion
 
         private PrintPreviewDialog printPreviewDialog1;
-        private System.Windows.Forms.DataVisualization.Charting.Chart mainChart;
         private System.Windows.Forms.Button loadQRCodesButton;
-        private TreeView treeView1;
+        private TreeView databaseWindow;
+        private TabControl tabControl1;
+        private TabPage mainPage;
+        private TabPage tabPage2;
+        private System.Windows.Forms.DataVisualization.Charting.Chart mainChart;
+        private TextBox textBox1;
     }
 }

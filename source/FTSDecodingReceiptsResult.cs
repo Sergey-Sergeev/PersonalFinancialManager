@@ -23,6 +23,35 @@ namespace PersonalFinancialManager.source
             public ErrorCode Code;
             public int ServerResponseCode;
 
+            public static string CodeToString(ErrorCode code)
+            {
+                switch (code)
+                {
+                    case ErrorCode.Success:
+                        return "Успешно";
+                    case ErrorCode.DecodingQRFail:
+                    case ErrorCode.IncorrectQRData:
+                        return "Ошибка декодирования QR";
+                    case ErrorCode.IncorrectAPIKey:
+                        return "Неподходящий API ключ";
+                    case ErrorCode.ServerError:
+                        return "Ошибка на сервере";
+                    case ErrorCode.ClientError:
+                        return "Ошибка у клиента";
+                    case ErrorCode.NoAvailableQRData:
+                        return "Чека с такими данными не существует";
+                    case ErrorCode.TooMuchServerRequests:
+                        return "Превышен предел обращений на сервер";
+                    case ErrorCode.ServerWaitingRequestAgain:
+                        return "Сервер ожидает запрос";
+                    case ErrorCode.FailDeserializeJSON:
+                        return "Ошибка десериализации";
+                    case ErrorCode.UnknownError:
+                    default:
+                        return "Неизвестная ошибка";
+                }
+            }
+
             public static ErrorCode RecognizeServerCodeFromJson(int code)
             {
                 if (code == 0) return ErrorCode.IncorrectQRData;
@@ -30,6 +59,7 @@ namespace PersonalFinancialManager.source
                 if (code == 2) return ErrorCode.NoAvailableQRData;
                 if (code == 3) return ErrorCode.TooMuchServerRequests;
                 if (code == 4) return ErrorCode.ServerWaitingRequestAgain;
+                if (code == 401) return ErrorCode.IncorrectAPIKey;
                 return ErrorCode.UnknownError;
             }
 
@@ -45,6 +75,7 @@ namespace PersonalFinancialManager.source
             {
                 Success,
                 DecodingQRFail,
+                IncorrectAPIKey,
                 ServerError,
                 ClientError,
                 IncorrectQRData,

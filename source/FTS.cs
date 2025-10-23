@@ -1,16 +1,6 @@
-﻿using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Policy;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using ZXing;
-using ZXing.Common;
-using ZXing.Windows.Compatibility;
 using static PersonalFinancialManager.source.FTSDecodingReceiptsResult;
-using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace PersonalFinancialManager.source
 {
@@ -21,8 +11,8 @@ namespace PersonalFinancialManager.source
         private static FTS? singleFTS = null;
 
         private readonly Uri BASE_URI = new Uri("https://proverkacheka.com/api/v1/check/get");
-        private readonly string USER_TOKEN;
-        private FTS(string userToken) => USER_TOKEN = userToken;
+        private string userToken;
+        private FTS(string userToken) => this.userToken = userToken;
 
         public static FTS FTSFabric(string userToken)
         {
@@ -35,6 +25,11 @@ namespace PersonalFinancialManager.source
             singleFTS = new FTS(userToken);
 
             return singleFTS;
+        }
+
+        public void UpdateUserToken(ref DataBase database)
+        {
+            userToken = database.UserToken;
         }
 
         public async Task<FTSDecodingReceiptsResult> GetReceiptsFromQRCodesImages(string[] files)
@@ -86,7 +81,7 @@ namespace PersonalFinancialManager.source
                 n = qrData.N,
                 s = qrData.S,
                 qr = 1,
-                token = USER_TOKEN
+                token = userToken
             }),
             Encoding.UTF8, "application/json");
 
