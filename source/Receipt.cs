@@ -23,13 +23,14 @@ namespace PersonalFinancialManager.source
         public double CashTotalSum { get; private set; }
         public double EcashTotalSum { get; private set; }
         public string RetailPlaceAddress { get; private set; }
+        public string FullFtsReceiptData { get; private set; }
 
         private Receipt()
         {
             ListOfProducts = new List<Product>();
         }
 
-        public Receipt(List<Product> listOfProducts, double totalPrice, string dateAndTimeString, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress)
+        public Receipt(List<Product> listOfProducts, double totalPrice, string dateAndTimeString, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress, string fullFtsReceiptData)
         {
             ListOfProducts = listOfProducts;
             TotalPrice = totalPrice;
@@ -37,10 +38,11 @@ namespace PersonalFinancialManager.source
             CashTotalSum = cashTotalSum;
             EcashTotalSum = ecashTotalSum;
             RetailPlaceAddress = retailPlaceAddress;
+            FullFtsReceiptData = fullFtsReceiptData;
         }
 
 
-        public static FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode ParseReceiptFromJson(string json, out Receipt? receipt)
+        public static FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode ParseReceiptFromJson(string json, string fullFtsReceiptData, out Receipt? receipt)
         {
             FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode result;
             JsonServerClass? jsonClass = null;
@@ -93,6 +95,7 @@ namespace PersonalFinancialManager.source
                 receipt.EcashTotalSum = (Double)(jsonClass.data.json.ecashTotalSum) / 100;
                 receipt.CashTotalSum = (Double)(jsonClass.data.json.cashTotalSum) / 100;
                 receipt.RetailPlaceAddress = jsonClass.data.json.retailPlaceAddress.Replace("\"", "'");
+                receipt.FullFtsReceiptData = fullFtsReceiptData;
 
                 for (int i = 0; i < jsonClass.data.json.items.Count; i++)
                 {

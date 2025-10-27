@@ -12,22 +12,24 @@ namespace PersonalFinancialManager.source
 
         private readonly Uri BASE_URI = new Uri("https://proverkacheka.com/api/v1/check/get");
         private string userToken;
-        private FTS(string userToken) => this.userToken = userToken;
+        private DataBase database;
+        
+        private FTS(ref DataBase database) => this.database = database;
 
-        public static FTS FTSFabric(string userToken)
+        public static FTS FTSFabric(ref DataBase database)
         {
             if (singleFTS != null) return singleFTS;
-
+           
             httpClient = new HttpClient()
             {
                 Timeout = TimeSpan.FromSeconds(30)
             };
-            singleFTS = new FTS(userToken);
+            singleFTS = new FTS(ref database);
 
             return singleFTS;
         }
 
-        public void UpdateUserToken(ref DataBase database)
+        public void UpdateUserToken()
         {
             userToken = database.UserToken;
         }
@@ -36,15 +38,17 @@ namespace PersonalFinancialManager.source
         {
             FTSDecodingReceiptsResult fTSResult = new FTSDecodingReceiptsResult();
 
-            bool QRDecoded;
+            bool isQRDecoded;
+            bool isDataBaseContainReceipt = false;
             FTSResponseResult fTSResponseResult = null;
             FailGettingReceiptData.ErrorCode errorCode = FailGettingReceiptData.ErrorCode.UnknownError;
 
             for (int i = 0; i < files.Length; i++)
             {
-                if ((QRDecoded = QRCodeData.ParseDataFromQR(files[i], out QRCodeData? qRCodeData)) &&
+                if ((isQRDecoded = QRCodeData.ParseDataFromQR(files[i], out QRCodeData? qRCodeData)) &&
+                    ((isDataBaseContainReceipt = database.IsContainReceipt(qRCodeData.FullStringData)) == false) &&
                     ((fTSResponseResult = await FTSRequest(qRCodeData)).StatusCode == FTSResponseResult.ServerResponseCode.Success) &&
-                    ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, out Receipt? receipt)) == FailGettingReceiptData.ErrorCode.Success))
+                    ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, qRCodeData.FullStringData, out Receipt? receipt)) == FailGettingReceiptData.ErrorCode.Success))
                 {
                     fTSResult.Receipts.Add(receipt);
                 }
@@ -52,14 +56,26 @@ namespace PersonalFinancialManager.source
                 {
                     FailGettingReceiptData failGettingReceiptData = new FailGettingReceiptData();
                     failGettingReceiptData.FileName = files[i];
+                    failGettingReceiptData.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
 
-                    if (!QRDecoded)
+                    if (!isQRDecoded)
                         failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.DecodingQRFail;
+                    else if (isDataBaseContainReceipt)
+                    {
+                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.AlreadyExistsInDatabase;
+                    }
                     else if (fTSResponseResult.StatusCode != FTSResponseResult.ServerResponseCode.Success)
+                    {
                         failGettingReceiptData.Code = FailGettingReceiptData.RecognizeServerStatus(fTSResponseResult.StatusCode);
+
+                        if (fTSResponseResult.StatusCode == FTSResponseResult.ServerResponseCode.IncorrectAPIKey)
+                        {
+                            fTSResult.FailDecoding.Add(failGettingReceiptData);
+                            return fTSResult;
+                        }
+                    }
                     else failGettingReceiptData.Code = errorCode;
 
-                    failGettingReceiptData.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
                     fTSResult.FailDecoding.Add(failGettingReceiptData);
                 }
             }

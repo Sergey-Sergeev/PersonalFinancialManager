@@ -22,9 +22,7 @@ namespace PersonalFinancialManager.source
         private const string RECEIPTS_DATA_TABLE_NAME = "receipts";
         private const string PRODUCTS_DATA_TABLE_NAME = "products";
         private const string USER_DATA_TABLE_NAME = "user";
-        private const int DATABASE_FIXED_STRING_LEN = 300;
-
-
+        private const int DATABASE_FIXED_STRING_LEN = 160;
 
 
         private class ProductDBNames
@@ -55,6 +53,7 @@ namespace PersonalFinancialManager.source
             public const string TOTAL_SUM = "totalSum";
             public const string CASH_SUM = "cashSum";
             public const string E_CASH_SUM = "eCashSum";
+            public const string FULL_FTS_RECEIPT_DATA = "fullFtsReceiptData";
         }
 
         private readonly string CREATE_RECEIPT_TABLE_COMMAND = $"CREATE TABLE IF NOT EXISTS {RECEIPTS_DATA_TABLE_NAME} " +
@@ -63,7 +62,8 @@ namespace PersonalFinancialManager.source
                 $" {ReceiptDBNames.ADDRESS} NVARCHAR({DATABASE_FIXED_STRING_LEN})," +
                 $" {ReceiptDBNames.TOTAL_SUM} REAL," +
                 $" {ReceiptDBNames.CASH_SUM} REAL," +
-                $" {ReceiptDBNames.E_CASH_SUM} REAL);";
+                $" {ReceiptDBNames.E_CASH_SUM} REAL," +
+                $" {ReceiptDBNames.FULL_FTS_RECEIPT_DATA} NVARCHAR({DATABASE_FIXED_STRING_LEN}) UNIQUE);";
 
         private class UserDBNames
         {
@@ -148,11 +148,21 @@ namespace PersonalFinancialManager.source
                     (string)reader[ReceiptDBNames.DATE_AND_TIME],
                     Convert.ToDouble(reader[ReceiptDBNames.CASH_SUM]),
                     Convert.ToDouble(reader[ReceiptDBNames.E_CASH_SUM]),
-                    (string)reader[ReceiptDBNames.ADDRESS]
+                    (string)reader[ReceiptDBNames.ADDRESS],
+                    (string)reader[ReceiptDBNames.FULL_FTS_RECEIPT_DATA]
                     );
             }
 
             reader.Close();
+        }
+
+        public bool IsContainReceipt(string fullFtsReceiptData)
+        {
+            sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {ReceiptDBNames.FULL_FTS_RECEIPT_DATA} = '{fullFtsReceiptData}';";
+            SqliteDataReader reader = sqlCommand.ExecuteReader();
+            bool res = reader.Read();
+            reader.Close();
+            return res;
         }
         
         public List<Product> GetReceiptProducts(int receiptId)
@@ -226,13 +236,15 @@ namespace PersonalFinancialManager.source
                 $" {ReceiptDBNames.ADDRESS}," +
                 $" {ReceiptDBNames.TOTAL_SUM}," +
                 $" {ReceiptDBNames.CASH_SUM}," +
-                $" {ReceiptDBNames.E_CASH_SUM}) " +
+                $" {ReceiptDBNames.E_CASH_SUM}," +
+                $" {ReceiptDBNames.FULL_FTS_RECEIPT_DATA}) " +
                 $"VALUES " +
                 $"(\"{receipt.DateAndTimeString}\"," +
-                $" \"{receipt.RetailPlaceAddress}\"," +
+                $" \"{ConvertStringLenToDatabaseFixedStringLen(receipt.RetailPlaceAddress)}\"," +
                 $" \"{receipt.TotalPrice}\"," +
                 $" \"{receipt.CashTotalSum}\"," +
-                $" \"{receipt.EcashTotalSum}\");");
+                $" \"{receipt.EcashTotalSum}\"," +
+                $" \"{ConvertStringLenToDatabaseFixedStringLen(receipt.FullFtsReceiptData)}\");");
         }
 
         private int AddProduct(int receiptId, Product product)
@@ -246,11 +258,11 @@ namespace PersonalFinancialManager.source
                 $" {ProductDBNames.CATEGORY}) " +
                 $"VALUES " +
                 $"(\"{receiptId}\"," +
-                $" \"{product.Name}\"," +
+                $" \"{ConvertStringLenToDatabaseFixedStringLen(product.Name)}\"," +
                 $" \"{product.Price}\"," +
                 $" \"{product.Quantity}\"," +
                 $" \"{product.Sum}\"," +
-                $" \"{product.Category}\");");
+                $" \"{ConvertStringLenToDatabaseFixedStringLen(product.Category.CategoryName)}\");");
         }
 
         private string? TryGetUserToken()
@@ -267,6 +279,19 @@ namespace PersonalFinancialManager.source
 
             reader.Close();
             return res;
+        }
+
+        private string ConvertStringLenToDatabaseFixedStringLen(string str)
+        {
+            if (str.Length <= DATABASE_FIXED_STRING_LEN)
+            {
+                return str;
+            }
+            else
+            {
+                int start = str.Length - DATABASE_FIXED_STRING_LEN;
+                return str.Substring(start, DATABASE_FIXED_STRING_LEN);
+            }
         }
 
     }
