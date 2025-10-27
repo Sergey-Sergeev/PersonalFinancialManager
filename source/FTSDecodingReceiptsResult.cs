@@ -46,6 +46,8 @@ namespace PersonalFinancialManager.source
                         return "Сервер ожидает запрос";
                     case ErrorCode.FailDeserializeJSON:
                         return "Ошибка десериализации";
+                    case ErrorCode.AlreadyExistsInDatabase:
+                        return "Чек уже был загружен ранее";
                     case ErrorCode.UnknownError:
                     default:
                         return "Неизвестная ошибка";
@@ -83,6 +85,7 @@ namespace PersonalFinancialManager.source
                 TooMuchServerRequests,
                 ServerWaitingRequestAgain,
                 FailDeserializeJSON,
+                AlreadyExistsInDatabase,
                 UnknownError
             }
 

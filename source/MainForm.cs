@@ -14,12 +14,12 @@ namespace PersonalFinancialManager
             InitializeComponent();
 
             dataBase = DataBase.Fabric();
+            fts = FTS.FTSFabric(ref dataBase);
+
             if (!dataBase.IsUserAuthorizated())
             {
                 AskUserToken(false);
             }
-
-            fts = FTS.FTSFabric(dataBase.UserToken);
 
             LoadAllReceiptsInDatabaseWindow();
         }
@@ -47,7 +47,9 @@ namespace PersonalFinancialManager
                         new FailGetReceiptsForm(result.FailDecoding).ShowDialog();
                     }
                 }
-                else LoadAllReceiptsInDatabaseWindow();
+
+                if (result.Receipts.Count != 0)
+                    LoadAllReceiptsInDatabaseWindow();
             }
         }
 
@@ -89,9 +91,7 @@ namespace PersonalFinancialManager
             UserTokenForm utf = new UserTokenForm(isWrongAPI);
             utf.ShowDialog();
             dataBase.SetUserData(utf.UserToken);
-
-            if (isWrongAPI)            
-                fts.UpdateUserToken(ref dataBase);            
+            fts.UpdateUserToken();
         }
 
     }

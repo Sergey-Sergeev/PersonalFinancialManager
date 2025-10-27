@@ -27,6 +27,7 @@ namespace PersonalFinancialManager.source
         public string S { get => s; private set => s = value; }             // total sum
         public string T { get => t; private set => t = value; }             // date
         public string N { get => n; private set => n = value; }             // in/out sing
+        public string FullStringData { get; private set; }
 
         // example = t=20251002T1530&s=1234.56&fn=9281000100001234&i=12345&fp=678901234&n=1
 
@@ -45,6 +46,7 @@ namespace PersonalFinancialManager.source
                 ParseParameterFromQRData("&n=", ref QRData, out result.n)
                 )
             {
+                result.FullStringData = QRData;
                 return true;
             }
 
