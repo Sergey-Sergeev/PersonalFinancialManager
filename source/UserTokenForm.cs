@@ -22,7 +22,7 @@ namespace PersonalFinancialManager.source
             "1. зарегистрироваться на сайте proverkacheka.com\r\n" +
             "2. в личном кабинете получить API ключ.\r\n";
         
-        public string? UserToken;
+        public string UserToken = String.Empty;
         public UserTokenForm(bool isWrongAPI)
         {
             InitializeComponent();
@@ -34,7 +34,7 @@ namespace PersonalFinancialManager.source
 
         private void apiInputTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && apiInputTextBox.Text != "")
+            if (e.KeyCode == Keys.Enter && apiInputTextBox.Text != String.Empty)
             {
                 UserToken = apiInputTextBox.Text;
                 Close();

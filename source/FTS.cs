@@ -6,84 +6,37 @@ namespace PersonalFinancialManager.source
 {
     public class FTS
     {
-        private static HttpClient httpClient = null;
-
-        private static FTS? singleFTS = null;
-
         private readonly Uri BASE_URI = new Uri("https://proverkacheka.com/api/v1/check/get");
-        private string userToken;
-        private DataBase database;
-        
-        private FTS(ref DataBase database) => this.database = database;
+        private const int REQUEST_TIMEOUT_IN_SECONDS = 30;
 
-        public static FTS FTSFabric(ref DataBase database)
+        private static HttpClient httpClient = null;
+        private static FTS? singleInstance = null;
+
+        private string userToken;
+
+        private FTS() { }
+
+        public static FTS Fabric(string token)
         {
-            if (singleFTS != null) return singleFTS;
+            if (singleInstance != null) return singleInstance;
            
             httpClient = new HttpClient()
             {
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(REQUEST_TIMEOUT_IN_SECONDS)
             };
-            singleFTS = new FTS(ref database);
+            singleInstance = new FTS();
+            singleInstance.userToken = token;
 
-            return singleFTS;
+            return singleInstance;
         }
 
-        public void UpdateUserToken()
+        public void UpdateUserToken(string userToken)
         {
-            userToken = database.UserToken;
+            this.userToken = userToken;
         }
+               
 
-        public async Task<FTSDecodingReceiptsResult> GetReceiptsFromQRCodesImages(string[] files)
-        {
-            FTSDecodingReceiptsResult fTSResult = new FTSDecodingReceiptsResult();
-
-            bool isQRDecoded;
-            bool isDataBaseContainReceipt = false;
-            FTSResponseResult fTSResponseResult = null;
-            FailGettingReceiptData.ErrorCode errorCode = FailGettingReceiptData.ErrorCode.UnknownError;
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                if ((isQRDecoded = QRCodeData.ParseDataFromQR(files[i], out QRCodeData? qRCodeData)) &&
-                    ((isDataBaseContainReceipt = database.IsContainReceipt(qRCodeData.FullStringData)) == false) &&
-                    ((fTSResponseResult = await FTSRequest(qRCodeData)).StatusCode == FTSResponseResult.ServerResponseCode.Success) &&
-                    ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, qRCodeData.FullStringData, out Receipt? receipt)) == FailGettingReceiptData.ErrorCode.Success))
-                {
-                    fTSResult.Receipts.Add(receipt);
-                }
-                else
-                {
-                    FailGettingReceiptData failGettingReceiptData = new FailGettingReceiptData();
-                    failGettingReceiptData.FileName = files[i];
-                    failGettingReceiptData.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
-
-                    if (!isQRDecoded)
-                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.DecodingQRFail;
-                    else if (isDataBaseContainReceipt)
-                    {
-                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.AlreadyExistsInDatabase;
-                    }
-                    else if (fTSResponseResult.StatusCode != FTSResponseResult.ServerResponseCode.Success)
-                    {
-                        failGettingReceiptData.Code = FailGettingReceiptData.RecognizeServerStatus(fTSResponseResult.StatusCode);
-
-                        if (fTSResponseResult.StatusCode == FTSResponseResult.ServerResponseCode.IncorrectAPIKey)
-                        {
-                            fTSResult.FailDecoding.Add(failGettingReceiptData);
-                            return fTSResult;
-                        }
-                    }
-                    else failGettingReceiptData.Code = errorCode;
-
-                    fTSResult.FailDecoding.Add(failGettingReceiptData);
-                }
-            }
-
-            return fTSResult;
-        }
-
-        private async Task<FTSResponseResult> FTSRequest(QRCodeData qrData)
+        public async Task<FTSResponseResult> RequestAsync(QRCodeData qrData)
         {
             FTSResponseResult fTSResponseResult = new FTSResponseResult();
 
