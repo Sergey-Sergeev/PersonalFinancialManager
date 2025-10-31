@@ -166,7 +166,6 @@ namespace PersonalFinancialManager.source
             sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
                 $" WHERE {ReceiptDBNames.DATE_AND_TIME}" +
                 $" BETWEEN '{ConvertDateTimeToSqlFormat(from)}' AND '{ConvertDateTimeToSqlFormat(until)}';";
-                //$" BETWEEN '2025-10-31 0:0:0' AND '2025-11-1 0:0:0';"; 
 
             SqliteDataReader reader = sqlCommand.ExecuteReader();
 
@@ -257,7 +256,7 @@ namespace PersonalFinancialManager.source
         private string ConvertDateTimeToSqlFormat(DateTime dateTime)
         {
             // DATETIME - format: YYYY-MM-DD HH:MI:SS
-            return $"{dateTime.Year}-{dateTime.Month}-{dateTime.Day} {dateTime.Hour}:{dateTime.Minute}:{dateTime.Second}";
+            return $"{dateTime.ToString("yyyy")}-{dateTime.ToString("MM")}-{dateTime.ToString("dd")} {dateTime.ToString("HH")}:{dateTime.ToString("mm")}:{dateTime.ToString("ss")}";
         }
 
         private int SendCommand(string cmd)
