@@ -34,22 +34,23 @@ namespace PersonalFinancialManager
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             printPreviewDialog1 = new PrintPreviewDialog();
             loadQRCodesButton = new Button();
             databaseWindow = new TreeView();
+            databaseContextMenuStrip = new ContextMenuStrip(components);
+            deleteReceiptFromDatabase = new ToolStripMenuItem();
             tabControl1 = new TabControl();
             mainPage = new TabPage();
             textBox1 = new TextBox();
             tabPage2 = new TabPage();
-            mainChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            yearChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            databaseContextMenuStrip.SuspendLayout();
             tabControl1.SuspendLayout();
             mainPage.SuspendLayout();
             tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)mainChart).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)yearChart).BeginInit();
             SuspendLayout();
             // 
             // printPreviewDialog1
@@ -76,11 +77,25 @@ namespace PersonalFinancialManager
             // databaseWindow
             // 
             databaseWindow.BackColor = Color.WhiteSmoke;
+            databaseWindow.ContextMenuStrip = databaseContextMenuStrip;
             databaseWindow.Font = new Font("Calibri", 12F);
             databaseWindow.Location = new Point(443, 38);
             databaseWindow.Name = "databaseWindow";
             databaseWindow.Size = new Size(634, 495);
             databaseWindow.TabIndex = 2;
+            // 
+            // databaseContextMenuStrip
+            // 
+            databaseContextMenuStrip.Items.AddRange(new ToolStripItem[] { deleteReceiptFromDatabase });
+            databaseContextMenuStrip.Name = "contextMenuStrip1";
+            databaseContextMenuStrip.Size = new Size(141, 26);
+            // 
+            // deleteReceiptFromDatabase
+            // 
+            deleteReceiptFromDatabase.Name = "deleteReceiptFromDatabase";
+            deleteReceiptFromDatabase.Size = new Size(140, 22);
+            deleteReceiptFromDatabase.Text = "Удалить чек";
+            deleteReceiptFromDatabase.Click += deleteReceiptFromDatabase_Click;
             // 
             // tabControl1
             // 
@@ -115,7 +130,7 @@ namespace PersonalFinancialManager
             // 
             // tabPage2
             // 
-            tabPage2.Controls.Add(mainChart);
+            tabPage2.Controls.Add(yearChart);
             tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
@@ -124,21 +139,13 @@ namespace PersonalFinancialManager
             tabPage2.Text = "tabPage2";
             tabPage2.UseVisualStyleBackColor = true;
             // 
-            // mainChart
+            // yearChart
             // 
-            chartArea1.Name = "ChartArea1";
-            mainChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            mainChart.Legends.Add(legend1);
-            mainChart.Location = new Point(6, 6);
-            mainChart.Name = "mainChart";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            mainChart.Series.Add(series1);
-            mainChart.Size = new Size(1071, 527);
-            mainChart.TabIndex = 1;
-            mainChart.Text = "chart1";
+            yearChart.Location = new Point(6, 6);
+            yearChart.Name = "yearChart";
+            yearChart.Size = new Size(1071, 527);
+            yearChart.TabIndex = 1;
+            yearChart.Text = "chart1";
             // 
             // MainForm
             // 
@@ -150,11 +157,12 @@ namespace PersonalFinancialManager
             MinimumSize = new Size(1131, 630);
             Name = "MainForm";
             Text = "Личный Финансовый Менеджер";
+            databaseContextMenuStrip.ResumeLayout(false);
             tabControl1.ResumeLayout(false);
             mainPage.ResumeLayout(false);
             mainPage.PerformLayout();
             tabPage2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)mainChart).EndInit();
+            ((System.ComponentModel.ISupportInitialize)yearChart).EndInit();
             ResumeLayout(false);
         }
 
@@ -166,7 +174,9 @@ namespace PersonalFinancialManager
         private TabControl tabControl1;
         private TabPage mainPage;
         private TabPage tabPage2;
-        private System.Windows.Forms.DataVisualization.Charting.Chart mainChart;
+        private System.Windows.Forms.DataVisualization.Charting.Chart yearChart;
         private TextBox textBox1;
+        private ContextMenuStrip databaseContextMenuStrip;
+        private ToolStripMenuItem deleteReceiptFromDatabase;
     }
 }

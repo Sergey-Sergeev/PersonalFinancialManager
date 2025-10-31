@@ -4,16 +4,27 @@ using System.Net;
 
 namespace PersonalFinancialManager.source
 {
-    public class DataBase
+    public class Database
     {
-        public string? UserToken { get; private set; } = null;
+
+        public string? UserToken { get => userToken; private set => userToken = value; }
+        private string? userToken = null;
+
+        private static Database? singleInstance = null;
+
+        private SqliteConnection sqlConnection;
+        private SqliteCommand sqlCommand;
 
         public const int MAX_RECEIPTS_READ_AT_LOAD = 1000;
 
-        public int ReceiptsCountReadAtLoad { 
-            get => receiptsCountReadAtLoad; 
-            set { receiptsCountReadAtLoad = value > MAX_RECEIPTS_READ_AT_LOAD ? MAX_RECEIPTS_READ_AT_LOAD : value; 
-            } }
+        public int ReceiptsCountReadAtLoad
+        {
+            get => receiptsCountReadAtLoad;
+            set
+            {
+                receiptsCountReadAtLoad = value > MAX_RECEIPTS_READ_AT_LOAD ? MAX_RECEIPTS_READ_AT_LOAD : value;
+            }
+        }
         private int receiptsCountReadAtLoad = 300;
 
 
@@ -35,9 +46,23 @@ namespace PersonalFinancialManager.source
             public const string SUM = "sum";
             public const string CATEGORY = "category";
         }
+        private class ReceiptDBNames
+        {
+            public const string ID = "id";
+            public const string DATE_AND_TIME = "date";
+            public const string ADDRESS = "address";
+            public const string TOTAL_SUM = "totalSum";
+            public const string CASH_SUM = "cashSum";
+            public const string E_CASH_SUM = "eCashSum";
+            public const string FULL_FTS_RECEIPT_DATA = "fullFtsReceiptData";
+        }
+        private class UserDBNames
+        {
+            public const string TOKEN = "token";
+        }
 
         private readonly string CREATE_PRODUCT_TABLE_COMMAND = $"CREATE TABLE IF NOT EXISTS {PRODUCTS_DATA_TABLE_NAME} " +
-                $"({ProductDBNames.ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
+                $"({ProductDBNames.ID} INTEGER PRIMARY KEY," +
                 $" {ProductDBNames.RECEIPT_ID} INTEGER," +
                 $" {ProductDBNames.NAME} NVARCHAR({DATABASE_FIXED_STRING_LEN})," +
                 $" {ProductDBNames.PRICE} REAL," +
@@ -45,92 +70,72 @@ namespace PersonalFinancialManager.source
                 $" {ProductDBNames.SUM} REAL," +
                 $" {ProductDBNames.CATEGORY} NVARCHAR({DATABASE_FIXED_STRING_LEN}));";
 
-        private class ReceiptDBNames
-        {
-            public const string ID = "id";
-            public const string DATE_AND_TIME = "DateTime";
-            public const string ADDRESS = "address";
-            public const string TOTAL_SUM = "totalSum";
-            public const string CASH_SUM = "cashSum";
-            public const string E_CASH_SUM = "eCashSum";
-            public const string FULL_FTS_RECEIPT_DATA = "fullFtsReceiptData";
-        }
-
         private readonly string CREATE_RECEIPT_TABLE_COMMAND = $"CREATE TABLE IF NOT EXISTS {RECEIPTS_DATA_TABLE_NAME} " +
                 $"({ReceiptDBNames.ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                $" {ReceiptDBNames.DATE_AND_TIME} DATETIME UNIQUE," +
+                $" {ReceiptDBNames.DATE_AND_TIME} DATETIME2 UNIQUE," +
                 $" {ReceiptDBNames.ADDRESS} NVARCHAR({DATABASE_FIXED_STRING_LEN})," +
                 $" {ReceiptDBNames.TOTAL_SUM} REAL," +
                 $" {ReceiptDBNames.CASH_SUM} REAL," +
                 $" {ReceiptDBNames.E_CASH_SUM} REAL," +
                 $" {ReceiptDBNames.FULL_FTS_RECEIPT_DATA} NVARCHAR({DATABASE_FIXED_STRING_LEN}) UNIQUE);";
 
-        private class UserDBNames
-        {
-            public const string TOKEN = "token";
-            public const string RECEIPTS_SCANNING_COUNT = "receiptsCount";
-        }
 
         private readonly string CREATE_USER_TABLE_COMMAND = $"CREATE TABLE IF NOT EXISTS {USER_DATA_TABLE_NAME} " +
-                $"({UserDBNames.TOKEN} NVARCHAR({DATABASE_FIXED_STRING_LEN})," +
-                $" {UserDBNames.RECEIPTS_SCANNING_COUNT} INTEGER);";
+                $"({UserDBNames.TOKEN} NVARCHAR({DATABASE_FIXED_STRING_LEN}));";
 
-        private static DataBase? dataBase = null;
 
-        private SqliteConnection sqlConnection;
-        private SqliteCommand sqlCommand;
 
-        private DataBase()
+        private Database()
         {
             sqlConnection = new SqliteConnection(CONNECTION_STRING);
             sqlConnection.Open();
             sqlCommand = new SqliteCommand();
             sqlCommand.Connection = sqlConnection;
 
-            SendCommand(CREATE_USER_TABLE_COMMAND);
+            CreateUserTable();
             SendCommand(CREATE_RECEIPT_TABLE_COMMAND);
             SendCommand(CREATE_PRODUCT_TABLE_COMMAND);
         }
 
-        ~DataBase()
+        ~Database()
         {
             sqlCommand.Dispose();
             sqlConnection.Close();
         }
 
 
-        public static DataBase Fabric()
+        public static Database Fabric()
         {
-            if (dataBase != null)
-                return dataBase;
+            if (singleInstance != null)
+                return singleInstance;
 
-            dataBase = new DataBase();
-            return dataBase;
+            singleInstance = new Database();
+            return singleInstance;
         }
 
         public bool IsUserAuthorizated()
         {
-            return (UserToken = TryGetUserToken()) != null;
+            return TryGetUserToken(out userToken);
         }
 
         public void AddNewReceipts(List<Receipt> receipts)
         {
-            int lastReceiptId = GetLastReceiptId();
+            int receiptId = GetLastReceiptId() + 1;
 
             for (int i = 0; i < receipts.Count; i++)
             {
-                if (AddReceipt(receipts[i]) != 0)
+                if (AddReceipt(receipts[i], receiptId) != 0)
                 {
-                    lastReceiptId++;
                     for (int k = 0; k < receipts[i].ListOfProducts.Count; k++)
                     {
-                        AddProduct(lastReceiptId, receipts[i].ListOfProducts[k]);
+                        AddProduct(receiptId, receipts[i].ListOfProducts[k]);
                     }
+
+                    receiptId++;
                 }
             }
         }
-        
-        
+
         public IEnumerable<Receipt> GetAllReceipts()
         {
             sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME};";
@@ -156,16 +161,66 @@ namespace PersonalFinancialManager.source
             reader.Close();
         }
 
-        public bool IsContainReceipt(string fullFtsReceiptData)
+        public IEnumerable<Receipt> GetReceiptsDuringPeriod(DateTime from, DateTime until)
+        {
+            sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
+                $" WHERE {ReceiptDBNames.DATE_AND_TIME}" +
+                $" BETWEEN '{ConvertDateTimeToSqlFormat(from)}' AND '{ConvertDateTimeToSqlFormat(until)}';";
+                //$" BETWEEN '2025-10-31' AND '2025-11-1';";
+
+            SqliteDataReader reader = sqlCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                yield return new Receipt(
+                    GetReceiptProducts(Convert.ToInt32(reader[ReceiptDBNames.ID])),
+                    Convert.ToDouble(reader[ReceiptDBNames.TOTAL_SUM]),
+                    (string)reader[ReceiptDBNames.DATE_AND_TIME],
+                    Convert.ToDouble(reader[ReceiptDBNames.CASH_SUM]),
+                    Convert.ToDouble(reader[ReceiptDBNames.E_CASH_SUM]),
+                    (string)reader[ReceiptDBNames.ADDRESS],
+                    (string)reader[ReceiptDBNames.FULL_FTS_RECEIPT_DATA]
+                    );
+            }
+
+            reader.Close();
+        }
+
+        public void DeleteReceipt(DateTime dateTime)
+        {
+            sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {ReceiptDBNames.DATE_AND_TIME} = '{ConvertDateTimeToSqlFormat(dateTime)}';";
+            SqliteDataReader reader = sqlCommand.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                reader.Close();
+                return;
+            }
+
+            int id = Convert.ToInt32(reader[ReceiptDBNames.ID]);
+
+            reader.Close();
+
+            SendCommand($"DELETE FROM {PRODUCTS_DATA_TABLE_NAME} WHERE {ProductDBNames.RECEIPT_ID} = {id};");
+            SendCommand($"DELETE FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {ReceiptDBNames.ID} = {id};");
+        }
+
+        public async Task<bool> IsContainReceiptAsync(string fullFtsReceiptData)
         {
             sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {ReceiptDBNames.FULL_FTS_RECEIPT_DATA} = '{fullFtsReceiptData}';";
-            SqliteDataReader reader = sqlCommand.ExecuteReader();
+            SqliteDataReader reader = await sqlCommand.ExecuteReaderAsync();
             bool res = reader.Read();
             reader.Close();
             return res;
         }
-        
-        public List<Product> GetReceiptProducts(int receiptId)
+
+        public void SetUserData(string token)
+        {
+            SendCommand($"UPDATE {USER_DATA_TABLE_NAME} SET {UserDBNames.TOKEN} = '{token}';");
+            UserToken = token;
+        }
+
+        private List<Product> GetReceiptProducts(int receiptId)
         {
             List<Product> list = new List<Product>();
 
@@ -186,25 +241,23 @@ namespace PersonalFinancialManager.source
             return list;
         }
 
-        public int SetUserData(string token)
+        private void CreateUserTable()
         {
-            int res;
-            UserToken = token;
+            SendCommand(CREATE_USER_TABLE_COMMAND);
 
-            if (TryGetUserToken() == null)
+            if (!TryGetUserToken(out string? token))
             {
-                res = SendCommand($"INSERT INTO {USER_DATA_TABLE_NAME} " +
-                    $"({UserDBNames.TOKEN}," +
-                    $" {UserDBNames.RECEIPTS_SCANNING_COUNT}) " +
-                    $"VALUES " +
-                    $"(\"{token}\"," +
-                    $" \"{0}\");");
+                SendCommand($"INSERT INTO {USER_DATA_TABLE_NAME} " +
+                        $"({UserDBNames.TOKEN}) " +
+                        $"VALUES " +
+                        $"(NULL);");
             }
-            else
-            {
-                res = SendCommand($"UPDATE {USER_DATA_TABLE_NAME} SET {UserDBNames.TOKEN} = '{token}';");
-            }
-            return res;
+        }
+
+        private string ConvertDateTimeToSqlFormat(DateTime dateTime)
+        {
+            // DATETIME - format: YYYY-MM-DD HH:MI:SS
+            return $"{dateTime.Year}-{dateTime.Month}-{dateTime.Day} {dateTime.Hour}:{dateTime.Minute}:{dateTime.Second}";
         }
 
         private int SendCommand(string cmd)
@@ -221,7 +274,7 @@ namespace PersonalFinancialManager.source
             if (!reader.Read())
             {
                 reader.Close();
-                return 0;
+                return -1;
             }
 
             int res = Convert.ToInt32(reader[ReceiptDBNames.ID]);
@@ -229,17 +282,19 @@ namespace PersonalFinancialManager.source
             return res;
         }
 
-        private int AddReceipt(Receipt receipt)
+        private int AddReceipt(Receipt receipt, int id)
         {
             return SendCommand($"INSERT OR IGNORE INTO {RECEIPTS_DATA_TABLE_NAME} " +
-                $"({ReceiptDBNames.DATE_AND_TIME}," +
+                $"({ReceiptDBNames.ID}," +
+                $" {ReceiptDBNames.DATE_AND_TIME}," +
                 $" {ReceiptDBNames.ADDRESS}," +
                 $" {ReceiptDBNames.TOTAL_SUM}," +
                 $" {ReceiptDBNames.CASH_SUM}," +
                 $" {ReceiptDBNames.E_CASH_SUM}," +
                 $" {ReceiptDBNames.FULL_FTS_RECEIPT_DATA}) " +
                 $"VALUES " +
-                $"(\"{receipt.DateAndTimeString}\"," +
+                $"(\"{id}\"," +
+                $" \"{ConvertDateTimeToSqlFormat(receipt.DateAndTime)}\"," +
                 $" \"{ConvertStringLenToDatabaseFixedStringLen(receipt.RetailPlaceAddress)}\"," +
                 $" \"{receipt.TotalPrice}\"," +
                 $" \"{receipt.CashTotalSum}\"," +
@@ -265,20 +320,19 @@ namespace PersonalFinancialManager.source
                 $" \"{ConvertStringLenToDatabaseFixedStringLen(product.Category.CategoryName)}\");");
         }
 
-        private string? TryGetUserToken()
+        private bool TryGetUserToken(out string? token)
         {
-            string? res = null;
+            token = null;
 
-            sqlCommand.CommandText = $"SELECT * FROM {USER_DATA_TABLE_NAME};";
+            sqlCommand.CommandText = $"SELECT * FROM {USER_DATA_TABLE_NAME} WHERE {UserDBNames.TOKEN} IS NOT NULL;";
             SqliteDataReader reader = sqlCommand.ExecuteReader();
 
             if (reader.Read())
-            {
-                res = (string)(reader[UserDBNames.TOKEN]);
-            }
+                token = (string)(reader[UserDBNames.TOKEN]);
 
             reader.Close();
-            return res;
+
+            return token != null;
         }
 
         private string ConvertStringLenToDatabaseFixedStringLen(string str)
