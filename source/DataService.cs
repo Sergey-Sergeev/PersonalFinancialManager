@@ -127,11 +127,14 @@ namespace PersonalFinancialManager.source
 
                 DateTime from = new DateTime(year, month, 1);
                 DateTime until = from.AddMonths(1).AddDays(-1);
+                until = until.Add(new TimeSpan(23, 59, 59));
 
                 foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
                 {
-                    data.Value += receipt.TotalPrice;
+                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value = Double.Round(data.Value, 2);
                 }
+
                 data.date = from;
                 yield return data;
             }

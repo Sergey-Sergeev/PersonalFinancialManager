@@ -3,6 +3,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Forms.VisualStyles;
 using ZXing;
 using static PersonalFinancialManager.source.DataService;
+using static PersonalFinancialManager.source.JsonServerClass;
 
 namespace PersonalFinancialManager
 {
@@ -11,6 +12,9 @@ namespace PersonalFinancialManager
         const string FILE_FILTER = "Изображения (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|JPEG (*.jpeg)|*.jpeg";
         private DataService dataService;
 
+
+        private const int YEAR_CHART_AXIS_Y_INTERVAL_COUNT = 10;
+        private const int DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL = 100;
 
         public MainForm()
         {
@@ -48,7 +52,7 @@ namespace PersonalFinancialManager
                     }
                 }
 
-                if (result.Receipts.Count != 0) 
+                if (result.Receipts.Count != 0)
                 {
                     UpdateAllReceiptsInDatabaseWindow();
                     UpdateYearStatisticChart();
@@ -75,7 +79,8 @@ namespace PersonalFinancialManager
                 productsAndTotalPrice.Add(new TreeNode($"Полная сумма:  {receipt.TotalPrice}") { Tag = DatabaseWindowTag.Data });
 
                 TreeNode treeNode = new TreeNode($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
-                    productsAndTotalPrice.ToArray()) { Tag = DatabaseWindowTag.ReceiptHeader };
+                    productsAndTotalPrice.ToArray())
+                { Tag = DatabaseWindowTag.ReceiptHeader };
 
                 databaseWindow.Nodes.Add(treeNode);
             }
@@ -83,18 +88,55 @@ namespace PersonalFinancialManager
 
         private void InitializeYearStatisticChart()
         {
-            yearChart.ChartAreas.Add(new ChartArea());
+            ChartArea chartArea = new ChartArea();
+            chartArea.IsSameFontSizeForAllAxes = true;
+            chartArea.BorderDashStyle = ChartDashStyle.Solid;
+            chartArea.BorderWidth = 1;
+            chartArea.BorderColor = Color.WhiteSmoke;
+
+            chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.FixedCount;
+
+            // Point list contain x and y as a double type, so if you add x as a string,
+            // there will be 0 every time you add new x, and therefore chart will have a lot of points with x = 0,
+            // and Chart display only one. AxisX.Interval = 1 solves this problem
+            chartArea.AxisX.Interval = 1;
+
+            chartArea.AxisX.MajorGrid.LineWidth = 1;
+            chartArea.AxisY.MajorGrid.LineWidth = 1;
+            chartArea.AxisX.MajorGrid.LineColor = Color.DarkGray;
+            chartArea.AxisY.MajorGrid.LineColor = Color.DarkGray;
+            chartArea.AxisX.LineWidth = 2;
+            chartArea.AxisY.LineWidth = 2;
+            chartArea.Position.Auto = false;
+            chartArea.Position.X = 0;
+            chartArea.Position.Y = 100;
+            chartArea.Position.Width = 95;
+            chartArea.Position.Height = 95;
+
+            yearChart.ChartAreas.Add(chartArea);
 
             Series series = new Series("Сумма за месяц");
             series.ChartType = SeriesChartType.Line;
+            series.XValueType = ChartValueType.String;
+            series.YValueType = ChartValueType.Int32;
+            series.IsXValueIndexed = true;
+            series.IsValueShownAsLabel = true;
             series.Font = Font;
             series.Color = Color.Blue;
-            series.BorderWidth = 2;
+            series.BorderWidth = 3;
 
             yearChart.Series.Add(series);
-            yearChart.Legends.Add(new Legend() { Font = Font });
 
-            yearChartYearLabel.Text = $"{DateTime.Now.Year} год";
+            Title title = new Title();
+            title.Position.Auto = false;
+            title.Position.X = 45.5f;
+            title.Position.Y = 2;
+            title.Position.Width = 10;
+            title.Position.Height = 5;
+            title.Font = new Font(Font.FontFamily, Font.Size + 2, FontStyle.Bold);
+            title.Text = $"{DateTime.Now.Year} год";
+
+            yearChart.Titles.Add(title);
 
             UpdateYearStatisticChart();
         }
@@ -103,8 +145,27 @@ namespace PersonalFinancialManager
         {
             yearChart.Series.First().Points.Clear();
 
+            double maximum = 0;
+            int interval;
+
             foreach (StatisticDataUnit data in dataService.GetCurrentYearReceipts())
-                yearChart.Series.First().Points.AddXY(data.date.Month, data.Value);
+            {
+                int i = yearChart.Series.First().Points.AddXY(data.date.ToString("MMMM"), data.Value);
+                yearChart.Series.First().Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
+                yearChart.Series.First().Points[i].IsEmpty = data.Value == 0;
+                maximum = Math.Max(maximum, data.Value);
+            }
+
+            if (maximum == 0)
+                interval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
+            else
+            {
+                maximum = GetNearestRoundValue(maximum);
+                interval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
+            }
+
+            yearChart.ChartAreas.First().AxisY.Interval = interval;
+            yearChart.ChartAreas.First().AxisY.Maximum = maximum;
         }
 
         private void AskUserToken(bool isWrongAPI)
@@ -138,6 +199,15 @@ namespace PersonalFinancialManager
                 UpdateAllReceiptsInDatabaseWindow();
                 UpdateYearStatisticChart();
             }
+        }
+
+
+        private double GetNearestRoundValue(double n)
+        {
+            double zeros = Math.Pow(10, ((int)n).ToString().Length);
+            n = n / zeros;
+            n = Math.Ceiling(n * 100) / 100;
+            return n * zeros;
         }
 
         private enum DatabaseWindowTag
