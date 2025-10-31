@@ -44,12 +44,13 @@ namespace PersonalFinancialManager
             tabControl1 = new TabControl();
             mainPage = new TabPage();
             textBox1 = new TextBox();
-            tabPage2 = new TabPage();
+            yearChartPage = new TabPage();
+            yearChartYearLabel = new Label();
             yearChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             databaseContextMenuStrip.SuspendLayout();
             tabControl1.SuspendLayout();
             mainPage.SuspendLayout();
-            tabPage2.SuspendLayout();
+            yearChartPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)yearChart).BeginInit();
             SuspendLayout();
             // 
@@ -100,7 +101,7 @@ namespace PersonalFinancialManager
             // tabControl1
             // 
             tabControl1.Controls.Add(mainPage);
-            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Controls.Add(yearChartPage);
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
@@ -112,10 +113,10 @@ namespace PersonalFinancialManager
             mainPage.Controls.Add(textBox1);
             mainPage.Controls.Add(loadQRCodesButton);
             mainPage.Controls.Add(databaseWindow);
-            mainPage.Location = new Point(4, 24);
+            mainPage.Location = new Point(4, 28);
             mainPage.Name = "mainPage";
             mainPage.Padding = new Padding(3);
-            mainPage.Size = new Size(1083, 539);
+            mainPage.Size = new Size(1083, 535);
             mainPage.TabIndex = 0;
             mainPage.Text = "Главная";
             mainPage.UseVisualStyleBackColor = true;
@@ -128,22 +129,33 @@ namespace PersonalFinancialManager
             textBox1.Size = new Size(634, 27);
             textBox1.TabIndex = 3;
             // 
-            // tabPage2
+            // yearChartPage
             // 
-            tabPage2.Controls.Add(yearChart);
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(1083, 539);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "tabPage2";
-            tabPage2.UseVisualStyleBackColor = true;
+            yearChartPage.Controls.Add(yearChartYearLabel);
+            yearChartPage.Controls.Add(yearChart);
+            yearChartPage.Location = new Point(4, 28);
+            yearChartPage.Name = "yearChartPage";
+            yearChartPage.Padding = new Padding(3);
+            yearChartPage.Size = new Size(1083, 535);
+            yearChartPage.TabIndex = 1;
+            yearChartPage.Text = "График за год";
+            yearChartPage.UseVisualStyleBackColor = true;
+            // 
+            // yearChartYearLabel
+            // 
+            yearChartYearLabel.AutoSize = true;
+            yearChartYearLabel.Font = new Font("Calibri", 14F);
+            yearChartYearLabel.Location = new Point(510, 21);
+            yearChartYearLabel.Name = "yearChartYearLabel";
+            yearChartYearLabel.Size = new Size(50, 23);
+            yearChartYearLabel.TabIndex = 2;
+            yearChartYearLabel.Text = "2025";
             // 
             // yearChart
             // 
-            yearChart.Location = new Point(6, 6);
+            yearChart.Location = new Point(6, 43);
             yearChart.Name = "yearChart";
-            yearChart.Size = new Size(1071, 527);
+            yearChart.Size = new Size(1071, 490);
             yearChart.TabIndex = 1;
             yearChart.Text = "chart1";
             // 
@@ -153,6 +165,7 @@ namespace PersonalFinancialManager
             AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(1115, 591);
             Controls.Add(tabControl1);
+            Font = new Font("Calibri", 12F);
             MaximumSize = new Size(1131, 630);
             MinimumSize = new Size(1131, 630);
             Name = "MainForm";
@@ -161,7 +174,8 @@ namespace PersonalFinancialManager
             tabControl1.ResumeLayout(false);
             mainPage.ResumeLayout(false);
             mainPage.PerformLayout();
-            tabPage2.ResumeLayout(false);
+            yearChartPage.ResumeLayout(false);
+            yearChartPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)yearChart).EndInit();
             ResumeLayout(false);
         }
@@ -173,10 +187,11 @@ namespace PersonalFinancialManager
         private TreeView databaseWindow;
         private TabControl tabControl1;
         private TabPage mainPage;
-        private TabPage tabPage2;
+        private TabPage yearChartPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart yearChart;
         private TextBox textBox1;
         private ContextMenuStrip databaseContextMenuStrip;
         private ToolStripMenuItem deleteReceiptFromDatabase;
+        private Label yearChartYearLabel;
     }
 }

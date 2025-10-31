@@ -72,7 +72,7 @@ namespace PersonalFinancialManager.source
 
         private readonly string CREATE_RECEIPT_TABLE_COMMAND = $"CREATE TABLE IF NOT EXISTS {RECEIPTS_DATA_TABLE_NAME} " +
                 $"({ReceiptDBNames.ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                $" {ReceiptDBNames.DATE_AND_TIME} DATETIME2 UNIQUE," +
+                $" {ReceiptDBNames.DATE_AND_TIME} DATETIME UNIQUE," +
                 $" {ReceiptDBNames.ADDRESS} NVARCHAR({DATABASE_FIXED_STRING_LEN})," +
                 $" {ReceiptDBNames.TOTAL_SUM} REAL," +
                 $" {ReceiptDBNames.CASH_SUM} REAL," +
@@ -166,7 +166,7 @@ namespace PersonalFinancialManager.source
             sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
                 $" WHERE {ReceiptDBNames.DATE_AND_TIME}" +
                 $" BETWEEN '{ConvertDateTimeToSqlFormat(from)}' AND '{ConvertDateTimeToSqlFormat(until)}';";
-                //$" BETWEEN '2025-10-31' AND '2025-11-1';";
+                //$" BETWEEN '2025-10-31 0:0:0' AND '2025-11-1 0:0:0';"; 
 
             SqliteDataReader reader = sqlCommand.ExecuteReader();
 
