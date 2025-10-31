@@ -62,18 +62,20 @@ namespace PersonalFinancialManager
 
             foreach (Receipt receipt in dataService.GetReceiptsFromDB())
             {
-                TreeNode treeNode = new TreeNode($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
-                    receipt.ListOfProducts.ConvertAll<TreeNode>(
+                List<TreeNode> productsAndTotalPrice = receipt.ListOfProducts.ConvertAll<TreeNode>(
                         (product) => new TreeNode($"{product.Name}\n",
                         new TreeNode[] {
-                            new TreeNode($"Категория:  {product.Category}") { Tag = DatabaseWindowTag.ProductData },
-                            new TreeNode($"Цена:  {product.Price}\n"){ Tag = DatabaseWindowTag.ProductData },
-                            new TreeNode($"Количество:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.ProductData },
-                            new TreeNode($"Сумма:  {product.Sum}\n"){ Tag = DatabaseWindowTag.ProductData }}
+                            new TreeNode($"Категория:  {product.Category}") { Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"Цена:  {product.Price}\n"){ Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"Количество:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"Сумма:  {product.Sum}\n"){ Tag = DatabaseWindowTag.Data }}
                         )
-                        { Tag = DatabaseWindowTag.Product }).ToArray()
-                    )
-                { Tag = DatabaseWindowTag.Receipt };
+                        { Tag = DatabaseWindowTag.Data });
+
+                productsAndTotalPrice.Add(new TreeNode($"Полная сумма:  {receipt.TotalPrice}") { Tag = DatabaseWindowTag.Data });
+
+                TreeNode treeNode = new TreeNode($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
+                    productsAndTotalPrice.ToArray()) { Tag = DatabaseWindowTag.ReceiptHeader };
 
                 databaseWindow.Nodes.Add(treeNode);
             }
@@ -91,6 +93,8 @@ namespace PersonalFinancialManager
 
             yearChart.Series.Add(series);
             yearChart.Legends.Add(new Legend() { Font = Font });
+
+            yearChartYearLabel.Text = $"{DateTime.Now.Year} год";
 
             UpdateYearStatisticChart();
         }
@@ -117,7 +121,7 @@ namespace PersonalFinancialManager
             {
                 TreeNode treeNode = databaseWindow.SelectedNode;
 
-                while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.Receipt)
+                while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.ReceiptHeader)
                     treeNode = treeNode.Parent;
 
                 DialogResult dr = MessageBox.Show("Вы действительно хотите удалить чек?",
@@ -138,9 +142,8 @@ namespace PersonalFinancialManager
 
         private enum DatabaseWindowTag
         {
-            Receipt,
-            Product,
-            ProductData
+            ReceiptHeader,
+            Data
         }
     }
 }
