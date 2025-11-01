@@ -19,9 +19,12 @@ namespace PersonalFinancialManager.source
 
             foreach (FailGettingReceiptData fail in fails)
             {
-                failGetReceiptsTree.Nodes.Add(new TreeNode(
+                int i = failGetReceiptsTree.Nodes.Add(new TreeNode(
                     $"QR: {fail.FileName}",
-                    new TreeNode[] { new TreeNode(FailGettingReceiptData.CodeToString(fail.Code))}));
+                    new TreeNode[] { new TreeNode(FailGettingReceiptData.CodeToString(fail.Code)) })                
+                );
+
+                failGetReceiptsTree.Nodes[i].ExpandAll();
             }
         }
     }

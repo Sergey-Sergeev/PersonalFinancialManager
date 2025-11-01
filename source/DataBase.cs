@@ -6,10 +6,6 @@ namespace PersonalFinancialManager.source
 {
     public class Database
     {
-
-        public string? UserToken { get => userToken; private set => userToken = value; }
-        private string? userToken = null;
-
         private static Database? singleInstance = null;
 
         private SqliteConnection sqlConnection;
@@ -113,7 +109,7 @@ namespace PersonalFinancialManager.source
             return singleInstance;
         }
 
-        public bool IsUserAuthorizated()
+        public bool IsUserAuthorizated(out string? userToken)
         {
             return TryGetUserToken(out userToken);
         }
@@ -216,7 +212,6 @@ namespace PersonalFinancialManager.source
         public void SetUserData(string token)
         {
             SendCommand($"UPDATE {USER_DATA_TABLE_NAME} SET {UserDBNames.TOKEN} = '{token}';");
-            UserToken = token;
         }
 
         private List<Product> GetReceiptProducts(int receiptId)

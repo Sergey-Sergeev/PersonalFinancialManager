@@ -34,8 +34,8 @@ namespace PersonalFinancialManager.source
 
             database = Database.Fabric();
 
-            if (database.IsUserAuthorizated())
-                fts = FTS.Fabric(database.UserToken);
+            if (database.IsUserAuthorizated(out string? userToken))
+                fts = FTS.Fabric(userToken);
             else isUserAuthorizated = false;
 
             return singleInstance;
@@ -117,6 +117,31 @@ namespace PersonalFinancialManager.source
                 yield return receipt;
         }
 
+        public IEnumerable<StatisticDataUnit> GetCurrentMonthReceipts()
+        {
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+
+            int countDays = new DateTime(year, month, 1).AddMonths(1).AddDays(-1).Day;
+
+            for (int day = 1; day < countDays + 1; day++)
+            {
+                StatisticDataUnit data = new StatisticDataUnit();
+
+                DateTime from = new DateTime(year, month, day);
+                DateTime until = from.Add(new TimeSpan(23, 59, 59));
+
+                foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
+                {
+                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value = Double.Round(data.Value, 2);
+                }
+
+                data.date = from;
+                yield return data;
+            }
+        }
+
         public IEnumerable<StatisticDataUnit> GetCurrentYearReceipts()
         {
             int year = DateTime.Now.Year;
@@ -138,7 +163,6 @@ namespace PersonalFinancialManager.source
                 data.date = from;
                 yield return data;
             }
-
         }
 
     }
