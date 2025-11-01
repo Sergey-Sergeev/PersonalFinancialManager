@@ -26,7 +26,7 @@ namespace PersonalFinancialManager
                 AskUserToken(false);
 
             UpdateAllReceiptsInDatabaseWindow();
-            InitializeYearStatisticChart();
+            InitializeStatisticCharts();
         }
 
         private async void loadQRCodesButton_Click(object sender, EventArgs e)
@@ -86,7 +86,18 @@ namespace PersonalFinancialManager
             }
         }
 
-        private void InitializeYearStatisticChart()
+        private void InitializeStatisticCharts()
+        {
+            InitializeYearStatisticChart();
+            InitializeMonthStatisticChart();
+        }
+        private void UpdateStatisticCharts()
+        {
+            UpdateYearStatisticChart();
+            UpdateMonthStatisticChart();
+        }
+
+        private void SetDefaultChart(ref Chart chart, string titleName)
         {
             ChartArea chartArea = new ChartArea();
             chartArea.IsSameFontSizeForAllAxes = true;
@@ -113,9 +124,9 @@ namespace PersonalFinancialManager
             chartArea.Position.Width = 95;
             chartArea.Position.Height = 95;
 
-            yearChart.ChartAreas.Add(chartArea);
+            chart.ChartAreas.Add(chartArea);
 
-            Series series = new Series("—умма за мес€ц");
+            Series series = new Series();
             series.ChartType = SeriesChartType.Line;
             series.XValueType = ChartValueType.String;
             series.YValueType = ChartValueType.Int32;
@@ -125,7 +136,7 @@ namespace PersonalFinancialManager
             series.Color = Color.Blue;
             series.BorderWidth = 3;
 
-            yearChart.Series.Add(series);
+            chart.Series.Add(series);
 
             Title title = new Title();
             title.Position.Auto = false;
@@ -134,38 +145,64 @@ namespace PersonalFinancialManager
             title.Position.Width = 10;
             title.Position.Height = 5;
             title.Font = new Font(Font.FontFamily, Font.Size + 2, FontStyle.Bold);
-            title.Text = $"{DateTime.Now.Year} год";
+            title.Text = titleName;
 
-            yearChart.Titles.Add(title);
+            chart.Titles.Add(title);
+        }
 
+        private void UpdateChart(Chart chart, Func<IEnumerable<StatisticDataUnit>> getDataFunc, string dateTimeFormatString)
+        {
+            chart.Series.First().Points.Clear();
+
+            double maximum = 0;
+            int interval;
+
+            foreach (StatisticDataUnit data in getDataFunc())
+            {
+                int i = chart.Series.First().Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
+                chart.Series.First().Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
+
+                if (data.date > DateTime.Now)
+                    chart.Series.First().Points[i].IsEmpty = data.Value == 0;
+
+                maximum = Math.Max(maximum, data.Value);
+            }
+
+            if (maximum == 0)
+            {
+                interval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
+                chart.ChartAreas.First().AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
+            }
+            else
+            {
+                maximum = GetNearestRoundValue(maximum);
+                chart.ChartAreas.First().AxisY.Maximum = maximum;
+                interval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
+            }
+
+            chart.ChartAreas.First().AxisY.Interval = interval;
+        }
+
+        private void InitializeYearStatisticChart()
+        {
+            SetDefaultChart(ref yearChart, $"{DateTime.Now.Year} год");
             UpdateYearStatisticChart();
         }
 
         private void UpdateYearStatisticChart()
         {
-            yearChart.Series.First().Points.Clear();
+            UpdateChart(yearChart, dataService.GetCurrentYearReceipts, "MMMM");
+        }
 
-            double maximum = 0;
-            int interval;
+        private void InitializeMonthStatisticChart()
+        {
+            SetDefaultChart(ref monthChart, DateTime.Now.ToString("MMMM"));
+            UpdateMonthStatisticChart();
+        }
 
-            foreach (StatisticDataUnit data in dataService.GetCurrentYearReceipts())
-            {
-                int i = yearChart.Series.First().Points.AddXY(data.date.ToString("MMMM"), data.Value);
-                yearChart.Series.First().Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
-                yearChart.Series.First().Points[i].IsEmpty = data.Value == 0;
-                maximum = Math.Max(maximum, data.Value);
-            }
-
-            if (maximum == 0)
-                interval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
-            else
-            {
-                maximum = GetNearestRoundValue(maximum);
-                interval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
-            }
-
-            yearChart.ChartAreas.First().AxisY.Interval = interval;
-            yearChart.ChartAreas.First().AxisY.Maximum = maximum;
+        private void UpdateMonthStatisticChart()
+        {
+            UpdateChart(monthChart, dataService.GetCurrentMonthReceipts, "dd");
         }
 
         private void AskUserToken(bool isWrongAPI)
@@ -197,17 +234,35 @@ namespace PersonalFinancialManager
 
                 dataService.DeleteReceipt(time);
                 UpdateAllReceiptsInDatabaseWindow();
-                UpdateYearStatisticChart();
+                UpdateStatisticCharts();
             }
         }
 
-
         private double GetNearestRoundValue(double n)
         {
-            double zeros = Math.Pow(10, ((int)n).ToString().Length);
-            n = n / zeros;
-            n = Math.Ceiling(n * 100) / 100;
-            return n * zeros;
+            string value = ((int)n).ToString();
+
+            if (value.Length < 2)
+            {
+                return 10;
+            }
+            else
+            {
+                int firstNumber = value[0] - '0';
+                int secondNumber = value[1] - '0';
+
+                if (secondNumber < 5)
+                {
+                    secondNumber = 5;
+                }
+                else
+                {
+                    secondNumber = 0;
+                    firstNumber++;
+                }
+
+                return (firstNumber * 10 + secondNumber) * Math.Pow(10, value.Length - 2);
+            }
         }
 
         private enum DatabaseWindowTag

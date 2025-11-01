@@ -41,16 +41,20 @@ namespace PersonalFinancialManager
             databaseWindow = new TreeView();
             databaseContextMenuStrip = new ContextMenuStrip(components);
             deleteReceiptFromDatabase = new ToolStripMenuItem();
-            tabControl1 = new TabControl();
+            mainTabControl = new TabControl();
             mainPage = new TabPage();
             textBox1 = new TextBox();
             yearChartPage = new TabPage();
             yearChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            monthChartPage = new TabPage();
+            monthChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             databaseContextMenuStrip.SuspendLayout();
-            tabControl1.SuspendLayout();
+            mainTabControl.SuspendLayout();
             mainPage.SuspendLayout();
             yearChartPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)yearChart).BeginInit();
+            monthChartPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)monthChart).BeginInit();
             SuspendLayout();
             // 
             // printPreviewDialog1
@@ -97,17 +101,18 @@ namespace PersonalFinancialManager
             deleteReceiptFromDatabase.Text = "Удалить чек";
             deleteReceiptFromDatabase.Click += deleteReceiptFromDatabase_Click;
             // 
-            // tabControl1
+            // mainTabControl
             // 
-            tabControl1.Controls.Add(mainPage);
-            tabControl1.Controls.Add(yearChartPage);
-            tabControl1.Dock = DockStyle.Fill;
-            tabControl1.Location = new Point(0, 0);
-            tabControl1.Margin = new Padding(0);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1115, 591);
-            tabControl1.TabIndex = 3;
+            mainTabControl.Controls.Add(mainPage);
+            mainTabControl.Controls.Add(yearChartPage);
+            mainTabControl.Controls.Add(monthChartPage);
+            mainTabControl.Dock = DockStyle.Fill;
+            mainTabControl.Location = new Point(0, 0);
+            mainTabControl.Margin = new Padding(0);
+            mainTabControl.Name = "mainTabControl";
+            mainTabControl.SelectedIndex = 0;
+            mainTabControl.Size = new Size(1115, 591);
+            mainTabControl.TabIndex = 3;
             // 
             // mainPage
             // 
@@ -133,10 +138,10 @@ namespace PersonalFinancialManager
             // yearChartPage
             // 
             yearChartPage.Controls.Add(yearChart);
-            yearChartPage.Location = new Point(4, 28);
+            yearChartPage.Location = new Point(4, 24);
             yearChartPage.Name = "yearChartPage";
             yearChartPage.Padding = new Padding(3);
-            yearChartPage.Size = new Size(1107, 559);
+            yearChartPage.Size = new Size(1107, 563);
             yearChartPage.TabIndex = 1;
             yearChartPage.Text = "График за год";
             yearChartPage.UseVisualStyleBackColor = true;
@@ -147,27 +152,50 @@ namespace PersonalFinancialManager
             yearChart.Location = new Point(3, 3);
             yearChart.Margin = new Padding(0);
             yearChart.Name = "yearChart";
-            yearChart.Size = new Size(1101, 553);
+            yearChart.Size = new Size(1101, 557);
             yearChart.TabIndex = 1;
             yearChart.Text = "chart1";
+            // 
+            // monthChartPage
+            // 
+            monthChartPage.Controls.Add(monthChart);
+            monthChartPage.Location = new Point(4, 28);
+            monthChartPage.Name = "monthChartPage";
+            monthChartPage.Padding = new Padding(3);
+            monthChartPage.Size = new Size(1107, 559);
+            monthChartPage.TabIndex = 2;
+            monthChartPage.Text = "График за месяц";
+            monthChartPage.UseVisualStyleBackColor = true;
+            // 
+            // monthChart
+            // 
+            monthChart.Dock = DockStyle.Fill;
+            monthChart.Location = new Point(3, 3);
+            monthChart.Margin = new Padding(0);
+            monthChart.Name = "monthChart";
+            monthChart.Size = new Size(1101, 553);
+            monthChart.TabIndex = 2;
+            monthChart.Text = "chart1";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(1115, 591);
-            Controls.Add(tabControl1);
+            Controls.Add(mainTabControl);
             Font = new Font("Calibri", 12F);
             MaximumSize = new Size(1131, 630);
             MinimumSize = new Size(1131, 630);
             Name = "MainForm";
             Text = "Личный Финансовый Менеджер";
             databaseContextMenuStrip.ResumeLayout(false);
-            tabControl1.ResumeLayout(false);
+            mainTabControl.ResumeLayout(false);
             mainPage.ResumeLayout(false);
             mainPage.PerformLayout();
             yearChartPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)yearChart).EndInit();
+            monthChartPage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)monthChart).EndInit();
             ResumeLayout(false);
         }
 
@@ -176,12 +204,14 @@ namespace PersonalFinancialManager
         private PrintPreviewDialog printPreviewDialog1;
         private System.Windows.Forms.Button loadQRCodesButton;
         private TreeView databaseWindow;
-        private TabControl tabControl1;
+        private TabControl mainTabControl;
         private TabPage mainPage;
         private TabPage yearChartPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart yearChart;
         private TextBox textBox1;
         private ContextMenuStrip databaseContextMenuStrip;
         private ToolStripMenuItem deleteReceiptFromDatabase;
+        private TabPage monthChartPage;
+        private System.Windows.Forms.DataVisualization.Charting.Chart monthChart;
     }
 }
