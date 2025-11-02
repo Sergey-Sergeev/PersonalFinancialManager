@@ -35,6 +35,7 @@
             // 
             // infoTextBox
             // 
+            infoTextBox.BackColor = Color.White;
             infoTextBox.BorderStyle = BorderStyle.None;
             infoTextBox.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
             infoTextBox.Location = new Point(12, 12);
@@ -68,6 +69,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(505, 149);
             ControlBox = false;
             Controls.Add(apiInputTextBox);

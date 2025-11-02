@@ -12,9 +12,26 @@ namespace PersonalFinancialManager
         const string FILE_FILTER = "Изображения (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|JPEG (*.jpeg)|*.jpeg";
         private DataService dataService;
 
+        private readonly Dictionary<string, SpecialChartInterval> SPECIAL_CHART_INTERVAL_PAIRS = new Dictionary<string, SpecialChartInterval>()
+        {
+             { "День", SpecialChartInterval.Day },
+             { "Месяц", SpecialChartInterval.Month }
+        };
 
         private const int YEAR_CHART_AXIS_Y_INTERVAL_COUNT = 10;
         private const int DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL = 100;
+
+        private readonly Color SPECIAL_CHART_SERIES1_COLOR = Color.Blue;
+        private readonly Color SPECIAL_CHART_SERIES2_COLOR = Color.Yellow;
+        private readonly Color SPECIAL_CHART_SERIES3_COLOR = Color.Gray;
+
+
+        private static class SpecialChartInput
+        {
+            public static TextBox[] FromTextBoxes;
+            public static TextBox[] UntilTextBoxes;
+            public static CheckBox[] CheckBoxes;
+        }
 
         public MainForm()
         {
@@ -90,7 +107,9 @@ namespace PersonalFinancialManager
         {
             InitializeYearStatisticChart();
             InitializeMonthStatisticChart();
+            InitializeSpecialStatisticChart();
         }
+
         private void UpdateStatisticCharts()
         {
             UpdateYearStatisticChart();
@@ -133,7 +152,7 @@ namespace PersonalFinancialManager
             series.IsXValueIndexed = true;
             series.IsValueShownAsLabel = true;
             series.Font = Font;
-            series.Color = Color.Blue;
+            series.Color = SPECIAL_CHART_SERIES1_COLOR;
             series.BorderWidth = 3;
 
             chart.Series.Add(series);
@@ -150,20 +169,20 @@ namespace PersonalFinancialManager
             chart.Titles.Add(title);
         }
 
-        private void UpdateChart(Chart chart, Func<IEnumerable<StatisticDataUnit>> getDataFunc, string dateTimeFormatString)
+        private void UpdateDefaultChart(Chart chart, Func<IEnumerable<StatisticDataUnit>> getDataFunc, string dateTimeFormatString)
         {
-            chart.Series.First().Points.Clear();
+            chart.Series[0].Points.Clear();
 
             double maximum = 0;
             int interval;
 
             foreach (StatisticDataUnit data in getDataFunc())
             {
-                int i = chart.Series.First().Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
-                chart.Series.First().Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
+                int i = chart.Series[0].Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
+                chart.Series[0].Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
 
                 if (data.date > DateTime.Now)
-                    chart.Series.First().Points[i].IsEmpty = data.Value == 0;
+                    chart.Series[0].Points[i].IsEmpty = data.Value == 0;
 
                 maximum = Math.Max(maximum, data.Value);
             }
@@ -171,16 +190,16 @@ namespace PersonalFinancialManager
             if (maximum == 0)
             {
                 interval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
-                chart.ChartAreas.First().AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
+                chart.ChartAreas[0].AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
             }
             else
             {
                 maximum = GetNearestRoundValue(maximum);
-                chart.ChartAreas.First().AxisY.Maximum = maximum;
+                chart.ChartAreas[0].AxisY.Maximum = maximum;
                 interval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
             }
 
-            chart.ChartAreas.First().AxisY.Interval = interval;
+            chart.ChartAreas[0].AxisY.Interval = interval;
         }
 
         private void InitializeYearStatisticChart()
@@ -191,7 +210,7 @@ namespace PersonalFinancialManager
 
         private void UpdateYearStatisticChart()
         {
-            UpdateChart(yearChart, dataService.GetCurrentYearReceipts, "MMMM");
+            UpdateDefaultChart(yearChart, dataService.GetCurrentYearReceipts, "MMMM");
         }
 
         private void InitializeMonthStatisticChart()
@@ -202,7 +221,161 @@ namespace PersonalFinancialManager
 
         private void UpdateMonthStatisticChart()
         {
-            UpdateChart(monthChart, dataService.GetCurrentMonthReceipts, "dd");
+            UpdateDefaultChart(monthChart, dataService.GetCurrentMonthReceipts, "dd");
+        }
+
+        private void InitializeSpecialStatisticChart()
+        {
+            SetDefaultChart(ref specialChart, "");
+
+            specialChart.ChartAreas[0].Position.X = 0;
+            specialChart.ChartAreas[0].Position.Y = 0;
+            specialChart.ChartAreas[0].Position.Width = 100;
+            specialChart.ChartAreas[0].Position.Height = 80;
+
+            Legend legend = new Legend();
+
+            legend.Position.Height = 15;
+            legend.Position.Width = 25;
+            legend.Position.X = 0;
+            legend.Position.Y = 83;
+            legend.LegendStyle = LegendStyle.Column;
+            legend.Font = Font;
+
+            specialChart.Legends.Add(legend);
+
+            Series secondSeries = new Series();
+            Series thirdSeries = new Series();
+            thirdSeries.ChartType = secondSeries.ChartType = specialChart.Series[0].ChartType;
+            thirdSeries.XValueType = secondSeries.XValueType = specialChart.Series[0].XValueType;
+            thirdSeries.YValueType = secondSeries.YValueType = specialChart.Series[0].YValueType;
+            thirdSeries.IsXValueIndexed = secondSeries.IsXValueIndexed = specialChart.Series[0].IsXValueIndexed;
+            thirdSeries.IsValueShownAsLabel = secondSeries.IsValueShownAsLabel = specialChart.Series[0].IsValueShownAsLabel;
+            thirdSeries.Font = secondSeries.Font = specialChart.Series[0].Font;
+            secondSeries.Color = SPECIAL_CHART_SERIES2_COLOR;
+            thirdSeries.Color = SPECIAL_CHART_SERIES3_COLOR;
+            thirdSeries.BorderWidth = secondSeries.BorderWidth = specialChart.Series[0].BorderWidth;
+
+            specialChart.Series.Add(secondSeries);
+            specialChart.Series.Add(thirdSeries);
+
+            specialChart.Series[0].Name = "График под номером 1";
+            specialChart.Series[1].Name = "График под номером 2";
+            specialChart.Series[2].Name = "График под номером 3";
+
+
+            foreach (KeyValuePair<string, SpecialChartInterval> pair in SPECIAL_CHART_INTERVAL_PAIRS)
+            {
+                specialChartIntervalComboBox.Items.Add(pair.Key);
+            }
+
+            SpecialChartInput.FromTextBoxes = new TextBox[] {
+                specialChartSeries1DateFromTextBox,
+                specialChartSeries2DateFromTextBox,
+                specialChartSeries3DateFromTextBox
+            };
+
+            SpecialChartInput.UntilTextBoxes = new TextBox[] {
+                specialChartSeries1DateUntilTextBox,
+                specialChartSeries2DateUntilTextBox,
+                specialChartSeries3DateUntilTextBox,
+            };
+
+            SpecialChartInput.CheckBoxes = new CheckBox[] {
+                specialChartSeries1HideCheckBox,
+                specialChartSeries2HideCheckBox,
+                specialChartSeries3HideCheckBox
+            };
+
+
+            for (int i = 0; i < 3; i++)
+            {
+                SpecialChartInput.FromTextBoxes[i].Leave += UpdateSpecialStatisticChart;
+                SpecialChartInput.FromTextBoxes[i].KeyPress += SpecialChartInputTextBoxEnterPressedEvent;
+                SpecialChartInput.UntilTextBoxes[i].Leave += UpdateSpecialStatisticChart;
+                SpecialChartInput.UntilTextBoxes[i].KeyPress += SpecialChartInputTextBoxEnterPressedEvent;
+                SpecialChartInput.CheckBoxes[i].CheckedChanged += UpdateSpecialStatisticChart;
+            }
+
+            UpdateSpecialStatisticChart();
+        }
+
+        private void SpecialChartInputTextBoxEnterPressedEvent(object? sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)ConsoleKey.Enter)
+            {
+                UpdateSpecialStatisticChart();
+                Focus();
+            }
+        }
+
+        private void UpdateSpecialStatisticChart(object? sender = null, EventArgs e = null)
+        {
+            if (specialChartIntervalComboBox.Text == String.Empty)
+                return;
+
+            specialChart.ChartAreas[0].AxisY.Maximum = 0;
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (SpecialChartInput.CheckBoxes[i].Checked)
+                {
+                    specialChart.Series[i].Points.Clear();
+                    continue;
+                }
+
+                if (IsDateCorrect(ref SpecialChartInput.FromTextBoxes[i], out DateTime fromDate) &&
+                    IsDateCorrect(ref SpecialChartInput.UntilTextBoxes[i], out DateTime untilDate))
+                {
+                    //specialChart.Series[i].Name = $"График под номером {i}";
+                    specialChart.Series[i].Points.Clear();
+
+                    double maximum = specialChart.ChartAreas[0].AxisY.Maximum;
+                    (int d, int m, int y) interval = GetSpecialChartDateTimeInterval(out string dateTimeFormatString);
+                    int moneyInterval;
+
+                    foreach (StatisticDataUnit data in dataService.GetReceiptsDuringPeriod(fromDate, untilDate, interval))
+                    {
+                        int index = specialChart.Series[i].Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
+                        specialChart.Series[i].Points[index].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
+
+                        if (data.date > DateTime.Now)
+                            specialChart.Series[i].Points[index].IsEmpty = data.Value == 0;
+
+                        maximum = Math.Max(maximum, data.Value);
+                    }
+
+
+                    if (maximum == 0)
+                    {
+                        moneyInterval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
+                        specialChart.ChartAreas[0].AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
+                    }
+                    else
+                    {
+                        maximum = GetNearestRoundValue(maximum);
+                        specialChart.ChartAreas[0].AxisY.Maximum = maximum;
+                        moneyInterval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
+                    }
+
+                    specialChart.ChartAreas[0].AxisY.Interval = moneyInterval;
+                }
+            }
+        }
+
+        private (int d, int m, int y) GetSpecialChartDateTimeInterval(out string dateTimeFormatString)
+        {
+            switch (SPECIAL_CHART_INTERVAL_PAIRS.GetValueOrDefault(specialChartIntervalComboBox.Text,
+                SpecialChartInterval.Month))
+            {
+                case SpecialChartInterval.Day:
+                    dateTimeFormatString = "dd";
+                    return (1, 0, 0);
+                case SpecialChartInterval.Month:
+                default:
+                    dateTimeFormatString = "MMMM";
+                    return (0, 1, 0);
+            }
         }
 
         private void AskUserToken(bool isWrongAPI)
@@ -211,7 +384,6 @@ namespace PersonalFinancialManager
             utf.ShowDialog();
             dataService.SetUserToken(utf.UserToken);
         }
-
 
         private void deleteReceiptFromDatabase_Click(object sender, EventArgs e)
         {
@@ -265,10 +437,31 @@ namespace PersonalFinancialManager
             }
         }
 
+        private bool IsDateCorrect(ref TextBox textBox, out DateTime dateTime)
+        {
+            if (DateTime.TryParse(textBox.Text, out dateTime))
+            {
+                textBox.Text = dateTime.ToString("dd.MM.yyyy");
+                return true;
+            }
+            return false;
+        }
+
+        private void specialChartIntervalComboBox_TextChanged(object sender, EventArgs e)
+        {
+            UpdateSpecialStatisticChart();
+        }
+
         private enum DatabaseWindowTag
         {
             ReceiptHeader,
             Data
+        }
+
+        private enum SpecialChartInterval
+        {
+            Day,
+            Month
         }
     }
 }

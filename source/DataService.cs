@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static PersonalFinancialManager.source.FTSDecodingReceiptsResult;
+using static PersonalFinancialManager.source.JsonServerClass;
 
 namespace PersonalFinancialManager.source
 {
@@ -34,17 +35,15 @@ namespace PersonalFinancialManager.source
 
             database = Database.Fabric();
 
-            if (database.IsUserAuthorizated(out string? userToken))
-                fts = FTS.Fabric(userToken);
-            else isUserAuthorizated = false;
+            isUserAuthorizated = database.IsUserAuthorizated(out string? userToken);
+            fts = FTS.Fabric(userToken);
 
             return singleInstance;
         }
 
         public void SetUserToken(string token)
         {
-            if (fts == null) fts = FTS.Fabric(token);
-            else fts.UpdateUserToken(token);
+            fts.UpdateUserToken(token);
             database.SetUserData(token);
         }
 
@@ -115,6 +114,50 @@ namespace PersonalFinancialManager.source
         {
             foreach (Receipt receipt in database.GetAllReceipts())
                 yield return receipt;
+        }
+
+        public IEnumerable<StatisticDataUnit> GetReceiptsDuringPeriod(DateTime from, DateTime until, (int day, int month, int year) interval)
+        {
+            until = until.Add(new TimeSpan(23, 59, 59));
+
+            DateTime fromLocal = from;
+
+            DateTime untilLocal = from;
+            untilLocal = untilLocal.AddDays(interval.Item1);
+            untilLocal = untilLocal.AddMonths(interval.Item2);
+            untilLocal = untilLocal.AddYears(interval.Item3);
+
+            bool continueFlag = true;
+
+            for (; continueFlag;)
+            {
+                StatisticDataUnit data = new StatisticDataUnit();
+
+                if (untilLocal >= until)
+                {
+                    untilLocal = until;
+                    continueFlag = false;
+                }
+
+                foreach (Receipt receipt in database.GetReceiptsDuringPeriod(fromLocal, untilLocal))
+                {
+                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value = Double.Round(data.Value, 2);
+                }
+
+                data.date = fromLocal;
+
+                if (continueFlag)
+                {
+                    fromLocal = untilLocal;
+
+                    untilLocal = untilLocal.AddDays(interval.Item1);
+                    untilLocal = untilLocal.AddMonths(interval.Item2);
+                    untilLocal = untilLocal.AddYears(interval.Item3);
+                }
+
+                yield return data;
+            }
         }
 
         public IEnumerable<StatisticDataUnit> GetCurrentMonthReceipts()
