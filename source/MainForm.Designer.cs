@@ -70,6 +70,44 @@ namespace PersonalFinancialManager
             specialChartSeries1DateUntilTextBox = new TextBox();
             specialChartSeries1DateFromTextBox = new TextBox();
             specialChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            allStatisticPage = new TabPage();
+            panel3 = new Panel();
+            allStatisticPageCategoriesListView = new ListView();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
+            label16 = new Label();
+            panel2 = new Panel();
+            allStatisticPagePastMonthTextBox = new TextBox();
+            label13 = new Label();
+            allStatisticPagePastYearTextBox = new TextBox();
+            label14 = new Label();
+            panel1 = new Panel();
+            allStatisticPageMonthTextBox = new TextBox();
+            label12 = new Label();
+            allStatisticPageYearTextBox = new TextBox();
+            label11 = new Label();
+            allStatisticPageChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            panel4 = new Panel();
+            allStatisticPageTotalYearSumValueLabel = new Label();
+            allStatisticPageDiffBtwPreviousYearsDateLabel = new Label();
+            allStatisticPageTotalYearSumDateLabel = new Label();
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel = new Label();
+            allStatisticPageTotalPreviousYearSumDateLabel = new Label();
+            allStatisticPageDiffBtwPreviousMonthesValueLabel = new Label();
+            allStatisticPageTotalPreviousYearSumValueLabel = new Label();
+            allStatisticPageDiffBtwPreviousMonthesDateLabel = new Label();
+            allStatisticPageTotalMonthSumDateLabel = new Label();
+            allStatisticPageDiffBtwPreviousYearsValueLabel = new Label();
+            allStatisticPageTotalMonthSumValueLabel = new Label();
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel = new Label();
+            allStatisticPageTotalPreviousMonthSumDateLabel = new Label();
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel = new Label();
+            allStatisticPageTotalPreviousMonthSumValueLabel = new Label();
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel = new Label();
+            allStatisticPageDiffBtwYearsDateLabel = new Label();
+            allStatisticPageDiffBtwYearsValueLabel = new Label();
+            allStatisticPageDiffBtwMonthesValueLabel = new Label();
+            allStatisticPageDiffBtwMonthesDateLabel = new Label();
             databaseContextMenuStrip.SuspendLayout();
             mainTabControl.SuspendLayout();
             mainPage.SuspendLayout();
@@ -79,6 +117,12 @@ namespace PersonalFinancialManager
             ((System.ComponentModel.ISupportInitialize)monthChart).BeginInit();
             specialChartPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)specialChart).BeginInit();
+            allStatisticPage.SuspendLayout();
+            panel3.SuspendLayout();
+            panel2.SuspendLayout();
+            panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)allStatisticPageChart).BeginInit();
+            panel4.SuspendLayout();
             SuspendLayout();
             // 
             // printPreviewDialog1
@@ -131,6 +175,7 @@ namespace PersonalFinancialManager
             mainTabControl.Controls.Add(yearChartPage);
             mainTabControl.Controls.Add(monthChartPage);
             mainTabControl.Controls.Add(specialChartPage);
+            mainTabControl.Controls.Add(allStatisticPage);
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Margin = new Padding(0);
@@ -225,10 +270,10 @@ namespace PersonalFinancialManager
             specialChartPage.Controls.Add(specialChartSeries1DateUntilTextBox);
             specialChartPage.Controls.Add(specialChartSeries1DateFromTextBox);
             specialChartPage.Controls.Add(specialChart);
-            specialChartPage.Location = new Point(4, 28);
+            specialChartPage.Location = new Point(4, 24);
             specialChartPage.Name = "specialChartPage";
             specialChartPage.Padding = new Padding(3);
-            specialChartPage.Size = new Size(1107, 559);
+            specialChartPage.Size = new Size(1107, 563);
             specialChartPage.TabIndex = 3;
             specialChartPage.Text = "Специальный график";
             specialChartPage.UseVisualStyleBackColor = true;
@@ -246,7 +291,6 @@ namespace PersonalFinancialManager
             specialChartIntervalComboBox.Name = "specialChartIntervalComboBox";
             specialChartIntervalComboBox.Size = new Size(98, 27);
             specialChartIntervalComboBox.TabIndex = 4;
-            specialChartIntervalComboBox.TextChanged += specialChartIntervalComboBox_TextChanged;
             // 
             // label10
             // 
@@ -459,9 +503,447 @@ namespace PersonalFinancialManager
             specialChart.Location = new Point(3, 3);
             specialChart.Margin = new Padding(0);
             specialChart.Name = "specialChart";
-            specialChart.Size = new Size(1101, 553);
+            specialChart.Size = new Size(1101, 557);
             specialChart.TabIndex = 3;
             specialChart.Text = "chart1";
+            // 
+            // allStatisticPage
+            // 
+            allStatisticPage.Controls.Add(panel3);
+            allStatisticPage.Controls.Add(panel2);
+            allStatisticPage.Controls.Add(panel1);
+            allStatisticPage.Controls.Add(allStatisticPageChart);
+            allStatisticPage.Controls.Add(panel4);
+            allStatisticPage.Location = new Point(4, 28);
+            allStatisticPage.Name = "allStatisticPage";
+            allStatisticPage.Padding = new Padding(3);
+            allStatisticPage.Size = new Size(1107, 559);
+            allStatisticPage.TabIndex = 4;
+            allStatisticPage.Text = "Общая статистика";
+            allStatisticPage.UseVisualStyleBackColor = true;
+            // 
+            // panel3
+            // 
+            panel3.BackColor = Color.WhiteSmoke;
+            panel3.Controls.Add(allStatisticPageCategoriesListView);
+            panel3.Controls.Add(label16);
+            panel3.Location = new Point(11, 370);
+            panel3.Margin = new Padding(6);
+            panel3.Name = "panel3";
+            panel3.Size = new Size(499, 181);
+            panel3.TabIndex = 10;
+            // 
+            // allStatisticPageCategoriesListView
+            // 
+            allStatisticPageCategoriesListView.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
+            allStatisticPageCategoriesListView.FullRowSelect = true;
+            allStatisticPageCategoriesListView.GridLines = true;
+            allStatisticPageCategoriesListView.Location = new Point(3, 32);
+            allStatisticPageCategoriesListView.Name = "allStatisticPageCategoriesListView";
+            allStatisticPageCategoriesListView.Size = new Size(493, 146);
+            allStatisticPageCategoriesListView.TabIndex = 38;
+            allStatisticPageCategoriesListView.UseCompatibleStateImageBehavior = false;
+            allStatisticPageCategoriesListView.View = View.Details;
+            // 
+            // columnHeader1
+            // 
+            columnHeader1.Text = "Категория";
+            columnHeader1.Width = 300;
+            // 
+            // columnHeader2
+            // 
+            columnHeader2.Text = "Сумма";
+            columnHeader2.Width = 120;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Font = new Font("Calibri", 14F);
+            label16.Location = new Point(177, 3);
+            label16.Margin = new Padding(3);
+            label16.Name = "label16";
+            label16.Size = new Size(122, 23);
+            label16.TabIndex = 37;
+            label16.Text = "Топ категорий";
+            // 
+            // panel2
+            // 
+            panel2.BackColor = Color.WhiteSmoke;
+            panel2.Controls.Add(allStatisticPagePastMonthTextBox);
+            panel2.Controls.Add(label13);
+            panel2.Controls.Add(allStatisticPagePastYearTextBox);
+            panel2.Controls.Add(label14);
+            panel2.Location = new Point(292, 9);
+            panel2.Margin = new Padding(6);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(443, 46);
+            panel2.TabIndex = 10;
+            // 
+            // allStatisticPagePastMonthTextBox
+            // 
+            allStatisticPagePastMonthTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPagePastMonthTextBox.BorderStyle = BorderStyle.None;
+            allStatisticPagePastMonthTextBox.Font = new Font("Calibri", 14F);
+            allStatisticPagePastMonthTextBox.Location = new Point(383, 11);
+            allStatisticPagePastMonthTextBox.MaxLength = 2;
+            allStatisticPagePastMonthTextBox.Name = "allStatisticPagePastMonthTextBox";
+            allStatisticPagePastMonthTextBox.PlaceholderText = "00";
+            allStatisticPagePastMonthTextBox.Size = new Size(47, 23);
+            allStatisticPagePastMonthTextBox.TabIndex = 8;
+            allStatisticPagePastMonthTextBox.TextAlign = HorizontalAlignment.Center;
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Font = new Font("Calibri", 14F);
+            label13.Location = new Point(226, 11);
+            label13.Margin = new Padding(0, 0, 3, 0);
+            label13.Name = "label13";
+            label13.Size = new Size(151, 23);
+            label13.TabIndex = 7;
+            label13.Text = "Прошлый месяц: ";
+            // 
+            // allStatisticPagePastYearTextBox
+            // 
+            allStatisticPagePastYearTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPagePastYearTextBox.BorderStyle = BorderStyle.None;
+            allStatisticPagePastYearTextBox.Font = new Font("Calibri", 14F);
+            allStatisticPagePastYearTextBox.Location = new Point(148, 11);
+            allStatisticPagePastYearTextBox.MaxLength = 4;
+            allStatisticPagePastYearTextBox.Name = "allStatisticPagePastYearTextBox";
+            allStatisticPagePastYearTextBox.PlaceholderText = "0000";
+            allStatisticPagePastYearTextBox.Size = new Size(54, 23);
+            allStatisticPagePastYearTextBox.TabIndex = 6;
+            allStatisticPagePastYearTextBox.TextAlign = HorizontalAlignment.Center;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Font = new Font("Calibri", 14F);
+            label14.Location = new Point(13, 11);
+            label14.Margin = new Padding(0, 0, 3, 0);
+            label14.Name = "label14";
+            label14.Size = new Size(129, 23);
+            label14.TabIndex = 5;
+            label14.Text = "Прошлый год: ";
+            // 
+            // panel1
+            // 
+            panel1.BackColor = Color.WhiteSmoke;
+            panel1.Controls.Add(allStatisticPageMonthTextBox);
+            panel1.Controls.Add(label12);
+            panel1.Controls.Add(allStatisticPageYearTextBox);
+            panel1.Controls.Add(label11);
+            panel1.Location = new Point(11, 9);
+            panel1.Margin = new Padding(6);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(269, 46);
+            panel1.TabIndex = 9;
+            // 
+            // allStatisticPageMonthTextBox
+            // 
+            allStatisticPageMonthTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPageMonthTextBox.BorderStyle = BorderStyle.None;
+            allStatisticPageMonthTextBox.Font = new Font("Calibri", 14F);
+            allStatisticPageMonthTextBox.Location = new Point(206, 11);
+            allStatisticPageMonthTextBox.MaxLength = 2;
+            allStatisticPageMonthTextBox.Name = "allStatisticPageMonthTextBox";
+            allStatisticPageMonthTextBox.PlaceholderText = "00";
+            allStatisticPageMonthTextBox.Size = new Size(47, 23);
+            allStatisticPageMonthTextBox.TabIndex = 8;
+            allStatisticPageMonthTextBox.TextAlign = HorizontalAlignment.Center;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Font = new Font("Calibri", 14F);
+            label12.Location = new Point(129, 11);
+            label12.Margin = new Padding(0, 0, 3, 0);
+            label12.Name = "label12";
+            label12.Size = new Size(71, 23);
+            label12.TabIndex = 7;
+            label12.Text = "Месяц: ";
+            // 
+            // allStatisticPageYearTextBox
+            // 
+            allStatisticPageYearTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPageYearTextBox.BorderStyle = BorderStyle.None;
+            allStatisticPageYearTextBox.Font = new Font("Calibri", 14F);
+            allStatisticPageYearTextBox.Location = new Point(64, 11);
+            allStatisticPageYearTextBox.MaxLength = 4;
+            allStatisticPageYearTextBox.Name = "allStatisticPageYearTextBox";
+            allStatisticPageYearTextBox.PlaceholderText = "0000";
+            allStatisticPageYearTextBox.Size = new Size(54, 23);
+            allStatisticPageYearTextBox.TabIndex = 6;
+            allStatisticPageYearTextBox.TextAlign = HorizontalAlignment.Center;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Font = new Font("Calibri", 14F);
+            label11.Location = new Point(13, 11);
+            label11.Margin = new Padding(0, 0, 3, 0);
+            label11.Name = "label11";
+            label11.Size = new Size(45, 23);
+            label11.TabIndex = 5;
+            label11.Text = "Год: ";
+            // 
+            // allStatisticPageChart
+            // 
+            allStatisticPageChart.Location = new Point(518, 61);
+            allStatisticPageChart.Name = "allStatisticPageChart";
+            allStatisticPageChart.Size = new Size(581, 490);
+            allStatisticPageChart.TabIndex = 36;
+            allStatisticPageChart.Text = "chart1";
+            // 
+            // panel4
+            // 
+            panel4.BackColor = Color.WhiteSmoke;
+            panel4.Controls.Add(allStatisticPageTotalYearSumValueLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwPreviousYearsDateLabel);
+            panel4.Controls.Add(allStatisticPageTotalYearSumDateLabel);
+            panel4.Controls.Add(allStatisticPageTotal_2x_PreviousMonthSumDateLabel);
+            panel4.Controls.Add(allStatisticPageTotalPreviousYearSumDateLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwPreviousMonthesValueLabel);
+            panel4.Controls.Add(allStatisticPageTotalPreviousYearSumValueLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwPreviousMonthesDateLabel);
+            panel4.Controls.Add(allStatisticPageTotalMonthSumDateLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwPreviousYearsValueLabel);
+            panel4.Controls.Add(allStatisticPageTotalMonthSumValueLabel);
+            panel4.Controls.Add(allStatisticPageTotal_2x_PreviousMonthSumValueLabel);
+            panel4.Controls.Add(allStatisticPageTotalPreviousMonthSumDateLabel);
+            panel4.Controls.Add(allStatisticPageTotal_2x_PreviousYearSumValueLabel);
+            panel4.Controls.Add(allStatisticPageTotalPreviousMonthSumValueLabel);
+            panel4.Controls.Add(allStatisticPageTotal_2x_PreviousYearSumDateLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwYearsDateLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwYearsValueLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwMonthesValueLabel);
+            panel4.Controls.Add(allStatisticPageDiffBtwMonthesDateLabel);
+            panel4.Location = new Point(11, 61);
+            panel4.Margin = new Padding(6);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(499, 303);
+            panel4.TabIndex = 39;
+            // 
+            // allStatisticPageTotalYearSumValueLabel
+            // 
+            allStatisticPageTotalYearSumValueLabel.AutoSize = true;
+            allStatisticPageTotalYearSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalYearSumValueLabel.Location = new Point(318, 3);
+            allStatisticPageTotalYearSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotalYearSumValueLabel.Name = "allStatisticPageTotalYearSumValueLabel";
+            allStatisticPageTotalYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalYearSumValueLabel.TabIndex = 11;
+            allStatisticPageTotalYearSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageDiffBtwPreviousYearsDateLabel
+            // 
+            allStatisticPageDiffBtwPreviousYearsDateLabel.AutoSize = true;
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Location = new Point(9, 248);
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Name = "allStatisticPageDiffBtwPreviousYearsDateLabel";
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Size = new Size(250, 23);
+            allStatisticPageDiffBtwPreviousYearsDateLabel.TabIndex = 35;
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Text = "Разница между 0000 и 0000:  ";
+            // 
+            // allStatisticPageTotalYearSumDateLabel
+            // 
+            allStatisticPageTotalYearSumDateLabel.AutoSize = true;
+            allStatisticPageTotalYearSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalYearSumDateLabel.Location = new Point(9, 3);
+            allStatisticPageTotalYearSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotalYearSumDateLabel.Name = "allStatisticPageTotalYearSumDateLabel";
+            allStatisticPageTotalYearSumDateLabel.Size = new Size(222, 23);
+            allStatisticPageTotalYearSumDateLabel.TabIndex = 10;
+            allStatisticPageTotalYearSumDateLabel.Text = "Общая сумма за ____ год: ";
+            // 
+            // allStatisticPageTotal_2x_PreviousMonthSumDateLabel
+            // 
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.AutoSize = true;
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Location = new Point(9, 219);
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Name = "allStatisticPageTotal_2x_PreviousMonthSumDateLabel";
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Size = new Size(273, 23);
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.TabIndex = 34;
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Text = "Общая сумма за 00.0000 месяц: ";
+            // 
+            // allStatisticPageTotalPreviousYearSumDateLabel
+            // 
+            allStatisticPageTotalPreviousYearSumDateLabel.AutoSize = true;
+            allStatisticPageTotalPreviousYearSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalPreviousYearSumDateLabel.Location = new Point(9, 61);
+            allStatisticPageTotalPreviousYearSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotalPreviousYearSumDateLabel.Name = "allStatisticPageTotalPreviousYearSumDateLabel";
+            allStatisticPageTotalPreviousYearSumDateLabel.Size = new Size(226, 23);
+            allStatisticPageTotalPreviousYearSumDateLabel.TabIndex = 12;
+            allStatisticPageTotalPreviousYearSumDateLabel.Text = "Общая сумма за 0000 год: ";
+            // 
+            // allStatisticPageDiffBtwPreviousMonthesValueLabel
+            // 
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.AutoSize = true;
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Location = new Point(318, 277);
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Name = "allStatisticPageDiffBtwPreviousMonthesValueLabel";
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.TabIndex = 33;
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotalPreviousYearSumValueLabel
+            // 
+            allStatisticPageTotalPreviousYearSumValueLabel.AutoSize = true;
+            allStatisticPageTotalPreviousYearSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalPreviousYearSumValueLabel.Location = new Point(318, 61);
+            allStatisticPageTotalPreviousYearSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotalPreviousYearSumValueLabel.Name = "allStatisticPageTotalPreviousYearSumValueLabel";
+            allStatisticPageTotalPreviousYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalPreviousYearSumValueLabel.TabIndex = 13;
+            allStatisticPageTotalPreviousYearSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageDiffBtwPreviousMonthesDateLabel
+            // 
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.AutoSize = true;
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Location = new Point(9, 277);
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Name = "allStatisticPageDiffBtwPreviousMonthesDateLabel";
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Size = new Size(300, 23);
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.TabIndex = 32;
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
+            // 
+            // allStatisticPageTotalMonthSumDateLabel
+            // 
+            allStatisticPageTotalMonthSumDateLabel.AutoSize = true;
+            allStatisticPageTotalMonthSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalMonthSumDateLabel.Location = new Point(9, 32);
+            allStatisticPageTotalMonthSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotalMonthSumDateLabel.Name = "allStatisticPageTotalMonthSumDateLabel";
+            allStatisticPageTotalMonthSumDateLabel.Size = new Size(267, 23);
+            allStatisticPageTotalMonthSumDateLabel.TabIndex = 14;
+            allStatisticPageTotalMonthSumDateLabel.Text = "Общая сумма за __.____ месяц: ";
+            // 
+            // allStatisticPageDiffBtwPreviousYearsValueLabel
+            // 
+            allStatisticPageDiffBtwPreviousYearsValueLabel.AutoSize = true;
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Location = new Point(318, 248);
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Name = "allStatisticPageDiffBtwPreviousYearsValueLabel";
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwPreviousYearsValueLabel.TabIndex = 31;
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotalMonthSumValueLabel
+            // 
+            allStatisticPageTotalMonthSumValueLabel.AutoSize = true;
+            allStatisticPageTotalMonthSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalMonthSumValueLabel.Location = new Point(318, 32);
+            allStatisticPageTotalMonthSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotalMonthSumValueLabel.Name = "allStatisticPageTotalMonthSumValueLabel";
+            allStatisticPageTotalMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalMonthSumValueLabel.TabIndex = 15;
+            allStatisticPageTotalMonthSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotal_2x_PreviousMonthSumValueLabel
+            // 
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.AutoSize = true;
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Location = new Point(318, 219);
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Name = "allStatisticPageTotal_2x_PreviousMonthSumValueLabel";
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.TabIndex = 29;
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotalPreviousMonthSumDateLabel
+            // 
+            allStatisticPageTotalPreviousMonthSumDateLabel.AutoSize = true;
+            allStatisticPageTotalPreviousMonthSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalPreviousMonthSumDateLabel.Location = new Point(9, 90);
+            allStatisticPageTotalPreviousMonthSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotalPreviousMonthSumDateLabel.Name = "allStatisticPageTotalPreviousMonthSumDateLabel";
+            allStatisticPageTotalPreviousMonthSumDateLabel.Size = new Size(273, 23);
+            allStatisticPageTotalPreviousMonthSumDateLabel.TabIndex = 16;
+            allStatisticPageTotalPreviousMonthSumDateLabel.Text = "Общая сумма за 00.0000 месяц: ";
+            // 
+            // allStatisticPageTotal_2x_PreviousYearSumValueLabel
+            // 
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.AutoSize = true;
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Location = new Point(318, 190);
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Name = "allStatisticPageTotal_2x_PreviousYearSumValueLabel";
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.TabIndex = 25;
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotalPreviousMonthSumValueLabel
+            // 
+            allStatisticPageTotalPreviousMonthSumValueLabel.AutoSize = true;
+            allStatisticPageTotalPreviousMonthSumValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotalPreviousMonthSumValueLabel.Location = new Point(318, 90);
+            allStatisticPageTotalPreviousMonthSumValueLabel.Margin = new Padding(3);
+            allStatisticPageTotalPreviousMonthSumValueLabel.Name = "allStatisticPageTotalPreviousMonthSumValueLabel";
+            allStatisticPageTotalPreviousMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalPreviousMonthSumValueLabel.TabIndex = 17;
+            allStatisticPageTotalPreviousMonthSumValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageTotal_2x_PreviousYearSumDateLabel
+            // 
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.AutoSize = true;
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Location = new Point(9, 190);
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Margin = new Padding(3);
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Name = "allStatisticPageTotal_2x_PreviousYearSumDateLabel";
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Size = new Size(226, 23);
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.TabIndex = 24;
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Text = "Общая сумма за 0000 год: ";
+            // 
+            // allStatisticPageDiffBtwYearsDateLabel
+            // 
+            allStatisticPageDiffBtwYearsDateLabel.AutoSize = true;
+            allStatisticPageDiffBtwYearsDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwYearsDateLabel.Location = new Point(9, 119);
+            allStatisticPageDiffBtwYearsDateLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwYearsDateLabel.Name = "allStatisticPageDiffBtwYearsDateLabel";
+            allStatisticPageDiffBtwYearsDateLabel.Size = new Size(250, 23);
+            allStatisticPageDiffBtwYearsDateLabel.TabIndex = 18;
+            allStatisticPageDiffBtwYearsDateLabel.Text = "Разница между 0000 и 0000:  ";
+            // 
+            // allStatisticPageDiffBtwYearsValueLabel
+            // 
+            allStatisticPageDiffBtwYearsValueLabel.AutoSize = true;
+            allStatisticPageDiffBtwYearsValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwYearsValueLabel.Location = new Point(318, 119);
+            allStatisticPageDiffBtwYearsValueLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwYearsValueLabel.Name = "allStatisticPageDiffBtwYearsValueLabel";
+            allStatisticPageDiffBtwYearsValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwYearsValueLabel.TabIndex = 19;
+            allStatisticPageDiffBtwYearsValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageDiffBtwMonthesValueLabel
+            // 
+            allStatisticPageDiffBtwMonthesValueLabel.AutoSize = true;
+            allStatisticPageDiffBtwMonthesValueLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwMonthesValueLabel.Location = new Point(318, 148);
+            allStatisticPageDiffBtwMonthesValueLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwMonthesValueLabel.Name = "allStatisticPageDiffBtwMonthesValueLabel";
+            allStatisticPageDiffBtwMonthesValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwMonthesValueLabel.TabIndex = 21;
+            allStatisticPageDiffBtwMonthesValueLabel.Text = "32 152 руб.";
+            // 
+            // allStatisticPageDiffBtwMonthesDateLabel
+            // 
+            allStatisticPageDiffBtwMonthesDateLabel.AutoSize = true;
+            allStatisticPageDiffBtwMonthesDateLabel.Font = new Font("Calibri", 14F);
+            allStatisticPageDiffBtwMonthesDateLabel.Location = new Point(9, 148);
+            allStatisticPageDiffBtwMonthesDateLabel.Margin = new Padding(3);
+            allStatisticPageDiffBtwMonthesDateLabel.Name = "allStatisticPageDiffBtwMonthesDateLabel";
+            allStatisticPageDiffBtwMonthesDateLabel.Size = new Size(300, 23);
+            allStatisticPageDiffBtwMonthesDateLabel.TabIndex = 20;
+            allStatisticPageDiffBtwMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
             // 
             // MainForm
             // 
@@ -485,6 +967,16 @@ namespace PersonalFinancialManager
             specialChartPage.ResumeLayout(false);
             specialChartPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)specialChart).EndInit();
+            allStatisticPage.ResumeLayout(false);
+            panel3.ResumeLayout(false);
+            panel3.PerformLayout();
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)allStatisticPageChart).EndInit();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -524,5 +1016,49 @@ namespace PersonalFinancialManager
         private TextBox specialChartSeries2DateFromTextBox;
         private Label label10;
         public ComboBox specialChartIntervalComboBox;
+        private TabPage allStatisticPage;
+        private Panel panel1;
+        private Label label12;
+        private TextBox allStatisticPageMonthTextBox;
+        private Label label11;
+        private TextBox allStatisticPageYearTextBox;
+        private Label allStatisticPageTotalYearSumDateLabel;
+        private Label allStatisticPageTotalYearSumValueLabel;
+        private Label allStatisticPageTotalPreviousYearSumValueLabel;
+        private Label allStatisticPageTotalPreviousYearSumDateLabel;
+        private Label allStatisticPageTotalMonthSumValueLabel;
+        private Label allStatisticPageTotalMonthSumDateLabel;
+        private Label allStatisticPageTotalPreviousMonthSumValueLabel;
+        private Label allStatisticPageTotalPreviousMonthSumDateLabel;
+        private Label allStatisticPageDiffBtwYearsValueLabel;
+        private Label allStatisticPageDiffBtwYearsDateLabel;
+        private Label allStatisticPageDiffBtwMonthesValueLabel;
+        private Label allStatisticPageDiffBtwMonthesDateLabel;
+        private Panel panel2;
+        private TextBox allStatisticPagePastMonthTextBox;
+        private Label label13;
+        private TextBox allStatisticPagePastYearTextBox;
+        private Label label14;
+        private Label allStatisticPageDiffBtwPreviousMonthesValueLabel;
+        private Label allStatisticPageDiffBtwPreviousMonthesDateLabel;
+        private Label allStatisticPageDiffBtwPreviousYearsValueLabel;
+        private Label label18;
+        private Label allStatisticPageTotal_2x_PreviousMonthSumValueLabel;
+        private Label label20;
+        private Label label21;
+        private Label label22;
+        private Label allStatisticPageTotal_2x_PreviousYearSumValueLabel;
+        private Label allStatisticPageTotal_2x_PreviousYearSumDateLabel;
+        private Label label25;
+        private Label label26;
+        private Label allStatisticPageTotal_2x_PreviousMonthSumDateLabel;
+        private Label allStatisticPageDiffBtwPreviousYearsDateLabel;
+        private System.Windows.Forms.DataVisualization.Charting.Chart allStatisticPageChart;
+        private Label label16;
+        private Panel panel3;
+        private ListView allStatisticPageCategoriesListView;
+        private ColumnHeader columnHeader1;
+        private ColumnHeader columnHeader2;
+        private Panel panel4;
     }
 }

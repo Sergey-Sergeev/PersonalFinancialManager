@@ -23,6 +23,15 @@ namespace PersonalFinancialManager.source
             CategoryName = name;
         }
 
+        public static bool operator ==(ProductCategory c1, ProductCategory c2)
+        {
+            return c1.CategoryName == c2.CategoryName;
+        }
+
+        public static bool operator !=(ProductCategory c1, ProductCategory c2)
+        {
+            return c1.CategoryName != c2.CategoryName;
+        }
 
 
         public static ProductCategory AutoSetProductCategory(string productName)
