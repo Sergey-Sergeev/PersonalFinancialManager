@@ -208,5 +208,47 @@ namespace PersonalFinancialManager.source
             }
         }
 
+        public double GetTotalSumDuringPeriod(int fromYear, int fromMonth, int untilYear, int untilMonth)
+        {
+            double totalSum = 0;
+
+            DateTime from = new DateTime(fromYear, fromMonth, 1);
+            DateTime until = new DateTime(untilYear, untilMonth, 1).AddMonths(1).AddDays(-1).Add(new TimeSpan(23, 59, 59));
+
+            foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
+                totalSum += Double.Round(receipt.TotalPrice, 2);
+
+            totalSum = Double.Round(totalSum, 2);
+
+            return totalSum;
+        }
+
+        public Dictionary<string, double> GetProductCategoryStatisticDuringYear(int year)
+        {
+            Dictionary<string, double> productCategoryStatistic = new Dictionary<string, double>();
+
+            DateTime from = new DateTime(year, 1, 1);
+            DateTime until = new DateTime(year, 12, 31).Add(new TimeSpan(23, 59, 59));
+
+            foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
+            {
+                foreach (Product product in receipt.ListOfProducts)
+                {
+                    if (productCategoryStatistic.ContainsKey(product.Category.CategoryName))
+                    {
+                        productCategoryStatistic[product.Category.CategoryName] += product.Sum;
+                        productCategoryStatistic[product.Category.CategoryName] = Double.Round(productCategoryStatistic[product.Category.CategoryName], 2);
+                    }
+                    else
+                    {
+                        productCategoryStatistic.Add(product.Category.CategoryName, product.Sum);                        
+                    }
+                }
+            }
+
+            productCategoryStatistic = productCategoryStatistic.OrderByDescending<KeyValuePair<string, double>, double>((pair) => pair.Value).ToDictionary();
+
+            return productCategoryStatistic;
+        }
     }
 }

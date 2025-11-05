@@ -1,4 +1,4 @@
-using PersonalFinancialManager.source;
+Ôªøusing PersonalFinancialManager.source;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Forms.VisualStyles;
 using ZXing;
@@ -9,29 +9,12 @@ namespace PersonalFinancialManager
 {
     public partial class MainForm : Form
     {
-        const string FILE_FILTER = "»ÁÓ·‡ÊÂÌËˇ (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|JPEG (*.jpeg)|*.jpeg";
+        const string FILE_FILTER = "–ò–∑–æ–±—Ä–∞–∂–µ–Ω–∏—è (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|JPEG (*.jpeg)|*.jpeg";
         private DataService dataService;
 
-        private readonly Dictionary<string, SpecialChartInterval> SPECIAL_CHART_INTERVAL_PAIRS = new Dictionary<string, SpecialChartInterval>()
-        {
-             { "ƒÂÌ¸", SpecialChartInterval.Day },
-             { "ÃÂÒˇˆ", SpecialChartInterval.Month }
-        };
-
-        private const int YEAR_CHART_AXIS_Y_INTERVAL_COUNT = 10;
-        private const int DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL = 100;
-
-        private readonly Color SPECIAL_CHART_SERIES1_COLOR = Color.Blue;
-        private readonly Color SPECIAL_CHART_SERIES2_COLOR = Color.Yellow;
-        private readonly Color SPECIAL_CHART_SERIES3_COLOR = Color.Gray;
-
-
-        private static class SpecialChartInput
-        {
-            public static TextBox[] FromTextBoxes;
-            public static TextBox[] UntilTextBoxes;
-            public static CheckBox[] CheckBoxes;
-        }
+        private StatisticChart yearStatisticChart;
+        private StatisticChart monthStatisticChart;
+        private SpecialStatisticChart specialStatisticChart;
 
         public MainForm()
         {
@@ -43,7 +26,7 @@ namespace PersonalFinancialManager
                 AskUserToken(false);
 
             UpdateAllReceiptsInDatabaseWindow();
-            InitializeStatisticCharts();
+            InitializeStatistic();
         }
 
         private async void loadQRCodesButton_Click(object sender, EventArgs e)
@@ -72,7 +55,7 @@ namespace PersonalFinancialManager
                 if (result.Receipts.Count != 0)
                 {
                     UpdateAllReceiptsInDatabaseWindow();
-                    UpdateYearStatisticChart();
+                    UpdateStatisticCharts();
                 }
             }
         }
@@ -86,14 +69,14 @@ namespace PersonalFinancialManager
                 List<TreeNode> productsAndTotalPrice = receipt.ListOfProducts.ConvertAll<TreeNode>(
                         (product) => new TreeNode($"{product.Name}\n",
                         new TreeNode[] {
-                            new TreeNode($" ‡ÚÂ„ÓËˇ:  {product.Category}") { Tag = DatabaseWindowTag.Data },
-                            new TreeNode($"÷ÂÌ‡:  {product.Price}\n"){ Tag = DatabaseWindowTag.Data },
-                            new TreeNode($" ÓÎË˜ÂÒÚ‚Ó:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.Data },
-                            new TreeNode($"—ÛÏÏ‡:  {product.Sum}\n"){ Tag = DatabaseWindowTag.Data }}
+                            new TreeNode($"–ö–∞—Ç–µ–≥–æ—Ä–∏—è:  {product.Category}") { Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"–¶–µ–Ω–∞:  {product.Price}\n"){ Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"–ö–æ–ª–∏—á–µ—Å—Ç–≤–æ:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.Data },
+                            new TreeNode($"–°—É–º–º–∞:  {product.Sum}\n"){ Tag = DatabaseWindowTag.Data }}
                         )
                         { Tag = DatabaseWindowTag.Data });
 
-                productsAndTotalPrice.Add(new TreeNode($"œÓÎÌ‡ˇ ÒÛÏÏ‡:  {receipt.TotalPrice}") { Tag = DatabaseWindowTag.Data });
+                productsAndTotalPrice.Add(new TreeNode($"–ü–æ–ª–Ω–∞—è —Å—É–º–º–∞:  {receipt.TotalPrice}") { Tag = DatabaseWindowTag.Data });
 
                 TreeNode treeNode = new TreeNode($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
                     productsAndTotalPrice.ToArray())
@@ -103,279 +86,231 @@ namespace PersonalFinancialManager
             }
         }
 
-        private void InitializeStatisticCharts()
+        private void InitializeStatistic()
         {
-            InitializeYearStatisticChart();
-            InitializeMonthStatisticChart();
-            InitializeSpecialStatisticChart();
+            yearStatisticChart = new StatisticChart(ref yearChart, $"{DateTime.Now.Year} –≥–æ–¥",
+                Font, dataService.GetCurrentYearReceipts, "MMMM");
+            yearStatisticChart.Initialize();
+
+            monthStatisticChart = new StatisticChart(ref monthChart, DateTime.Now.ToString("MMMM"),
+                Font, dataService.GetCurrentMonthReceipts, "dd");
+            monthStatisticChart.Initialize();
+
+            specialStatisticChart = new SpecialStatisticChart(ref specialChart, Font,
+                dataService.GetReceiptsDuringPeriod,
+                specialChartSeries1DateFromTextBox,
+                specialChartSeries1DateUntilTextBox,
+                specialChartSeries1HideCheckBox,
+                specialChartSeries3HideCheckBox,
+                specialChartSeries3DateUntilTextBox,
+                specialChartSeries3DateFromTextBox,
+                specialChartSeries2HideCheckBox,
+                specialChartSeries2DateUntilTextBox,
+                specialChartSeries2DateFromTextBox,
+                specialChartIntervalComboBox
+                );
+            specialStatisticChart.Initialize();
+
+            InitializeAllStatisticPage();
+            UpdateStatisticCharts();
         }
 
-        private void UpdateStatisticCharts()
-        {
-            UpdateYearStatisticChart();
-            UpdateMonthStatisticChart();
-        }
-
-        private void SetDefaultChart(ref Chart chart, string titleName)
+        private void InitializeAllStatisticPage()
         {
             ChartArea chartArea = new ChartArea();
-            chartArea.IsSameFontSizeForAllAxes = true;
-            chartArea.BorderDashStyle = ChartDashStyle.Solid;
-            chartArea.BorderWidth = 1;
             chartArea.BorderColor = Color.WhiteSmoke;
 
-            chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.FixedCount;
-
-            // Point list contain x and y as a double type, so if you add x as a string,
-            // there will be 0 every time you add new x, and therefore chart will have a lot of points with x = 0,
-            // and Chart display only one. AxisX.Interval = 1 solves this problem
-            chartArea.AxisX.Interval = 1;
-
-            chartArea.AxisX.MajorGrid.LineWidth = 1;
-            chartArea.AxisY.MajorGrid.LineWidth = 1;
-            chartArea.AxisX.MajorGrid.LineColor = Color.DarkGray;
-            chartArea.AxisY.MajorGrid.LineColor = Color.DarkGray;
-            chartArea.AxisX.LineWidth = 2;
-            chartArea.AxisY.LineWidth = 2;
-            chartArea.Position.Auto = false;
-            chartArea.Position.X = 0;
-            chartArea.Position.Y = 100;
-            chartArea.Position.Width = 95;
-            chartArea.Position.Height = 95;
-
-            chart.ChartAreas.Add(chartArea);
+            allStatisticPageChart.ChartAreas.Add(chartArea);
 
             Series series = new Series();
-            series.ChartType = SeriesChartType.Line;
+            series.ChartType = SeriesChartType.Pie;
             series.XValueType = ChartValueType.String;
-            series.YValueType = ChartValueType.Int32;
-            series.IsXValueIndexed = true;
-            series.IsValueShownAsLabel = true;
+            series.YValueType = ChartValueType.Double;
             series.Font = Font;
-            series.Color = SPECIAL_CHART_SERIES1_COLOR;
-            series.BorderWidth = 3;
+            series.Color = StatisticChart.DEFAULT_CHART_SERIES_COLOR;
 
-            chart.Series.Add(series);
+            series["PieLabelStyle"] = "Outside";
+            series["PieLineColor"] = "Black";
+            series.Label = "#VALX #PERCENT{P2}";
+
+            allStatisticPageChart.Series.Add(series);
 
             Title title = new Title();
-            title.Position.Auto = false;
+            title.Font = Font;
             title.Position.X = 45.5f;
-            title.Position.Y = 2;
+            title.Position.Y = 0;
             title.Position.Width = 10;
             title.Position.Height = 5;
-            title.Font = new Font(Font.FontFamily, Font.Size + 2, FontStyle.Bold);
-            title.Text = titleName;
 
-            chart.Titles.Add(title);
+            allStatisticPageChart.Titles.Add(title);
+
+
+            allStatisticPageYearTextBox.TextChanged += AllStatisticPageAutoSetPastYear;
+            allStatisticPageYearTextBox.TextChanged += UpdateAllStatisticPage;
+
+            allStatisticPageMonthTextBox.TextChanged += AllStatisticPageAutoSetPastMonth;
+            allStatisticPageMonthTextBox.TextChanged += UpdateAllStatisticPage;
+
+            allStatisticPagePastYearTextBox.TextChanged += UpdateAllStatisticPage;
+            allStatisticPagePastMonthTextBox.TextChanged += UpdateAllStatisticPage;
+
+            allStatisticPageYearTextBox.Text = DateTime.Now.ToString("yyyy");
+            allStatisticPageMonthTextBox.Text = DateTime.Now.ToString("MM");
+
+            UpdateAllStatisticPage();
         }
 
-        private void UpdateDefaultChart(Chart chart, Func<IEnumerable<StatisticDataUnit>> getDataFunc, string dateTimeFormatString)
+        private void AllStatisticPageAutoSetPastYear(object? sender, EventArgs e)
         {
-            chart.Series[0].Points.Clear();
-
-            double maximum = 0;
-            int interval;
-
-            foreach (StatisticDataUnit data in getDataFunc())
+            if (int.TryParse(allStatisticPageYearTextBox.Text, out int year) && year > 1)
             {
-                int i = chart.Series[0].Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
-                chart.Series[0].Points[i].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
+                allStatisticPagePastYearTextBox.Text = $"{year - 1}";
+            }
+        }
 
-                if (data.date > DateTime.Now)
-                    chart.Series[0].Points[i].IsEmpty = data.Value == 0;
+        private void AllStatisticPageAutoSetPastMonth(object? sender, EventArgs e)
+        {
+            allStatisticPagePastMonthTextBox.Text = allStatisticPageMonthTextBox.Text;
+        }
 
-                maximum = Math.Max(maximum, data.Value);
+        private void UpdateAllStatisticPage(object? sender = null, EventArgs? e = null)
+        {
+            string yearStr = "____";
+            string pastYearStr = "____";
+            string monthStr = "__";
+            string pastMonthStr = "__";
+
+            string previous_2x_yearStr = "____";
+
+            double yearSum = 0;
+            double monthSum = 0;
+            double prevYearSum = 0;
+            double prevMonthSum = 0;
+
+            double previous_2x_yearSum = 0;
+            double previous_2x_monthSum = 0;
+
+            bool isDataExist = false;
+
+            int year = 0;
+
+            if (allStatisticPageYearTextBox.Text != String.Empty &&
+                allStatisticPageMonthTextBox.Text != String.Empty &&
+                allStatisticPagePastYearTextBox.Text != String.Empty &&
+                allStatisticPagePastMonthTextBox.Text != String.Empty &&
+
+                int.TryParse(allStatisticPageYearTextBox.Text, out year) &&
+                year > 1800 && year <= DateTime.Now.Year &&
+
+                int.TryParse(allStatisticPageMonthTextBox.Text, out int month) &&
+                month > 0 && month < 13 &&
+
+                int.TryParse(allStatisticPagePastYearTextBox.Text, out int pastYear) &&
+                pastYear > 1800 && pastYear <= year &&
+
+                int.TryParse(allStatisticPagePastMonthTextBox.Text, out int pastMonth) &&
+                pastMonth > 0 && pastMonth < 13
+                )
+            {
+                yearSum = dataService.GetTotalSumDuringPeriod(year, 1, year, 12);
+                monthSum = dataService.GetTotalSumDuringPeriod(year, month, year, month);
+                prevYearSum = dataService.GetTotalSumDuringPeriod(pastYear, 1, pastYear, 12);
+                prevMonthSum = dataService.GetTotalSumDuringPeriod(pastYear, pastMonth, pastYear, pastMonth);
+
+                previous_2x_yearSum = dataService.GetTotalSumDuringPeriod(pastYear - 1, 1, pastYear - 1, 12);
+                previous_2x_monthSum = dataService.GetTotalSumDuringPeriod(pastYear - 1, pastMonth, pastYear - 1, pastMonth);
+
+                yearStr = year.ToString();
+                monthStr = month.ToString();
+                pastYearStr = pastYear.ToString();
+                pastMonthStr = pastMonth.ToString();
+
+                previous_2x_yearStr = (pastYear - 1).ToString();                
+                isDataExist = true;
             }
 
-            if (maximum == 0)
+            allStatisticPageTotalYearSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {yearStr} –≥–æ–¥: ";
+            allStatisticPageTotalMonthSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {monthStr}.{yearStr} –º–µ—Å—è—Ü: ";
+            allStatisticPageTotalPreviousYearSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {pastYearStr} –≥–æ–¥: ";
+            allStatisticPageTotalPreviousMonthSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {pastMonthStr}.{pastYearStr} –º–µ—Å—è—Ü: ";
+            allStatisticPageDiffBtwYearsDateLabel.Text = $"–†–∞–∑–Ω–∏—Ü–∞ –º–µ–∂–¥—É {yearStr} –∏ {pastYearStr}:  ";
+            allStatisticPageDiffBtwMonthesDateLabel.Text = $"–†–∞–∑–Ω–∏—Ü–∞ –º–µ–∂–¥—É {monthStr}.{yearStr} –∏ {pastMonthStr}.{pastYearStr}:  ";
+
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {previous_2x_yearStr} –≥–æ–¥: ";
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Text = $"–û–±—â–∞—è —Å—É–º–º–∞ –∑–∞ {pastMonthStr}.{previous_2x_yearStr} –º–µ—Å—è—Ü: ";
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Text = $"–†–∞–∑–Ω–∏—Ü–∞ –º–µ–∂–¥—É {pastYearStr} –∏ {previous_2x_yearStr}:  ";
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Text = $"–†–∞–∑–Ω–∏—Ü–∞ –º–µ–∂–¥—É {pastMonthStr}.{pastYearStr} –∏ {pastMonthStr}.{previous_2x_yearStr}:  ";
+
+            if (isDataExist)
             {
-                interval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
-                chart.ChartAreas[0].AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
+                double yearDiff = Double.Round(yearSum - prevYearSum, 2);
+                double monthDiff = Double.Round(monthSum - prevMonthSum, 2);
+
+                double previous_2x_yearDiff = Double.Round(prevYearSum - previous_2x_yearSum, 2);
+                double previous_2x_monthDiff = Double.Round(prevMonthSum - previous_2x_monthSum, 2);
+
+                allStatisticPageTotalYearSumValueLabel.Text = $"{yearSum} —Ä—É–±.";
+                allStatisticPageTotalMonthSumValueLabel.Text = $"{monthSum} —Ä—É–±.";
+                allStatisticPageTotalPreviousYearSumValueLabel.Text = $"{prevYearSum} —Ä—É–±.";
+                allStatisticPageTotalPreviousMonthSumValueLabel.Text = $"{prevMonthSum} —Ä—É–±.";
+                allStatisticPageDiffBtwYearsValueLabel.Text = $"{yearDiff} —Ä—É–±. {(yearDiff <= 0 ? '‚Üë' : '‚Üì')}";
+                allStatisticPageDiffBtwMonthesValueLabel.Text = $"{monthDiff} —Ä—É–±. {(monthDiff <= 0 ? '‚Üë' : '‚Üì')}";
+
+                allStatisticPageDiffBtwYearsValueLabel.BackColor = yearDiff <= 0 ? Color.PaleGreen : Color.PaleVioletRed;
+                allStatisticPageDiffBtwMonthesValueLabel.BackColor = monthDiff <= 0 ? Color.PaleGreen : Color.PaleVioletRed;
+
+                allStatisticPageTotal_2x_PreviousYearSumValueLabel.Text = $"{previous_2x_yearSum} —Ä—É–±.";
+                allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Text = $"{previous_2x_monthSum} —Ä—É–±.";
+                allStatisticPageDiffBtwPreviousYearsValueLabel.Text = $"{previous_2x_yearDiff} —Ä—É–±. {(previous_2x_yearDiff <= 0 ? '‚Üë' : '‚Üì')}";
+                allStatisticPageDiffBtwPreviousMonthesValueLabel.Text = $"{previous_2x_monthDiff} —Ä—É–±. {(previous_2x_monthDiff <= 0 ? '‚Üë' : '‚Üì')}";
+
+                allStatisticPageDiffBtwPreviousYearsValueLabel.BackColor = previous_2x_yearDiff <= 0 ? Color.PaleGreen : Color.PaleVioletRed;
+                allStatisticPageDiffBtwPreviousMonthesValueLabel.BackColor = previous_2x_monthDiff <= 0 ? Color.PaleGreen : Color.PaleVioletRed;
             }
             else
             {
-                maximum = GetNearestRoundValue(maximum);
-                chart.ChartAreas[0].AxisY.Maximum = maximum;
-                interval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
+                allStatisticPageTotalYearSumValueLabel.Text =
+                allStatisticPageTotalMonthSumValueLabel.Text =
+                allStatisticPageTotalPreviousYearSumValueLabel.Text =
+                allStatisticPageTotalPreviousMonthSumValueLabel.Text =
+                allStatisticPageDiffBtwYearsValueLabel.Text =
+                allStatisticPageDiffBtwMonthesValueLabel.Text =
+                allStatisticPageTotal_2x_PreviousYearSumValueLabel.Text =
+                allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Text =
+                allStatisticPageDiffBtwPreviousYearsValueLabel.Text =
+                allStatisticPageDiffBtwPreviousMonthesValueLabel.Text =
+                "-";
             }
 
-            chart.ChartAreas[0].AxisY.Interval = interval;
-        }
 
-        private void InitializeYearStatisticChart()
-        {
-            SetDefaultChart(ref yearChart, $"{DateTime.Now.Year} „Ó‰");
-            UpdateYearStatisticChart();
-        }
-
-        private void UpdateYearStatisticChart()
-        {
-            UpdateDefaultChart(yearChart, dataService.GetCurrentYearReceipts, "MMMM");
-        }
-
-        private void InitializeMonthStatisticChart()
-        {
-            SetDefaultChart(ref monthChart, DateTime.Now.ToString("MMMM"));
-            UpdateMonthStatisticChart();
-        }
-
-        private void UpdateMonthStatisticChart()
-        {
-            UpdateDefaultChart(monthChart, dataService.GetCurrentMonthReceipts, "dd");
-        }
-
-        private void InitializeSpecialStatisticChart()
-        {
-            SetDefaultChart(ref specialChart, "");
-
-            specialChart.ChartAreas[0].Position.X = 0;
-            specialChart.ChartAreas[0].Position.Y = 0;
-            specialChart.ChartAreas[0].Position.Width = 100;
-            specialChart.ChartAreas[0].Position.Height = 80;
-
-            Legend legend = new Legend();
-
-            legend.Position.Height = 15;
-            legend.Position.Width = 25;
-            legend.Position.X = 0;
-            legend.Position.Y = 83;
-            legend.LegendStyle = LegendStyle.Column;
-            legend.Font = Font;
-
-            specialChart.Legends.Add(legend);
-
-            Series secondSeries = new Series();
-            Series thirdSeries = new Series();
-            thirdSeries.ChartType = secondSeries.ChartType = specialChart.Series[0].ChartType;
-            thirdSeries.XValueType = secondSeries.XValueType = specialChart.Series[0].XValueType;
-            thirdSeries.YValueType = secondSeries.YValueType = specialChart.Series[0].YValueType;
-            thirdSeries.IsXValueIndexed = secondSeries.IsXValueIndexed = specialChart.Series[0].IsXValueIndexed;
-            thirdSeries.IsValueShownAsLabel = secondSeries.IsValueShownAsLabel = specialChart.Series[0].IsValueShownAsLabel;
-            thirdSeries.Font = secondSeries.Font = specialChart.Series[0].Font;
-            secondSeries.Color = SPECIAL_CHART_SERIES2_COLOR;
-            thirdSeries.Color = SPECIAL_CHART_SERIES3_COLOR;
-            thirdSeries.BorderWidth = secondSeries.BorderWidth = specialChart.Series[0].BorderWidth;
-
-            specialChart.Series.Add(secondSeries);
-            specialChart.Series.Add(thirdSeries);
-
-            specialChart.Series[0].Name = "√‡ÙËÍ ÔÓ‰ ÌÓÏÂÓÏ 1";
-            specialChart.Series[1].Name = "√‡ÙËÍ ÔÓ‰ ÌÓÏÂÓÏ 2";
-            specialChart.Series[2].Name = "√‡ÙËÍ ÔÓ‰ ÌÓÏÂÓÏ 3";
-
-
-            foreach (KeyValuePair<string, SpecialChartInterval> pair in SPECIAL_CHART_INTERVAL_PAIRS)
-            {
-                specialChartIntervalComboBox.Items.Add(pair.Key);
-            }
-
-            SpecialChartInput.FromTextBoxes = new TextBox[] {
-                specialChartSeries1DateFromTextBox,
-                specialChartSeries2DateFromTextBox,
-                specialChartSeries3DateFromTextBox
-            };
-
-            SpecialChartInput.UntilTextBoxes = new TextBox[] {
-                specialChartSeries1DateUntilTextBox,
-                specialChartSeries2DateUntilTextBox,
-                specialChartSeries3DateUntilTextBox,
-            };
-
-            SpecialChartInput.CheckBoxes = new CheckBox[] {
-                specialChartSeries1HideCheckBox,
-                specialChartSeries2HideCheckBox,
-                specialChartSeries3HideCheckBox
-            };
-
-
-            for (int i = 0; i < 3; i++)
-            {
-                SpecialChartInput.FromTextBoxes[i].Leave += UpdateSpecialStatisticChart;
-                SpecialChartInput.FromTextBoxes[i].KeyPress += SpecialChartInputTextBoxEnterPressedEvent;
-                SpecialChartInput.UntilTextBoxes[i].Leave += UpdateSpecialStatisticChart;
-                SpecialChartInput.UntilTextBoxes[i].KeyPress += SpecialChartInputTextBoxEnterPressedEvent;
-                SpecialChartInput.CheckBoxes[i].CheckedChanged += UpdateSpecialStatisticChart;
-            }
-
-            UpdateSpecialStatisticChart();
-        }
-
-        private void SpecialChartInputTextBoxEnterPressedEvent(object? sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)ConsoleKey.Enter)
-            {
-                UpdateSpecialStatisticChart();
-                Focus();
-            }
-        }
-
-        private void UpdateSpecialStatisticChart(object? sender = null, EventArgs e = null)
-        {
-            if (specialChartIntervalComboBox.Text == String.Empty)
+            if (!isDataExist) 
                 return;
 
-            specialChart.ChartAreas[0].AxisY.Maximum = 0;
 
-            for (int i = 0; i < 3; i++)
+            allStatisticPageChart.Series[0].Points.Clear();
+
+            allStatisticPageCategoriesListView.Items.Clear();
+
+            foreach (KeyValuePair<string, double> data in dataService.GetProductCategoryStatisticDuringYear(year))
             {
-                if (SpecialChartInput.CheckBoxes[i].Checked)
-                {
-                    specialChart.Series[i].Points.Clear();
-                    continue;
-                }
+                int i = allStatisticPageChart.Series[0].Points.AddXY(data.Key, data.Value);
+                allStatisticPageChart.Series[0].Points[i].Font = Font;
+                allStatisticPageChart.Series[0].Points[i]["Exploded"] = "True";
 
-                if (IsDateCorrect(ref SpecialChartInput.FromTextBoxes[i], out DateTime fromDate) &&
-                    IsDateCorrect(ref SpecialChartInput.UntilTextBoxes[i], out DateTime untilDate))
-                {
-                    //specialChart.Series[i].Name = $"√‡ÙËÍ ÔÓ‰ ÌÓÏÂÓÏ {i}";
-                    specialChart.Series[i].Points.Clear();
-
-                    double maximum = specialChart.ChartAreas[0].AxisY.Maximum;
-                    (int d, int m, int y) interval = GetSpecialChartDateTimeInterval(out string dateTimeFormatString);
-                    int moneyInterval;
-
-                    foreach (StatisticDataUnit data in dataService.GetReceiptsDuringPeriod(fromDate, untilDate, interval))
-                    {
-                        int index = specialChart.Series[i].Points.AddXY(data.date.ToString(dateTimeFormatString), data.Value);
-                        specialChart.Series[i].Points[index].Font = new Font(Font.FontFamily, Font.Size + 1, FontStyle.Bold);
-
-                        if (data.date > DateTime.Now)
-                            specialChart.Series[i].Points[index].IsEmpty = data.Value == 0;
-
-                        maximum = Math.Max(maximum, data.Value);
-                    }
-
-
-                    if (maximum == 0)
-                    {
-                        moneyInterval = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL;
-                        specialChart.ChartAreas[0].AxisY.Maximum = DEFAULT_YEAR_CHART_AXIS_Y_INTERVAL * YEAR_CHART_AXIS_Y_INTERVAL_COUNT;
-                    }
-                    else
-                    {
-                        maximum = GetNearestRoundValue(maximum);
-                        specialChart.ChartAreas[0].AxisY.Maximum = maximum;
-                        moneyInterval = Convert.ToInt32(maximum / YEAR_CHART_AXIS_Y_INTERVAL_COUNT);
-                    }
-
-                    specialChart.ChartAreas[0].AxisY.Interval = moneyInterval;
-                }
+                ListViewItem item = new ListViewItem(data.Key);
+                item.SubItems.Add($"{data.Value}");
+                allStatisticPageCategoriesListView.Items.Add(item);
             }
+
+            allStatisticPageChart.Titles[0].Text = yearStr;
+
         }
-
-        private (int d, int m, int y) GetSpecialChartDateTimeInterval(out string dateTimeFormatString)
+               
+        private void UpdateStatisticCharts()
         {
-            switch (SPECIAL_CHART_INTERVAL_PAIRS.GetValueOrDefault(specialChartIntervalComboBox.Text,
-                SpecialChartInterval.Month))
-            {
-                case SpecialChartInterval.Day:
-                    dateTimeFormatString = "dd";
-                    return (1, 0, 0);
-                case SpecialChartInterval.Month:
-                default:
-                    dateTimeFormatString = "MMMM";
-                    return (0, 1, 0);
-            }
+            yearStatisticChart.Update();
+            monthStatisticChart.Update();
+            specialStatisticChart.Update();
         }
 
         private void AskUserToken(bool isWrongAPI)
@@ -394,7 +329,7 @@ namespace PersonalFinancialManager
                 while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.ReceiptHeader)
                     treeNode = treeNode.Parent;
 
-                DialogResult dr = MessageBox.Show("¬˚ ‰ÂÈÒÚ‚ËÚÂÎ¸ÌÓ ıÓÚËÚÂ Û‰‡ÎËÚ¸ ˜ÂÍ?",
+                DialogResult dr = MessageBox.Show("–í—ã –¥–µ–π—Å—Ç–≤–∏—Ç–µ–ª—å–Ω–æ —Ö–æ—Ç–∏—Ç–µ —É–¥–∞–ª–∏—Ç—å —á–µ–∫?",
                       "", MessageBoxButtons.YesNo);
 
                 if (dr != DialogResult.Yes)
@@ -410,58 +345,11 @@ namespace PersonalFinancialManager
             }
         }
 
-        private double GetNearestRoundValue(double n)
-        {
-            string value = ((int)n).ToString();
-
-            if (value.Length < 2)
-            {
-                return 10;
-            }
-            else
-            {
-                int firstNumber = value[0] - '0';
-                int secondNumber = value[1] - '0';
-
-                if (secondNumber < 5)
-                {
-                    secondNumber = 5;
-                }
-                else
-                {
-                    secondNumber = 0;
-                    firstNumber++;
-                }
-
-                return (firstNumber * 10 + secondNumber) * Math.Pow(10, value.Length - 2);
-            }
-        }
-
-        private bool IsDateCorrect(ref TextBox textBox, out DateTime dateTime)
-        {
-            if (DateTime.TryParse(textBox.Text, out dateTime))
-            {
-                textBox.Text = dateTime.ToString("dd.MM.yyyy");
-                return true;
-            }
-            return false;
-        }
-
-        private void specialChartIntervalComboBox_TextChanged(object sender, EventArgs e)
-        {
-            UpdateSpecialStatisticChart();
-        }
-
         private enum DatabaseWindowTag
         {
             ReceiptHeader,
             Data
         }
 
-        private enum SpecialChartInterval
-        {
-            Day,
-            Month
-        }
     }
 }
