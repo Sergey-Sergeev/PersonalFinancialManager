@@ -158,14 +158,15 @@ namespace PersonalFinancialManager
             // 
             // databaseContextMenuStrip
             // 
+            databaseContextMenuStrip.ImageScalingSize = new Size(20, 20);
             databaseContextMenuStrip.Items.AddRange(new ToolStripItem[] { deleteReceiptFromDatabase });
             databaseContextMenuStrip.Name = "contextMenuStrip1";
-            databaseContextMenuStrip.Size = new Size(141, 26);
+            databaseContextMenuStrip.Size = new Size(162, 28);
             // 
             // deleteReceiptFromDatabase
             // 
             deleteReceiptFromDatabase.Name = "deleteReceiptFromDatabase";
-            deleteReceiptFromDatabase.Size = new Size(140, 22);
+            deleteReceiptFromDatabase.Size = new Size(161, 24);
             deleteReceiptFromDatabase.Text = "Удалить чек";
             deleteReceiptFromDatabase.Click += deleteReceiptFromDatabase_Click;
             // 
@@ -181,7 +182,7 @@ namespace PersonalFinancialManager
             mainTabControl.Margin = new Padding(0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(1115, 591);
+            mainTabControl.Size = new Size(1113, 583);
             mainTabControl.TabIndex = 3;
             // 
             // mainPage
@@ -189,10 +190,10 @@ namespace PersonalFinancialManager
             mainPage.Controls.Add(textBox1);
             mainPage.Controls.Add(loadQRCodesButton);
             mainPage.Controls.Add(databaseWindow);
-            mainPage.Location = new Point(4, 28);
+            mainPage.Location = new Point(4, 33);
             mainPage.Name = "mainPage";
             mainPage.Padding = new Padding(3);
-            mainPage.Size = new Size(1107, 559);
+            mainPage.Size = new Size(1105, 546);
             mainPage.TabIndex = 0;
             mainPage.Text = "Главная";
             mainPage.UseVisualStyleBackColor = true;
@@ -202,16 +203,16 @@ namespace PersonalFinancialManager
             textBox1.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             textBox1.Location = new Point(285, 9);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(816, 27);
+            textBox1.Size = new Size(816, 32);
             textBox1.TabIndex = 3;
             // 
             // yearChartPage
             // 
             yearChartPage.Controls.Add(yearChart);
-            yearChartPage.Location = new Point(4, 24);
+            yearChartPage.Location = new Point(4, 29);
             yearChartPage.Name = "yearChartPage";
             yearChartPage.Padding = new Padding(3);
-            yearChartPage.Size = new Size(1107, 563);
+            yearChartPage.Size = new Size(1107, 558);
             yearChartPage.TabIndex = 1;
             yearChartPage.Text = "График за год";
             yearChartPage.UseVisualStyleBackColor = true;
@@ -222,17 +223,17 @@ namespace PersonalFinancialManager
             yearChart.Location = new Point(3, 3);
             yearChart.Margin = new Padding(0);
             yearChart.Name = "yearChart";
-            yearChart.Size = new Size(1101, 557);
+            yearChart.Size = new Size(1101, 552);
             yearChart.TabIndex = 1;
             yearChart.Text = "chart1";
             // 
             // monthChartPage
             // 
             monthChartPage.Controls.Add(monthChart);
-            monthChartPage.Location = new Point(4, 24);
+            monthChartPage.Location = new Point(4, 29);
             monthChartPage.Name = "monthChartPage";
             monthChartPage.Padding = new Padding(3);
-            monthChartPage.Size = new Size(1107, 563);
+            monthChartPage.Size = new Size(1107, 558);
             monthChartPage.TabIndex = 2;
             monthChartPage.Text = "График за месяц";
             monthChartPage.UseVisualStyleBackColor = true;
@@ -243,7 +244,7 @@ namespace PersonalFinancialManager
             monthChart.Location = new Point(3, 3);
             monthChart.Margin = new Padding(0);
             monthChart.Name = "monthChart";
-            monthChart.Size = new Size(1101, 557);
+            monthChart.Size = new Size(1101, 552);
             monthChart.TabIndex = 2;
             monthChart.Text = "chart1";
             // 
@@ -270,10 +271,10 @@ namespace PersonalFinancialManager
             specialChartPage.Controls.Add(specialChartSeries1DateUntilTextBox);
             specialChartPage.Controls.Add(specialChartSeries1DateFromTextBox);
             specialChartPage.Controls.Add(specialChart);
-            specialChartPage.Location = new Point(4, 24);
+            specialChartPage.Location = new Point(4, 33);
             specialChartPage.Name = "specialChartPage";
             specialChartPage.Padding = new Padding(3);
-            specialChartPage.Size = new Size(1107, 563);
+            specialChartPage.Size = new Size(1105, 546);
             specialChartPage.TabIndex = 3;
             specialChartPage.Text = "Специальный график";
             specialChartPage.UseVisualStyleBackColor = true;
@@ -289,7 +290,7 @@ namespace PersonalFinancialManager
             specialChartIntervalComboBox.ImeMode = ImeMode.NoControl;
             specialChartIntervalComboBox.Location = new Point(357, 487);
             specialChartIntervalComboBox.Name = "specialChartIntervalComboBox";
-            specialChartIntervalComboBox.Size = new Size(98, 27);
+            specialChartIntervalComboBox.Size = new Size(98, 32);
             specialChartIntervalComboBox.TabIndex = 4;
             // 
             // label10
@@ -298,7 +299,7 @@ namespace PersonalFinancialManager
             label10.Location = new Point(357, 464);
             label10.Margin = new Padding(0, 0, 3, 0);
             label10.Name = "label10";
-            label10.Size = new Size(82, 19);
+            label10.Size = new Size(103, 24);
             label10.TabIndex = 20;
             label10.Text = "Интервал: ";
             // 
@@ -308,7 +309,7 @@ namespace PersonalFinancialManager
             specialChartSeries3HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries3HideCheckBox.Location = new Point(952, 514);
             specialChartSeries3HideCheckBox.Name = "specialChartSeries3HideCheckBox";
-            specialChartSeries3HideCheckBox.Size = new Size(129, 23);
+            specialChartSeries3HideCheckBox.Size = new Size(158, 28);
             specialChartSeries3HideCheckBox.TabIndex = 14;
             specialChartSeries3HideCheckBox.Text = "Скрыть график";
             specialChartSeries3HideCheckBox.UseVisualStyleBackColor = true;
@@ -318,7 +319,7 @@ namespace PersonalFinancialManager
             label7.AutoSize = true;
             label7.Location = new Point(893, 515);
             label7.Name = "label7";
-            label7.Size = new Size(53, 19);
+            label7.Size = new Size(63, 24);
             label7.TabIndex = 19;
             label7.Text = "числа.";
             // 
@@ -327,7 +328,7 @@ namespace PersonalFinancialManager
             label8.AutoSize = true;
             label8.Location = new Point(737, 515);
             label8.Name = "label8";
-            label8.Size = new Size(44, 19);
+            label8.Size = new Size(55, 24);
             label8.TabIndex = 18;
             label8.Text = "— до";
             // 
@@ -337,7 +338,7 @@ namespace PersonalFinancialManager
             label9.Location = new Point(472, 515);
             label9.Margin = new Padding(0, 0, 3, 0);
             label9.Name = "label9";
-            label9.Size = new Size(153, 19);
+            label9.Size = new Size(191, 24);
             label9.TabIndex = 15;
             label9.Text = "Показать график 3 от";
             // 
@@ -350,7 +351,7 @@ namespace PersonalFinancialManager
             specialChartSeries3DateUntilTextBox.MaxLength = 11;
             specialChartSeries3DateUntilTextBox.Name = "specialChartSeries3DateUntilTextBox";
             specialChartSeries3DateUntilTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries3DateUntilTextBox.Size = new Size(100, 20);
+            specialChartSeries3DateUntilTextBox.Size = new Size(100, 25);
             specialChartSeries3DateUntilTextBox.TabIndex = 17;
             specialChartSeries3DateUntilTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -363,7 +364,7 @@ namespace PersonalFinancialManager
             specialChartSeries3DateFromTextBox.MaxLength = 11;
             specialChartSeries3DateFromTextBox.Name = "specialChartSeries3DateFromTextBox";
             specialChartSeries3DateFromTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries3DateFromTextBox.Size = new Size(100, 20);
+            specialChartSeries3DateFromTextBox.Size = new Size(100, 25);
             specialChartSeries3DateFromTextBox.TabIndex = 16;
             specialChartSeries3DateFromTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -373,7 +374,7 @@ namespace PersonalFinancialManager
             specialChartSeries2HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries2HideCheckBox.Location = new Point(952, 488);
             specialChartSeries2HideCheckBox.Name = "specialChartSeries2HideCheckBox";
-            specialChartSeries2HideCheckBox.Size = new Size(129, 23);
+            specialChartSeries2HideCheckBox.Size = new Size(158, 28);
             specialChartSeries2HideCheckBox.TabIndex = 8;
             specialChartSeries2HideCheckBox.Text = "Скрыть график";
             specialChartSeries2HideCheckBox.UseVisualStyleBackColor = true;
@@ -383,7 +384,7 @@ namespace PersonalFinancialManager
             label4.AutoSize = true;
             label4.Location = new Point(893, 489);
             label4.Name = "label4";
-            label4.Size = new Size(53, 19);
+            label4.Size = new Size(63, 24);
             label4.TabIndex = 13;
             label4.Text = "числа.";
             // 
@@ -392,7 +393,7 @@ namespace PersonalFinancialManager
             label5.AutoSize = true;
             label5.Location = new Point(737, 489);
             label5.Name = "label5";
-            label5.Size = new Size(44, 19);
+            label5.Size = new Size(55, 24);
             label5.TabIndex = 12;
             label5.Text = "— до";
             // 
@@ -402,7 +403,7 @@ namespace PersonalFinancialManager
             label6.Location = new Point(472, 489);
             label6.Margin = new Padding(0, 0, 3, 0);
             label6.Name = "label6";
-            label6.Size = new Size(153, 19);
+            label6.Size = new Size(191, 24);
             label6.TabIndex = 9;
             label6.Text = "Показать график 2 от";
             // 
@@ -415,7 +416,7 @@ namespace PersonalFinancialManager
             specialChartSeries2DateUntilTextBox.MaxLength = 11;
             specialChartSeries2DateUntilTextBox.Name = "specialChartSeries2DateUntilTextBox";
             specialChartSeries2DateUntilTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries2DateUntilTextBox.Size = new Size(100, 20);
+            specialChartSeries2DateUntilTextBox.Size = new Size(100, 25);
             specialChartSeries2DateUntilTextBox.TabIndex = 11;
             specialChartSeries2DateUntilTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -428,7 +429,7 @@ namespace PersonalFinancialManager
             specialChartSeries2DateFromTextBox.MaxLength = 11;
             specialChartSeries2DateFromTextBox.Name = "specialChartSeries2DateFromTextBox";
             specialChartSeries2DateFromTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries2DateFromTextBox.Size = new Size(100, 20);
+            specialChartSeries2DateFromTextBox.Size = new Size(100, 25);
             specialChartSeries2DateFromTextBox.TabIndex = 10;
             specialChartSeries2DateFromTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -438,7 +439,7 @@ namespace PersonalFinancialManager
             specialChartSeries1HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries1HideCheckBox.Location = new Point(952, 462);
             specialChartSeries1HideCheckBox.Name = "specialChartSeries1HideCheckBox";
-            specialChartSeries1HideCheckBox.Size = new Size(129, 23);
+            specialChartSeries1HideCheckBox.Size = new Size(158, 28);
             specialChartSeries1HideCheckBox.TabIndex = 4;
             specialChartSeries1HideCheckBox.Text = "Скрыть график";
             specialChartSeries1HideCheckBox.UseVisualStyleBackColor = true;
@@ -448,7 +449,7 @@ namespace PersonalFinancialManager
             label3.AutoSize = true;
             label3.Location = new Point(893, 463);
             label3.Name = "label3";
-            label3.Size = new Size(53, 19);
+            label3.Size = new Size(63, 24);
             label3.TabIndex = 7;
             label3.Text = "числа.";
             // 
@@ -457,7 +458,7 @@ namespace PersonalFinancialManager
             label2.AutoSize = true;
             label2.Location = new Point(737, 463);
             label2.Name = "label2";
-            label2.Size = new Size(44, 19);
+            label2.Size = new Size(55, 24);
             label2.TabIndex = 6;
             label2.Text = "— до";
             // 
@@ -467,7 +468,7 @@ namespace PersonalFinancialManager
             label1.Location = new Point(472, 463);
             label1.Margin = new Padding(0, 0, 3, 0);
             label1.Name = "label1";
-            label1.Size = new Size(153, 19);
+            label1.Size = new Size(191, 24);
             label1.TabIndex = 4;
             label1.Text = "Показать график 1 от";
             // 
@@ -480,7 +481,7 @@ namespace PersonalFinancialManager
             specialChartSeries1DateUntilTextBox.MaxLength = 11;
             specialChartSeries1DateUntilTextBox.Name = "specialChartSeries1DateUntilTextBox";
             specialChartSeries1DateUntilTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries1DateUntilTextBox.Size = new Size(100, 20);
+            specialChartSeries1DateUntilTextBox.Size = new Size(100, 25);
             specialChartSeries1DateUntilTextBox.TabIndex = 5;
             specialChartSeries1DateUntilTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -493,7 +494,7 @@ namespace PersonalFinancialManager
             specialChartSeries1DateFromTextBox.MaxLength = 11;
             specialChartSeries1DateFromTextBox.Name = "specialChartSeries1DateFromTextBox";
             specialChartSeries1DateFromTextBox.PlaceholderText = "00.00.0000";
-            specialChartSeries1DateFromTextBox.Size = new Size(100, 20);
+            specialChartSeries1DateFromTextBox.Size = new Size(100, 25);
             specialChartSeries1DateFromTextBox.TabIndex = 4;
             specialChartSeries1DateFromTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -503,7 +504,7 @@ namespace PersonalFinancialManager
             specialChart.Location = new Point(3, 3);
             specialChart.Margin = new Padding(0);
             specialChart.Name = "specialChart";
-            specialChart.Size = new Size(1101, 557);
+            specialChart.Size = new Size(1099, 540);
             specialChart.TabIndex = 3;
             specialChart.Text = "chart1";
             // 
@@ -514,10 +515,10 @@ namespace PersonalFinancialManager
             allStatisticPage.Controls.Add(panel1);
             allStatisticPage.Controls.Add(allStatisticPageChart);
             allStatisticPage.Controls.Add(panel4);
-            allStatisticPage.Location = new Point(4, 28);
+            allStatisticPage.Location = new Point(4, 29);
             allStatisticPage.Name = "allStatisticPage";
             allStatisticPage.Padding = new Padding(3);
-            allStatisticPage.Size = new Size(1107, 559);
+            allStatisticPage.Size = new Size(1107, 558);
             allStatisticPage.TabIndex = 4;
             allStatisticPage.Text = "Общая статистика";
             allStatisticPage.UseVisualStyleBackColor = true;
@@ -562,7 +563,7 @@ namespace PersonalFinancialManager
             label16.Location = new Point(177, 3);
             label16.Margin = new Padding(3);
             label16.Name = "label16";
-            label16.Size = new Size(122, 23);
+            label16.Size = new Size(158, 29);
             label16.TabIndex = 37;
             label16.Text = "Топ категорий";
             // 
@@ -588,7 +589,7 @@ namespace PersonalFinancialManager
             allStatisticPagePastMonthTextBox.MaxLength = 2;
             allStatisticPagePastMonthTextBox.Name = "allStatisticPagePastMonthTextBox";
             allStatisticPagePastMonthTextBox.PlaceholderText = "00";
-            allStatisticPagePastMonthTextBox.Size = new Size(47, 23);
+            allStatisticPagePastMonthTextBox.Size = new Size(47, 29);
             allStatisticPagePastMonthTextBox.TabIndex = 8;
             allStatisticPagePastMonthTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -599,7 +600,7 @@ namespace PersonalFinancialManager
             label13.Location = new Point(226, 11);
             label13.Margin = new Padding(0, 0, 3, 0);
             label13.Name = "label13";
-            label13.Size = new Size(151, 23);
+            label13.Size = new Size(190, 29);
             label13.TabIndex = 7;
             label13.Text = "Прошлый месяц: ";
             // 
@@ -612,7 +613,7 @@ namespace PersonalFinancialManager
             allStatisticPagePastYearTextBox.MaxLength = 4;
             allStatisticPagePastYearTextBox.Name = "allStatisticPagePastYearTextBox";
             allStatisticPagePastYearTextBox.PlaceholderText = "0000";
-            allStatisticPagePastYearTextBox.Size = new Size(54, 23);
+            allStatisticPagePastYearTextBox.Size = new Size(54, 29);
             allStatisticPagePastYearTextBox.TabIndex = 6;
             allStatisticPagePastYearTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -623,7 +624,7 @@ namespace PersonalFinancialManager
             label14.Location = new Point(13, 11);
             label14.Margin = new Padding(0, 0, 3, 0);
             label14.Name = "label14";
-            label14.Size = new Size(129, 23);
+            label14.Size = new Size(161, 29);
             label14.TabIndex = 5;
             label14.Text = "Прошлый год: ";
             // 
@@ -649,7 +650,7 @@ namespace PersonalFinancialManager
             allStatisticPageMonthTextBox.MaxLength = 2;
             allStatisticPageMonthTextBox.Name = "allStatisticPageMonthTextBox";
             allStatisticPageMonthTextBox.PlaceholderText = "00";
-            allStatisticPageMonthTextBox.Size = new Size(47, 23);
+            allStatisticPageMonthTextBox.Size = new Size(47, 29);
             allStatisticPageMonthTextBox.TabIndex = 8;
             allStatisticPageMonthTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -660,7 +661,7 @@ namespace PersonalFinancialManager
             label12.Location = new Point(129, 11);
             label12.Margin = new Padding(0, 0, 3, 0);
             label12.Name = "label12";
-            label12.Size = new Size(71, 23);
+            label12.Size = new Size(91, 29);
             label12.TabIndex = 7;
             label12.Text = "Месяц: ";
             // 
@@ -673,7 +674,7 @@ namespace PersonalFinancialManager
             allStatisticPageYearTextBox.MaxLength = 4;
             allStatisticPageYearTextBox.Name = "allStatisticPageYearTextBox";
             allStatisticPageYearTextBox.PlaceholderText = "0000";
-            allStatisticPageYearTextBox.Size = new Size(54, 23);
+            allStatisticPageYearTextBox.Size = new Size(54, 29);
             allStatisticPageYearTextBox.TabIndex = 6;
             allStatisticPageYearTextBox.TextAlign = HorizontalAlignment.Center;
             // 
@@ -684,7 +685,7 @@ namespace PersonalFinancialManager
             label11.Location = new Point(13, 11);
             label11.Margin = new Padding(0, 0, 3, 0);
             label11.Name = "label11";
-            label11.Size = new Size(45, 23);
+            label11.Size = new Size(56, 29);
             label11.TabIndex = 5;
             label11.Text = "Год: ";
             // 
@@ -732,7 +733,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalYearSumValueLabel.Location = new Point(318, 3);
             allStatisticPageTotalYearSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotalYearSumValueLabel.Name = "allStatisticPageTotalYearSumValueLabel";
-            allStatisticPageTotalYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalYearSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotalYearSumValueLabel.TabIndex = 11;
             allStatisticPageTotalYearSumValueLabel.Text = "32 152 руб.";
             // 
@@ -743,7 +744,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwPreviousYearsDateLabel.Location = new Point(9, 248);
             allStatisticPageDiffBtwPreviousYearsDateLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwPreviousYearsDateLabel.Name = "allStatisticPageDiffBtwPreviousYearsDateLabel";
-            allStatisticPageDiffBtwPreviousYearsDateLabel.Size = new Size(250, 23);
+            allStatisticPageDiffBtwPreviousYearsDateLabel.Size = new Size(312, 29);
             allStatisticPageDiffBtwPreviousYearsDateLabel.TabIndex = 35;
             allStatisticPageDiffBtwPreviousYearsDateLabel.Text = "Разница между 0000 и 0000:  ";
             // 
@@ -754,7 +755,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalYearSumDateLabel.Location = new Point(9, 3);
             allStatisticPageTotalYearSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotalYearSumDateLabel.Name = "allStatisticPageTotalYearSumDateLabel";
-            allStatisticPageTotalYearSumDateLabel.Size = new Size(222, 23);
+            allStatisticPageTotalYearSumDateLabel.Size = new Size(282, 29);
             allStatisticPageTotalYearSumDateLabel.TabIndex = 10;
             allStatisticPageTotalYearSumDateLabel.Text = "Общая сумма за ____ год: ";
             // 
@@ -765,7 +766,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Location = new Point(9, 219);
             allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Name = "allStatisticPageTotal_2x_PreviousMonthSumDateLabel";
-            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Size = new Size(273, 23);
+            allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Size = new Size(341, 29);
             allStatisticPageTotal_2x_PreviousMonthSumDateLabel.TabIndex = 34;
             allStatisticPageTotal_2x_PreviousMonthSumDateLabel.Text = "Общая сумма за 00.0000 месяц: ";
             // 
@@ -776,7 +777,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalPreviousYearSumDateLabel.Location = new Point(9, 61);
             allStatisticPageTotalPreviousYearSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotalPreviousYearSumDateLabel.Name = "allStatisticPageTotalPreviousYearSumDateLabel";
-            allStatisticPageTotalPreviousYearSumDateLabel.Size = new Size(226, 23);
+            allStatisticPageTotalPreviousYearSumDateLabel.Size = new Size(282, 29);
             allStatisticPageTotalPreviousYearSumDateLabel.TabIndex = 12;
             allStatisticPageTotalPreviousYearSumDateLabel.Text = "Общая сумма за 0000 год: ";
             // 
@@ -787,7 +788,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwPreviousMonthesValueLabel.Location = new Point(318, 277);
             allStatisticPageDiffBtwPreviousMonthesValueLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwPreviousMonthesValueLabel.Name = "allStatisticPageDiffBtwPreviousMonthesValueLabel";
-            allStatisticPageDiffBtwPreviousMonthesValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwPreviousMonthesValueLabel.Size = new Size(126, 29);
             allStatisticPageDiffBtwPreviousMonthesValueLabel.TabIndex = 33;
             allStatisticPageDiffBtwPreviousMonthesValueLabel.Text = "32 152 руб.";
             // 
@@ -798,7 +799,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalPreviousYearSumValueLabel.Location = new Point(318, 61);
             allStatisticPageTotalPreviousYearSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotalPreviousYearSumValueLabel.Name = "allStatisticPageTotalPreviousYearSumValueLabel";
-            allStatisticPageTotalPreviousYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalPreviousYearSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotalPreviousYearSumValueLabel.TabIndex = 13;
             allStatisticPageTotalPreviousYearSumValueLabel.Text = "32 152 руб.";
             // 
@@ -809,7 +810,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwPreviousMonthesDateLabel.Location = new Point(9, 277);
             allStatisticPageDiffBtwPreviousMonthesDateLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwPreviousMonthesDateLabel.Name = "allStatisticPageDiffBtwPreviousMonthesDateLabel";
-            allStatisticPageDiffBtwPreviousMonthesDateLabel.Size = new Size(300, 23);
+            allStatisticPageDiffBtwPreviousMonthesDateLabel.Size = new Size(372, 29);
             allStatisticPageDiffBtwPreviousMonthesDateLabel.TabIndex = 32;
             allStatisticPageDiffBtwPreviousMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
             // 
@@ -820,7 +821,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalMonthSumDateLabel.Location = new Point(9, 32);
             allStatisticPageTotalMonthSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotalMonthSumDateLabel.Name = "allStatisticPageTotalMonthSumDateLabel";
-            allStatisticPageTotalMonthSumDateLabel.Size = new Size(267, 23);
+            allStatisticPageTotalMonthSumDateLabel.Size = new Size(341, 29);
             allStatisticPageTotalMonthSumDateLabel.TabIndex = 14;
             allStatisticPageTotalMonthSumDateLabel.Text = "Общая сумма за __.____ месяц: ";
             // 
@@ -831,7 +832,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwPreviousYearsValueLabel.Location = new Point(318, 248);
             allStatisticPageDiffBtwPreviousYearsValueLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwPreviousYearsValueLabel.Name = "allStatisticPageDiffBtwPreviousYearsValueLabel";
-            allStatisticPageDiffBtwPreviousYearsValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwPreviousYearsValueLabel.Size = new Size(126, 29);
             allStatisticPageDiffBtwPreviousYearsValueLabel.TabIndex = 31;
             allStatisticPageDiffBtwPreviousYearsValueLabel.Text = "32 152 руб.";
             // 
@@ -842,7 +843,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalMonthSumValueLabel.Location = new Point(318, 32);
             allStatisticPageTotalMonthSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotalMonthSumValueLabel.Name = "allStatisticPageTotalMonthSumValueLabel";
-            allStatisticPageTotalMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalMonthSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotalMonthSumValueLabel.TabIndex = 15;
             allStatisticPageTotalMonthSumValueLabel.Text = "32 152 руб.";
             // 
@@ -853,7 +854,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Location = new Point(318, 219);
             allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Name = "allStatisticPageTotal_2x_PreviousMonthSumValueLabel";
-            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotal_2x_PreviousMonthSumValueLabel.TabIndex = 29;
             allStatisticPageTotal_2x_PreviousMonthSumValueLabel.Text = "32 152 руб.";
             // 
@@ -864,7 +865,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalPreviousMonthSumDateLabel.Location = new Point(9, 90);
             allStatisticPageTotalPreviousMonthSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotalPreviousMonthSumDateLabel.Name = "allStatisticPageTotalPreviousMonthSumDateLabel";
-            allStatisticPageTotalPreviousMonthSumDateLabel.Size = new Size(273, 23);
+            allStatisticPageTotalPreviousMonthSumDateLabel.Size = new Size(341, 29);
             allStatisticPageTotalPreviousMonthSumDateLabel.TabIndex = 16;
             allStatisticPageTotalPreviousMonthSumDateLabel.Text = "Общая сумма за 00.0000 месяц: ";
             // 
@@ -875,7 +876,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotal_2x_PreviousYearSumValueLabel.Location = new Point(318, 190);
             allStatisticPageTotal_2x_PreviousYearSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotal_2x_PreviousYearSumValueLabel.Name = "allStatisticPageTotal_2x_PreviousYearSumValueLabel";
-            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotal_2x_PreviousYearSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotal_2x_PreviousYearSumValueLabel.TabIndex = 25;
             allStatisticPageTotal_2x_PreviousYearSumValueLabel.Text = "32 152 руб.";
             // 
@@ -886,7 +887,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotalPreviousMonthSumValueLabel.Location = new Point(318, 90);
             allStatisticPageTotalPreviousMonthSumValueLabel.Margin = new Padding(3);
             allStatisticPageTotalPreviousMonthSumValueLabel.Name = "allStatisticPageTotalPreviousMonthSumValueLabel";
-            allStatisticPageTotalPreviousMonthSumValueLabel.Size = new Size(102, 23);
+            allStatisticPageTotalPreviousMonthSumValueLabel.Size = new Size(126, 29);
             allStatisticPageTotalPreviousMonthSumValueLabel.TabIndex = 17;
             allStatisticPageTotalPreviousMonthSumValueLabel.Text = "32 152 руб.";
             // 
@@ -897,7 +898,7 @@ namespace PersonalFinancialManager
             allStatisticPageTotal_2x_PreviousYearSumDateLabel.Location = new Point(9, 190);
             allStatisticPageTotal_2x_PreviousYearSumDateLabel.Margin = new Padding(3);
             allStatisticPageTotal_2x_PreviousYearSumDateLabel.Name = "allStatisticPageTotal_2x_PreviousYearSumDateLabel";
-            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Size = new Size(226, 23);
+            allStatisticPageTotal_2x_PreviousYearSumDateLabel.Size = new Size(282, 29);
             allStatisticPageTotal_2x_PreviousYearSumDateLabel.TabIndex = 24;
             allStatisticPageTotal_2x_PreviousYearSumDateLabel.Text = "Общая сумма за 0000 год: ";
             // 
@@ -908,7 +909,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwYearsDateLabel.Location = new Point(9, 119);
             allStatisticPageDiffBtwYearsDateLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwYearsDateLabel.Name = "allStatisticPageDiffBtwYearsDateLabel";
-            allStatisticPageDiffBtwYearsDateLabel.Size = new Size(250, 23);
+            allStatisticPageDiffBtwYearsDateLabel.Size = new Size(312, 29);
             allStatisticPageDiffBtwYearsDateLabel.TabIndex = 18;
             allStatisticPageDiffBtwYearsDateLabel.Text = "Разница между 0000 и 0000:  ";
             // 
@@ -919,7 +920,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwYearsValueLabel.Location = new Point(318, 119);
             allStatisticPageDiffBtwYearsValueLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwYearsValueLabel.Name = "allStatisticPageDiffBtwYearsValueLabel";
-            allStatisticPageDiffBtwYearsValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwYearsValueLabel.Size = new Size(126, 29);
             allStatisticPageDiffBtwYearsValueLabel.TabIndex = 19;
             allStatisticPageDiffBtwYearsValueLabel.Text = "32 152 руб.";
             // 
@@ -930,7 +931,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwMonthesValueLabel.Location = new Point(318, 148);
             allStatisticPageDiffBtwMonthesValueLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwMonthesValueLabel.Name = "allStatisticPageDiffBtwMonthesValueLabel";
-            allStatisticPageDiffBtwMonthesValueLabel.Size = new Size(102, 23);
+            allStatisticPageDiffBtwMonthesValueLabel.Size = new Size(126, 29);
             allStatisticPageDiffBtwMonthesValueLabel.TabIndex = 21;
             allStatisticPageDiffBtwMonthesValueLabel.Text = "32 152 руб.";
             // 
@@ -941,15 +942,15 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwMonthesDateLabel.Location = new Point(9, 148);
             allStatisticPageDiffBtwMonthesDateLabel.Margin = new Padding(3);
             allStatisticPageDiffBtwMonthesDateLabel.Name = "allStatisticPageDiffBtwMonthesDateLabel";
-            allStatisticPageDiffBtwMonthesDateLabel.Size = new Size(300, 23);
+            allStatisticPageDiffBtwMonthesDateLabel.Size = new Size(372, 29);
             allStatisticPageDiffBtwMonthesDateLabel.TabIndex = 20;
             allStatisticPageDiffBtwMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleDimensions = new SizeF(120F, 120F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(1115, 591);
+            ClientSize = new Size(1113, 583);
             Controls.Add(mainTabControl);
             Font = new Font("Calibri", 12F);
             MaximumSize = new Size(1131, 630);
