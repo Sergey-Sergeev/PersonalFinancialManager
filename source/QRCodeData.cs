@@ -33,7 +33,23 @@ namespace PersonalFinancialManager.source
 
         private QRCodeData() { }
 
-        public static bool ParseQRCodeData(string QRData, out QRCodeData? result)
+        public QRCodeData(ulong fn, int i, int fp, double s, DateTime t, bool n)
+        {
+            this.fn = fn.ToString();
+            this.i = i.ToString();
+            this.fp = fp.ToString();
+            this.s = s.ToString().Replace(",", ".");
+            this.t = $"{t.ToString("yyyy")}{t.ToString("MM")}{t.ToString("dd")}T{t.ToString("HH")}{t.ToString("mm")}";
+            this.n = n ? "1" : "0";
+            FullStringData = ToString();
+        }
+
+        public override string ToString()
+        {
+            return $"t={t}&s={s}&fn={fn}&i={i}&fp={fp}&n={n}";
+        }
+
+        public static bool TryParseQRCodeData(string QRData, out QRCodeData? result)
         {
             result = new QRCodeData();
 
@@ -52,6 +68,40 @@ namespace PersonalFinancialManager.source
 
             result = null;
             return false;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null) return false;
+            QRCodeData other = obj as QRCodeData;
+            if (other == null) return false;
+            return Equals(other);
+        }
+
+        public bool Equals(QRCodeData? other)
+        {
+            if (other == null) return false;
+
+            return this.FullStringData == other.FullStringData;
+        }
+
+        public static bool operator ==(QRCodeData qr1, QRCodeData qr2)
+        {
+            if (object.ReferenceEquals(qr1, null))
+            {
+                if (object.ReferenceEquals(qr2, null))
+                {
+                    return true;
+                }
+                else return false;
+            }
+
+            return qr1.Equals(qr2);
+        }
+
+        public static bool operator !=(QRCodeData qr1, QRCodeData qr2)
+        {
+            return !(qr1 == qr2);
         }
 
         public static async Task<QRCodeData?> ParseDataFromQRImageAsync(string file)
@@ -127,7 +177,7 @@ namespace PersonalFinancialManager.source
                         result = reader.Decode(bmp24);
                         if (result != null)
                         {
-                            ParseQRCodeData(result.Text, out qRCodeData);
+                            TryParseQRCodeData(result.Text, out qRCodeData);
                             return qRCodeData;
                         }
                     }
@@ -136,10 +186,6 @@ namespace PersonalFinancialManager.source
             });
         }
 
-        public override string ToString()
-        {
-            return $"t={t}&s={s}&fn={fn}&i={i}&fp={fp}&n={n}";
-        }
 
         private static bool ParseParameterFromQRData(string paramName, ref string QRData, out string data)
         {

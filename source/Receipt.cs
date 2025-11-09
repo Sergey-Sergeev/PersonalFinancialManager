@@ -7,44 +7,38 @@ namespace PersonalFinancialManager.source
     public class Receipt
     {
         public List<Product> ListOfProducts { get; private set; }
-        public double TotalPrice { get; private set; }
-
-        public string DateAndTimeString { get => dateAndTimeString;
-            private set {
-                DateAndTime = DateTime.Parse(value);
-                dateAndTimeString = value;
-            }
-        }
-        private string dateAndTimeString;
-
+        public double TotalSum { get; private set; }
 
         public DateTime DateAndTime { get; private set; }
 
         public double CashTotalSum { get; private set; }
         public double EcashTotalSum { get; private set; }
         public string RetailPlaceAddress { get; private set; }
-        public string FullFtsReceiptData { get; private set; }
+        public string? FullFtsReceiptData { get; private set; }
+
+        public int Id { get; private set; }
 
         private Receipt()
         {
             ListOfProducts = new List<Product>();
         }
 
-        public Receipt(List<Product> listOfProducts, double totalPrice, string dateAndTimeString, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress, string fullFtsReceiptData)
+        public Receipt(List<Product> listOfProducts, double totalPrice, DateTime dateTime, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress, string? fullFtsReceiptData, int id = -1)
         {
             ListOfProducts = listOfProducts;
-            TotalPrice = totalPrice;
-            DateAndTimeString = dateAndTimeString;
+            TotalSum = totalPrice;
+            DateAndTime = dateTime;
             CashTotalSum = cashTotalSum;
             EcashTotalSum = ecashTotalSum;
             RetailPlaceAddress = retailPlaceAddress;
             FullFtsReceiptData = fullFtsReceiptData;
+            Id = id;
         }
 
 
-        public static FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode ParseReceiptFromJson(string json, string fullFtsReceiptData, out Receipt? receipt)
+        public static TryGetReceiptsResultUnit.FailData.ErrorCode ParseReceiptFromJson(string json, string fullFtsReceiptData, out Receipt? receipt)
         {
-            FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode result;
+            TryGetReceiptsResultUnit.FailData.ErrorCode result;
             JsonServerClass? jsonClass = null;
             receipt = null;
 
@@ -74,24 +68,27 @@ namespace PersonalFinancialManager.source
 
                 if (jsServerCode == null)
                 {
-                    return FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.FailDeserializeJSON;
+                    return TryGetReceiptsResultUnit.FailData.ErrorCode.FailDeserializeJSON;
                 }
-                return FTSDecodingReceiptsResult.FailGettingReceiptData.RecognizeServerCodeFromJson(jsServerCode.code);
+                return TryGetReceiptsResultUnit.FailData.RecognizeServerCodeFromJson(jsServerCode.code);
             }
 
-            result = FTSDecodingReceiptsResult.FailGettingReceiptData.RecognizeServerCodeFromJson(jsonClass.code);
+            result = TryGetReceiptsResultUnit.FailData.RecognizeServerCodeFromJson(jsonClass.code);
 
-            if (result == FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.Success)
+            if (result == TryGetReceiptsResultUnit.FailData.ErrorCode.Success)
             {
                 if (jsonClass.data.json.items.Count == 0)
                 {
-                    return FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.FailDeserializeJSON;
+                    return TryGetReceiptsResultUnit.FailData.ErrorCode.FailDeserializeJSON;
                 }
 
                 receipt = new Receipt();
 
-                receipt.DateAndTimeString = jsonClass.data.json.dateTime;     // "2025-10-07T18:20:00"
-                receipt.TotalPrice = (Double)(jsonClass.data.json.totalSum) / 100;  // convert to rubs
+                if (DateTime.TryParse(jsonClass.data.json.dateTime, out DateTime dateTime))     // "2025-10-07T18:20:00"
+                    receipt.DateAndTime = dateTime;
+                else return TryGetReceiptsResultUnit.FailData.ErrorCode.FailDeserializeJSON;
+
+                receipt.TotalSum = (Double)(jsonClass.data.json.totalSum) / 100;  // convert to rubs
                 receipt.EcashTotalSum = (Double)(jsonClass.data.json.ecashTotalSum) / 100;
                 receipt.CashTotalSum = (Double)(jsonClass.data.json.cashTotalSum) / 100;
                 receipt.RetailPlaceAddress = jsonClass.data.json.retailPlaceAddress.Replace("\"", "'");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static PersonalFinancialManager.source.FTSDecodingReceiptsResult;
+using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
 using static PersonalFinancialManager.source.JsonServerClass;
 
 namespace PersonalFinancialManager.source
@@ -35,6 +35,8 @@ namespace PersonalFinancialManager.source
 
             database = Database.Fabric();
 
+            ProductCategory.SetAllCategories(ref database);
+
             isUserAuthorizated = database.IsUserAuthorizated(out string? userToken);
             fts = FTS.Fabric(userToken);
 
@@ -47,67 +49,139 @@ namespace PersonalFinancialManager.source
             database.SetUserData(token);
         }
 
-
         /// <summary>
         /// Before call this function, you need to authorizate user, if he is not authorizate yet.
         /// </summary>
         /// <returns></returns>
-        public async Task<FTSDecodingReceiptsResult> GetReceiptsFromQRCodes(string[] files)
+        public async Task<List<TryGetReceiptsResultUnit>> GetReceiptsFromQRCodes(string[] files)
         {
-            FTSDecodingReceiptsResult fTSResult = new FTSDecodingReceiptsResult();
-
-            bool isDataBaseContainReceipt = false;
+            List<TryGetReceiptsResultUnit> fTSResult = new List<TryGetReceiptsResultUnit>();
+            List<QRCodeData> listOfQRData = new List<QRCodeData>();
 
             QRCodeData? qRCodeData;
-            FTSResponseResult fTSResponseResult = null;
-            FailGettingReceiptData.ErrorCode errorCode = FailGettingReceiptData.ErrorCode.UnknownError;
 
             for (int i = 0; i < files.Length; i++)
             {
-                if (((qRCodeData = await QRCodeData.ParseDataFromQRImageAsync(files[i])) != null) &&
-                    ((isDataBaseContainReceipt = await database.IsContainReceiptAsync(qRCodeData.FullStringData)) == false) &&
-                    ((fTSResponseResult = await fts.RequestAsync(qRCodeData)).StatusCode == FTSResponseResult.ServerResponseCode.Success) &&
-                    ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, qRCodeData.FullStringData, out Receipt? receipt)) == FailGettingReceiptData.ErrorCode.Success))
+                TryGetReceiptsResultUnit unit;
+
+                if ((qRCodeData = await QRCodeData.ParseDataFromQRImageAsync(files[i])) != null)
                 {
-                    fTSResult.Receipts.Add(receipt);
+                    if (listOfQRData.Contains(qRCodeData))
+                        continue;
+
+                    listOfQRData.Add(qRCodeData);
+                    unit = await GetReceiptFromQRData(qRCodeData);
+                    if (unit.Fail != null)
+                        unit.Fail.FileName = files[i];
+
+
                 }
                 else
                 {
-                    FailGettingReceiptData failGettingReceiptData = new FailGettingReceiptData();
-                    failGettingReceiptData.FileName = files[i];
-                    failGettingReceiptData.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
-
-                    if (qRCodeData == null)
-                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.DecodingQRFail;
-                    else if (isDataBaseContainReceipt)
-                    {
-                        failGettingReceiptData.Code = FailGettingReceiptData.ErrorCode.AlreadyExistsInDatabase;
-                    }
-                    else if (fTSResponseResult.StatusCode != FTSResponseResult.ServerResponseCode.Success)
-                    {
-                        failGettingReceiptData.Code = FailGettingReceiptData.RecognizeServerStatus(fTSResponseResult.StatusCode);
-
-                        if (fTSResponseResult.StatusCode == FTSResponseResult.ServerResponseCode.IncorrectAPIKey)
-                        {
-                            fTSResult.FailDecoding.Add(failGettingReceiptData);
-                            return fTSResult;
-                        }
-                    }
-                    else failGettingReceiptData.Code = errorCode;
-
-                    fTSResult.FailDecoding.Add(failGettingReceiptData);
+                    unit = new TryGetReceiptsResultUnit();
+                    unit.Fail = new FailData();
+                    unit.Fail.FileName = files[i];
                 }
-            }
 
-            if (fTSResult.Receipts.Count != 0)
-                database.AddNewReceipts(fTSResult.Receipts);
+                fTSResult.Add(unit);
+            }
 
             return fTSResult;
         }
 
-        public void DeleteReceipt(DateTime time)
+
+        public async Task<TryGetReceiptsResultUnit> GetReceiptFromDataString(string ftsData)
         {
-            database.DeleteReceipt(time);
+            if (QRCodeData.TryParseQRCodeData(ftsData, out QRCodeData? qRCodeData))
+                return await GetReceiptFromQRData(qRCodeData);
+
+            TryGetReceiptsResultUnit result = new TryGetReceiptsResultUnit();
+            result.Fail = new FailData();
+            result.Fail.FileName = ftsData;
+            result.Fail.Code = FailData.ErrorCode.IncorrectQRData;
+
+            return result;
+        }
+
+        public async Task<TryGetReceiptsResultUnit> GetReceiptFromQRData(QRCodeData qRCodeData)
+        {
+            TryGetReceiptsResultUnit result = new TryGetReceiptsResultUnit();
+
+            bool isDataBaseContainReceipt = false;
+
+            FTSResponseResult fTSResponseResult = null;
+            FailData.ErrorCode errorCode = FailData.ErrorCode.UnknownError;
+
+            if (((isDataBaseContainReceipt = await database.IsContainReceiptAsync(qRCodeData.FullStringData)) == false) &&
+                ((fTSResponseResult = await fts.RequestAsync(qRCodeData)).StatusCode == FTSResponseResult.ServerResponseCode.Success) &&
+                ((errorCode = Receipt.ParseReceiptFromJson(fTSResponseResult.Response, qRCodeData.FullStringData, out Receipt? receipt)) == FailData.ErrorCode.Success))
+            {
+                result.Receipt = receipt;
+            }
+            else
+            {
+                result.Fail = new FailData();
+                result.Fail.FileName = qRCodeData.FullStringData;
+                result.Fail.ServerResponseCode = (fTSResponseResult == null ? -1 : fTSResponseResult.ResponseCode);
+
+                if (isDataBaseContainReceipt)
+                {
+                    result.Fail.Code = FailData.ErrorCode.AlreadyExistsInDatabase;
+                }
+                else if (fTSResponseResult.StatusCode != FTSResponseResult.ServerResponseCode.Success)
+                {
+                    result.Fail.Code = FailData.RecognizeServerStatus(fTSResponseResult.StatusCode);
+                }
+                else result.Fail.Code = errorCode;
+            }
+
+            return result;
+        }
+
+        public void AddUserReceipt(Receipt receipt)
+        {
+            database.AddNewReceipts(new List<Receipt>() { receipt });
+        }
+
+        public bool TryGetProductFromDatabaseById(int id, out Product? product)
+        {
+            return database.TryGetProductById(id, out product);
+        }
+
+
+        public bool CheckAndGetUserReceipt(int id, out Receipt? userReceipt)
+        {
+            if (database.TryGetReceiptById(id, out userReceipt) && Database.IsUsersReceipt(userReceipt))
+            {
+                return true;
+            }
+
+            userReceipt = null;
+            return false;
+        }
+
+        public async void AddReceiptsInDatabase(List<Receipt> receipts)
+        {
+            database.AddNewReceipts(receipts);
+        }
+
+        public void ChangeProductCategory(Product product, ProductCategory newCategory)
+        {
+            product.Category = newCategory;
+            database.ChangeProduct(product.Id, product);
+        }
+
+        public void ChangeUserReceipt(Receipt receipt)
+        {
+            if (Database.IsUsersReceipt(receipt))
+            {
+                database.ChangeReceipt(receipt.Id, receipt);
+            }
+        }
+
+        public void DeleteReceipt(int id)
+        {
+            database.DeleteReceipt(id);
         }
 
         public IEnumerable<Receipt> GetReceiptsFromDB()
@@ -141,7 +215,7 @@ namespace PersonalFinancialManager.source
 
                 foreach (Receipt receipt in database.GetReceiptsDuringPeriod(fromLocal, untilLocal))
                 {
-                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value += Double.Round(receipt.TotalSum, 2);
                     data.Value = Double.Round(data.Value, 2);
                 }
 
@@ -176,7 +250,7 @@ namespace PersonalFinancialManager.source
 
                 foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
                 {
-                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value += Double.Round(receipt.TotalSum, 2);
                     data.Value = Double.Round(data.Value, 2);
                 }
 
@@ -199,7 +273,7 @@ namespace PersonalFinancialManager.source
 
                 foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
                 {
-                    data.Value += Double.Round(receipt.TotalPrice, 2);
+                    data.Value += Double.Round(receipt.TotalSum, 2);
                     data.Value = Double.Round(data.Value, 2);
                 }
 
@@ -216,7 +290,7 @@ namespace PersonalFinancialManager.source
             DateTime until = new DateTime(untilYear, untilMonth, 1).AddMonths(1).AddDays(-1).Add(new TimeSpan(23, 59, 59));
 
             foreach (Receipt receipt in database.GetReceiptsDuringPeriod(from, until))
-                totalSum += Double.Round(receipt.TotalPrice, 2);
+                totalSum += Double.Round(receipt.TotalSum, 2);
 
             totalSum = Double.Round(totalSum, 2);
 
@@ -234,14 +308,14 @@ namespace PersonalFinancialManager.source
             {
                 foreach (Product product in receipt.ListOfProducts)
                 {
-                    if (productCategoryStatistic.ContainsKey(product.Category.CategoryName))
+                    if (productCategoryStatistic.ContainsKey(product.Category.Name))
                     {
-                        productCategoryStatistic[product.Category.CategoryName] += product.Sum;
-                        productCategoryStatistic[product.Category.CategoryName] = Double.Round(productCategoryStatistic[product.Category.CategoryName], 2);
+                        productCategoryStatistic[product.Category.Name] += product.Sum;
+                        productCategoryStatistic[product.Category.Name] = Double.Round(productCategoryStatistic[product.Category.Name], 2);
                     }
                     else
                     {
-                        productCategoryStatistic.Add(product.Category.CategoryName, product.Sum);                        
+                        productCategoryStatistic.Add(product.Category.Name, product.Sum);
                     }
                 }
             }

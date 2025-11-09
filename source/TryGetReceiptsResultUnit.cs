@@ -6,22 +6,16 @@ using System.Threading.Tasks;
 
 namespace PersonalFinancialManager.source
 {
-    public class FTSDecodingReceiptsResult
+    public class TryGetReceiptsResultUnit
     {
-        public List<Receipt> Receipts;
-        public List<FailGettingReceiptData> FailDecoding;
+        public Receipt? Receipt = null;
+        public FailData? Fail = null;
 
-        public FTSDecodingReceiptsResult()
+        public class FailData
         {
-            Receipts = new List<Receipt>();
-            FailDecoding = new List<FailGettingReceiptData>();
-        }
-
-        public class FailGettingReceiptData
-        {
-            public string FileName;
-            public ErrorCode Code;
-            public int ServerResponseCode;
+            public string FileName = String.Empty;
+            public ErrorCode Code = 0;
+            public int ServerResponseCode = 0;
 
             public static string CodeToString(ErrorCode code)
             {
@@ -29,8 +23,9 @@ namespace PersonalFinancialManager.source
                 {
                     case ErrorCode.Success:
                         return "Успешно";
-                    case ErrorCode.DecodingQRFail:
                     case ErrorCode.IncorrectQRData:
+                        return "Неправильные данные чека";
+                    case ErrorCode.DecodingQRFail:
                         return "Ошибка декодирования QR";
                     case ErrorCode.IncorrectAPIKey:
                         return "Неподходящий API ключ";

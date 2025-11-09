@@ -1,6 +1,6 @@
-﻿namespace PersonalFinancialManager.source
+﻿namespace PersonalFinancialManager.source.Forms
 {
-    partial class FailGetReceiptsForm
+    partial class FailReceiptsForm
     {
         /// <summary>
         /// Required designer variable.

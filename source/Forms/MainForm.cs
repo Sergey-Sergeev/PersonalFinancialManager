@@ -4,8 +4,10 @@ using System.Windows.Forms.VisualStyles;
 using ZXing;
 using static PersonalFinancialManager.source.DataService;
 using static PersonalFinancialManager.source.JsonServerClass;
+using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace PersonalFinancialManager
+namespace PersonalFinancialManager.source.Forms
 {
     public partial class MainForm : Form
     {
@@ -15,6 +17,16 @@ namespace PersonalFinancialManager
         private StatisticChart yearStatisticChart;
         private StatisticChart monthStatisticChart;
         private SpecialStatisticChart specialStatisticChart;
+
+        private const string TREENODE_ID_START_MARKER = "ID: ";
+        private const string TREENODE_ID_STOP_MARKER = ";";
+
+
+        private const string MESSAGEBOX_CAPTION_ERROR = "Ошибка";
+        private const string MESSAGEBOX_TEXT_CANT_CHANGE_RECEIPT = "Вы не можете изменить этот чек, потому что он не создан пользователем.";
+        private const string MESSAGEBOX_TEXT_SURE_DELETE_RECEIPT = "Вы действительно хотите удалить чек?";
+        private const string MESSAGEBOX_TEXT_USER_NEED_SELECT_RECEIPT = "Выделите тело или заголовок чека.";
+        private const string MESSAGEBOX_TEXT_USER_NEED_SELECT_PRODUCT = "Выделите заголовок или тело продукта.";
 
         public MainForm()
         {
@@ -29,60 +41,67 @@ namespace PersonalFinancialManager
             InitializeStatistic();
         }
 
-        private async void loadQRCodesButton_Click(object sender, EventArgs e)
+        private void UpdateAll()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = FILE_FILTER;
-            ofd.FilterIndex = 0;
-            ofd.Multiselect = true;
+            UpdateAllReceiptsInDatabaseWindow();
+            UpdateStatisticCharts();
+            UpdateAllStatisticPage();
+        }
 
-            if (ofd.ShowDialog() != DialogResult.Cancel && ofd.FileNames.Length != 0)
+        private int ParseIdFromTreeNode(TreeNode node)
+        {
+            int s = node.Text.IndexOf(TREENODE_ID_START_MARKER) + TREENODE_ID_START_MARKER.Length;
+            int l = node.Text.IndexOf(TREENODE_ID_STOP_MARKER) - s;
+
+            return int.Parse(node.Text.Substring(s, l));
+        }
+
+        private TreeNode? GetReceiptIDTreeNode(TreeNode treeNode)
+        {
+            while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.ReceiptHeader)
+                treeNode = treeNode.Parent;
+
+            foreach (TreeNode child in treeNode.Nodes)
             {
-                FTSDecodingReceiptsResult result = await dataService.GetReceiptsFromQRCodes(ofd.FileNames);
-
-                if (result.FailDecoding.Count != 0)
+                if ((DatabaseWindowTag)child.Tag == DatabaseWindowTag.ReceiptId)
                 {
-                    if (result.FailDecoding.Any((item) => item.Code == FTSDecodingReceiptsResult.FailGettingReceiptData.ErrorCode.IncorrectAPIKey))
-                    {
-                        AskUserToken(true);
-                    }
-                    else
-                    {
-                        new FailGetReceiptsForm(result.FailDecoding).ShowDialog();
-                    }
-                }
-
-                if (result.Receipts.Count != 0)
-                {
-                    UpdateAllReceiptsInDatabaseWindow();
-                    UpdateStatisticCharts();
+                    return child;
                 }
             }
+
+            return null;
         }
 
         private void UpdateAllReceiptsInDatabaseWindow()
         {
-            databaseWindow.Nodes.Clear();
+            databaseWindowTreeView.Nodes.Clear();
 
             foreach (Receipt receipt in dataService.GetReceiptsFromDB())
             {
-                List<TreeNode> productsAndTotalPrice = receipt.ListOfProducts.ConvertAll<TreeNode>(
+                List<TreeNode> productsAndTotalPrice = new List<TreeNode>();
+                productsAndTotalPrice.Add(new TreeNode($"{TREENODE_ID_START_MARKER}{receipt.Id}{TREENODE_ID_STOP_MARKER}") { Tag = DatabaseWindowTag.ReceiptId });
+
+                productsAndTotalPrice.AddRange(receipt.ListOfProducts.ConvertAll<TreeNode>(
                         (product) => new TreeNode($"{product.Name}\n",
                         new TreeNode[] {
-                            new TreeNode($"Категория:  {product.Category}") { Tag = DatabaseWindowTag.Data },
-                            new TreeNode($"Цена:  {product.Price}\n"){ Tag = DatabaseWindowTag.Data },
-                            new TreeNode($"Количество:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.Data },
-                            new TreeNode($"Сумма:  {product.Sum}\n"){ Tag = DatabaseWindowTag.Data }}
-                        )
-                        { Tag = DatabaseWindowTag.Data });
+                            new TreeNode($"Категория:  {product.Category.Name}") { Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Цена:  {product.Price}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Количество:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Сумма:  {product.Sum}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"{TREENODE_ID_START_MARKER}{product.Id}{TREENODE_ID_STOP_MARKER}") { Tag = DatabaseWindowTag.ProductId }
+                        })
+                        { Tag = DatabaseWindowTag.ProductHeader }));
 
-                productsAndTotalPrice.Add(new TreeNode($"Полная сумма:  {receipt.TotalPrice}") { Tag = DatabaseWindowTag.Data });
+                productsAndTotalPrice.Add(new TreeNode($"Наличкой: {receipt.CashTotalSum}") { Tag = DatabaseWindowTag.ReceiptData });
+                productsAndTotalPrice.Add(new TreeNode($"Электронно: {receipt.EcashTotalSum}") { Tag = DatabaseWindowTag.ReceiptData });
+                productsAndTotalPrice.Add(new TreeNode($"Полная сумма:  {receipt.TotalSum}") { Tag = DatabaseWindowTag.ReceiptData });
+
 
                 TreeNode treeNode = new TreeNode($"{receipt.DateAndTime}:  {receipt.RetailPlaceAddress}",
                     productsAndTotalPrice.ToArray())
                 { Tag = DatabaseWindowTag.ReceiptHeader };
 
-                databaseWindow.Nodes.Add(treeNode);
+                databaseWindowTreeView.Nodes.Add(treeNode);
             }
         }
 
@@ -177,10 +196,9 @@ namespace PersonalFinancialManager
         {
             string yearStr = "____";
             string pastYearStr = "____";
+            string previous_2x_yearStr = "____";
             string monthStr = "__";
             string pastMonthStr = "__";
-
-            string previous_2x_yearStr = "____";
 
             double yearSum = 0;
             double monthSum = 0;
@@ -225,7 +243,7 @@ namespace PersonalFinancialManager
                 pastYearStr = pastYear.ToString();
                 pastMonthStr = pastMonth.ToString();
 
-                previous_2x_yearStr = (pastYear - 1).ToString();                
+                previous_2x_yearStr = (pastYear - 1).ToString();
                 isDataExist = true;
             }
 
@@ -283,12 +301,11 @@ namespace PersonalFinancialManager
             }
 
 
-            if (!isDataExist) 
+            if (!isDataExist)
                 return;
 
 
             allStatisticPageChart.Series[0].Points.Clear();
-
             allStatisticPageCategoriesListView.Items.Clear();
 
             foreach (KeyValuePair<string, double> data in dataService.GetProductCategoryStatisticDuringYear(year))
@@ -305,7 +322,7 @@ namespace PersonalFinancialManager
             allStatisticPageChart.Titles[0].Text = yearStr;
 
         }
-               
+
         private void UpdateStatisticCharts()
         {
             yearStatisticChart.Update();
@@ -317,38 +334,225 @@ namespace PersonalFinancialManager
         {
             UserTokenForm utf = new UserTokenForm(isWrongAPI);
             utf.ShowDialog();
-            dataService.SetUserToken(utf.UserToken);
+
+            if (utf.IsOk)
+                dataService.SetUserToken(utf.UserToken);
         }
 
         private void deleteReceiptFromDatabase_Click(object sender, EventArgs e)
         {
-            if (databaseWindow.SelectedNode != null)
+            if (databaseWindowTreeView.SelectedNode != null)
             {
-                TreeNode treeNode = databaseWindow.SelectedNode;
-
-                while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.ReceiptHeader)
-                    treeNode = treeNode.Parent;
-
-                DialogResult dr = MessageBox.Show("Вы действительно хотите удалить чек?",
+                DialogResult dr = MessageBox.Show(MESSAGEBOX_TEXT_SURE_DELETE_RECEIPT,
                       "", MessageBoxButtons.YesNo);
 
-                if (dr != DialogResult.Yes)
+                if (dr != DialogResult.Yes) return;
+
+                TreeNode? treeNode = GetReceiptIDTreeNode(databaseWindowTreeView.SelectedNode);
+
+                if (treeNode == null)
                 {
+                    MessageBox.Show(MESSAGEBOX_TEXT_USER_NEED_SELECT_RECEIPT, MESSAGEBOX_CAPTION_ERROR, MessageBoxButtons.OK);
                     return;
                 }
 
-                DateTime time = DateTime.Parse(treeNode.Text.Substring(0, treeNode.Text.IndexOf(": ")));
+                dataService.DeleteReceipt(ParseIdFromTreeNode(treeNode));
+                UpdateAll();
+            }
+        }
 
-                dataService.DeleteReceipt(time);
-                UpdateAllReceiptsInDatabaseWindow();
-                UpdateStatisticCharts();
+        private async void addQRCodesImagesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = FILE_FILTER;
+            ofd.FilterIndex = 0;
+            ofd.Multiselect = true;
+
+            if (ofd.ShowDialog() != DialogResult.Cancel && ofd.FileNames.Length != 0)
+            {
+                List<TryGetReceiptsResultUnit> result = await dataService.GetReceiptsFromQRCodes(ofd.FileNames);
+                ShowReceiptsProcessResult(result);
+            }
+        }
+
+        private void ShowReceiptsProcessResult(List<TryGetReceiptsResultUnit> results)
+        {
+            if (results.Count == 0)
+                return;
+
+            List<Receipt> receipts = new List<Receipt>();
+            List<FailData> fails = new List<FailData>();
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                if (results[i].Receipt != null)
+                {
+                    receipts.Add(results[i].Receipt);
+                }
+
+                if (results[i].Fail != null)
+                {
+                    fails.Add(results[i].Fail);
+                }
+            }
+
+
+            if (fails.Count != 0)
+            {
+                if (fails.Any((item) => item.Code == TryGetReceiptsResultUnit.FailData.ErrorCode.IncorrectAPIKey))
+                {
+                    AskUserToken(true);
+                }
+                else
+                {
+                    new FailReceiptsForm(fails).ShowDialog();
+                }
+            }
+
+            if (receipts.Count != 0)
+            {
+                // TO DO: invoke method that user sets categories for every product
+
+                dataService.AddReceiptsInDatabase(receipts);
+
+                UpdateAll();
+            }
+        }
+
+        private void addUserReceiptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReceiptForm receiptForm = new ReceiptForm();
+            receiptForm.ShowDialog();
+
+            if (receiptForm.IsOk)
+            {
+                dataService.AddUserReceipt(receiptForm.OutReceipt);
+                UpdateAll();
+            }
+        }
+
+        private async void loadUsingDataReceiptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            QRDataForm getFromUserQRDataForm = new QRDataForm();
+            getFromUserQRDataForm.ShowDialog();
+
+            if (getFromUserQRDataForm.IsOk)
+            {
+                TryGetReceiptsResultUnit result = await dataService.GetReceiptFromQRData(getFromUserQRDataForm.OutQRData);
+                ShowReceiptsProcessResult(new List<TryGetReceiptsResultUnit>() { result });
+            }
+        }
+
+        private async void loadUsingDataStringReceiptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringQRDataForm getQRDataStringForm = new StringQRDataForm();
+            getQRDataStringForm.ShowDialog();
+
+            if (getQRDataStringForm.QRDataString != null)
+            {
+                TryGetReceiptsResultUnit result = await dataService.GetReceiptFromDataString(getQRDataStringForm.QRDataString);
+                ShowReceiptsProcessResult(new List<TryGetReceiptsResultUnit>() { result });
+            }
+        }
+
+        private void changeAPIToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            AskUserToken(false);
+        }
+
+        private void changeReceiptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (databaseWindowTreeView.SelectedNode != null)
+            {
+
+                TreeNode? treeNode = GetReceiptIDTreeNode(databaseWindowTreeView.SelectedNode);
+
+                if (treeNode == null)
+                {
+                    MessageBox.Show(MESSAGEBOX_TEXT_USER_NEED_SELECT_RECEIPT, MESSAGEBOX_CAPTION_ERROR,
+                        MessageBoxButtons.OK);
+                    return;
+                }
+
+                int id = ParseIdFromTreeNode(treeNode);
+
+
+                if (dataService.CheckAndGetUserReceipt(id, out Receipt? receipt))
+                {
+                    ReceiptForm receiptForm = new ReceiptForm(receipt);
+                    receiptForm.ShowDialog();
+
+                    if (receiptForm.IsOk)
+                    {
+                        dataService.ChangeUserReceipt(receiptForm.OutReceipt);
+                        UpdateAll();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(MESSAGEBOX_TEXT_CANT_CHANGE_RECEIPT, MESSAGEBOX_CAPTION_ERROR, MessageBoxButtons.OK);
+                }
+
+            }
+        }
+
+        private void sortDatabaseButton_Click(object sender, EventArgs e)
+        {
+            // TO DO: доделать
+        }
+
+        private void changeProductCategoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (databaseWindowTreeView.SelectedNode != null)
+            {
+                if ((DatabaseWindowTag)databaseWindowTreeView.SelectedNode.Tag != DatabaseWindowTag.ProductData &&
+                   (DatabaseWindowTag)databaseWindowTreeView.SelectedNode.Tag != DatabaseWindowTag.ProductHeader &&
+                   (DatabaseWindowTag)databaseWindowTreeView.SelectedNode.Tag != DatabaseWindowTag.ProductId)
+                {
+                    MessageBox.Show(MESSAGEBOX_TEXT_USER_NEED_SELECT_PRODUCT, MESSAGEBOX_CAPTION_ERROR,
+                        MessageBoxButtons.OK);
+                    return;
+                }
+
+                TreeNode treeNode = databaseWindowTreeView.SelectedNode;
+
+                while ((DatabaseWindowTag)treeNode.Tag != DatabaseWindowTag.ProductHeader)
+                    treeNode = treeNode.Parent;
+
+                foreach (TreeNode child in treeNode.Nodes)
+                {
+                    if ((DatabaseWindowTag)child.Tag == DatabaseWindowTag.ProductId)
+                    {
+                        treeNode = child;
+                        break;
+                    }
+                }
+
+                int id = ParseIdFromTreeNode(treeNode);
+
+                if (!dataService.TryGetProductFromDatabaseById(id, out Product? product))
+                    return;
+
+                ProductCategoryForm productCategoryForm = new ProductCategoryForm(product);
+                productCategoryForm.ShowDialog();
+
+                if (productCategoryForm.IsOk)
+                {
+                    dataService.ChangeProductCategory(product, productCategoryForm.OutProductCategory);
+                    UpdateAll();
+                }
+
             }
         }
 
         private enum DatabaseWindowTag
         {
             ReceiptHeader,
-            Data
+            ProductHeader,
+            ReceiptId,
+            ProductId,
+            ReceiptData,
+            ProductData
         }
 
     }

@@ -1,4 +1,4 @@
-﻿namespace PersonalFinancialManager.source
+﻿namespace PersonalFinancialManager.source.Forms
 {
     partial class UserTokenForm
     {
@@ -31,6 +31,8 @@
             infoTextBox = new RichTextBox();
             label1 = new Label();
             apiInputTextBox = new TextBox();
+            cancelButton = new Button();
+            okButton = new Button();
             SuspendLayout();
             // 
             // infoTextBox
@@ -63,22 +65,43 @@
             apiInputTextBox.Name = "apiInputTextBox";
             apiInputTextBox.Size = new Size(378, 26);
             apiInputTextBox.TabIndex = 3;
-            apiInputTextBox.KeyDown += apiInputTextBox_KeyDown;
+            // 
+            // cancelButton
+            // 
+            cancelButton.Location = new Point(240, 130);
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new Size(118, 33);
+            cancelButton.TabIndex = 31;
+            cancelButton.Text = "Отмена";
+            cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.Click += cancelButton_Click;
+            // 
+            // okButton
+            // 
+            okButton.Location = new Point(364, 130);
+            okButton.Name = "okButton";
+            okButton.Size = new Size(118, 33);
+            okButton.TabIndex = 30;
+            okButton.Text = "ОК";
+            okButton.UseVisualStyleBackColor = true;
+            okButton.Click += okButton_Click;
             // 
             // UserTokenForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(505, 149);
+            ClientSize = new Size(505, 174);
             ControlBox = false;
+            Controls.Add(cancelButton);
+            Controls.Add(okButton);
             Controls.Add(apiInputTextBox);
             Controls.Add(label1);
             Controls.Add(infoTextBox);
             MaximizeBox = false;
-            MaximumSize = new Size(521, 188);
+            MaximumSize = new Size(521, 213);
             MinimizeBox = false;
-            MinimumSize = new Size(521, 188);
+            MinimumSize = new Size(521, 213);
             Name = "UserTokenForm";
             Text = "API ключ";
             ResumeLayout(false);
@@ -90,5 +113,7 @@
         private RichTextBox infoTextBox;
         private Label label1;
         private TextBox apiInputTextBox;
+        private Button cancelButton;
+        private Button okButton;
     }
 }

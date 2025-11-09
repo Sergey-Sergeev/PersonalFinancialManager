@@ -4,7 +4,7 @@ using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 using SizeF = System.Drawing.SizeF;
 
-namespace PersonalFinancialManager
+namespace PersonalFinancialManager.source.Forms
 {
     partial class MainForm
     {
@@ -37,12 +37,21 @@ namespace PersonalFinancialManager
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             printPreviewDialog1 = new PrintPreviewDialog();
-            loadQRCodesButton = new Button();
-            databaseWindow = new TreeView();
+            databaseWindowTreeView = new TreeView();
             databaseContextMenuStrip = new ContextMenuStrip(components);
-            deleteReceiptFromDatabase = new ToolStripMenuItem();
+            deleteReceiptFromDatabaseToolStripMenuItem = new ToolStripMenuItem();
+            loadQRCodesToolStripMenuItem = new ToolStripMenuItem();
+            loadQRCodesImagesToolStripMenuItem = new ToolStripMenuItem();
+            добавитьВРучнуюToolStripMenuItem = new ToolStripMenuItem();
+            addUserReceiptToolStripMenuItem = new ToolStripMenuItem();
+            loadUsingDataReceiptToolStripMenuItem = new ToolStripMenuItem();
+            loadUsingDataStringReceiptToolStripMenuItem = new ToolStripMenuItem();
+            changeToolStripMenuItem = new ToolStripMenuItem();
+            changeAPIToolStripMenuItem = new ToolStripMenuItem();
+            changeReceiptToolStripMenuItem = new ToolStripMenuItem();
             mainTabControl = new TabControl();
             mainPage = new TabPage();
+            sortDatabaseButton = new Button();
             textBox1 = new TextBox();
             yearChartPage = new TabPage();
             yearChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -108,6 +117,7 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwYearsValueLabel = new Label();
             allStatisticPageDiffBtwMonthesValueLabel = new Label();
             allStatisticPageDiffBtwMonthesDateLabel = new Label();
+            changeProductCategoryToolStripMenuItem = new ToolStripMenuItem();
             databaseContextMenuStrip.SuspendLayout();
             mainTabControl.SuspendLayout();
             mainPage.SuspendLayout();
@@ -135,35 +145,87 @@ namespace PersonalFinancialManager
             printPreviewDialog1.Name = "printPreviewDialog1";
             printPreviewDialog1.Visible = false;
             // 
-            // loadQRCodesButton
+            // databaseWindowTreeView
             // 
-            loadQRCodesButton.Font = new Font("Calibri", 12F);
-            loadQRCodesButton.Location = new Point(6, 6);
-            loadQRCodesButton.Name = "loadQRCodesButton";
-            loadQRCodesButton.Size = new Size(127, 30);
-            loadQRCodesButton.TabIndex = 1;
-            loadQRCodesButton.Text = "Загрузить QR код";
-            loadQRCodesButton.UseVisualStyleBackColor = true;
-            loadQRCodesButton.Click += loadQRCodesButton_Click;
-            // 
-            // databaseWindow
-            // 
-            databaseWindow.BackColor = Color.WhiteSmoke;
-            databaseWindow.ContextMenuStrip = databaseContextMenuStrip;
-            databaseWindow.Font = new Font("Calibri", 12F);
-            databaseWindow.Location = new Point(285, 42);
-            databaseWindow.Name = "databaseWindow";
-            databaseWindow.Size = new Size(816, 511);
-            databaseWindow.TabIndex = 2;
+            databaseWindowTreeView.BackColor = Color.WhiteSmoke;
+            databaseWindowTreeView.ContextMenuStrip = databaseContextMenuStrip;
+            databaseWindowTreeView.Font = new Font("Calibri", 12F);
+            databaseWindowTreeView.Location = new Point(8, 42);
+            databaseWindowTreeView.Name = "databaseWindowTreeView";
+            databaseWindowTreeView.Size = new Size(1091, 511);
+            databaseWindowTreeView.TabIndex = 2;
             // 
             // databaseContextMenuStrip
+            // 
+            databaseContextMenuStrip.Font = new Font("Calibri", 12F);
+            databaseContextMenuStrip.Items.AddRange(new ToolStripItem[] { deleteReceiptFromDatabaseToolStripMenuItem, loadQRCodesToolStripMenuItem, changeToolStripMenuItem });
+            databaseContextMenuStrip.Name = "contextMenuStrip1";
+            databaseContextMenuStrip.Size = new Size(181, 98);
+            // 
+            // deleteReceiptFromDatabaseToolStripMenuItem
+            // 
+            deleteReceiptFromDatabaseToolStripMenuItem.Name = "deleteReceiptFromDatabaseToolStripMenuItem";
+            deleteReceiptFromDatabaseToolStripMenuItem.Size = new Size(180, 24);
+            deleteReceiptFromDatabaseToolStripMenuItem.Text = "Удалить чек";
+            deleteReceiptFromDatabaseToolStripMenuItem.Click += deleteReceiptFromDatabase_Click;
+            // 
+            // loadQRCodesToolStripMenuItem
+            // 
+            loadQRCodesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { loadQRCodesImagesToolStripMenuItem, добавитьВРучнуюToolStripMenuItem });
+            loadQRCodesToolStripMenuItem.Name = "loadQRCodesToolStripMenuItem";
+            loadQRCodesToolStripMenuItem.Size = new Size(180, 24);
+            loadQRCodesToolStripMenuItem.Text = "Добавить чеки";
+            // 
+            // loadQRCodesImagesToolStripMenuItem
+            // 
+            loadQRCodesImagesToolStripMenuItem.Name = "loadQRCodesImagesToolStripMenuItem";
+            loadQRCodesImagesToolStripMenuItem.Size = new Size(211, 24);
+            loadQRCodesImagesToolStripMenuItem.Text = "Загрузить QR коды";
+            loadQRCodesImagesToolStripMenuItem.Click += addQRCodesImagesToolStripMenuItem_Click;
+            // 
+            // добавитьВРучнуюToolStripMenuItem
+            // 
+            добавитьВРучнуюToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { addUserReceiptToolStripMenuItem, loadUsingDataReceiptToolStripMenuItem, loadUsingDataStringReceiptToolStripMenuItem });
+            добавитьВРучнуюToolStripMenuItem.Name = "добавитьВРучнуюToolStripMenuItem";
+            добавитьВРучнуюToolStripMenuItem.Size = new Size(211, 24);
+            добавитьВРучнуюToolStripMenuItem.Text = "Добавить в ручную";
+            // 
+            // addUserReceiptToolStripMenuItem
+            // 
+            addUserReceiptToolStripMenuItem.Name = "addUserReceiptToolStripMenuItem";
+            addUserReceiptToolStripMenuItem.Size = new Size(272, 24);
+            addUserReceiptToolStripMenuItem.Text = "Свой чек";
+            addUserReceiptToolStripMenuItem.Click += addUserReceiptToolStripMenuItem_Click;
+            // 
+            // loadUsingDataReceiptToolStripMenuItem
+            // 
+            loadUsingDataReceiptToolStripMenuItem.Name = "loadUsingDataReceiptToolStripMenuItem";
+            loadUsingDataReceiptToolStripMenuItem.Size = new Size(272, 24);
+            loadUsingDataReceiptToolStripMenuItem.Text = "Данные чека";
+            loadUsingDataReceiptToolStripMenuItem.Click += loadUsingDataReceiptToolStripMenuItem_Click;
+            // 
+            // loadUsingDataStringReceiptToolStripMenuItem
+            // 
+            loadUsingDataStringReceiptToolStripMenuItem.Name = "loadUsingDataStringReceiptToolStripMenuItem";
+            loadUsingDataStringReceiptToolStripMenuItem.Size = new Size(272, 24);
+            loadUsingDataStringReceiptToolStripMenuItem.Text = "Через строку с данным чека";
+            loadUsingDataStringReceiptToolStripMenuItem.Click += loadUsingDataStringReceiptToolStripMenuItem_Click;
+            // 
+            // changeToolStripMenuItem
+            // 
+            changeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { changeAPIToolStripMenuItem, changeReceiptToolStripMenuItem, changeProductCategoryToolStripMenuItem });
+            changeToolStripMenuItem.Name = "changeToolStripMenuItem";
+            changeToolStripMenuItem.Size = new Size(180, 24);
+            changeToolStripMenuItem.Text = "Изменить";
+            // 
+            // changeAPIToolStripMenuItem
             // 
             databaseContextMenuStrip.ImageScalingSize = new Size(20, 20);
             databaseContextMenuStrip.Items.AddRange(new ToolStripItem[] { deleteReceiptFromDatabase });
             databaseContextMenuStrip.Name = "contextMenuStrip1";
             databaseContextMenuStrip.Size = new Size(162, 28);
             // 
-            // deleteReceiptFromDatabase
+            // changeReceiptToolStripMenuItem
             // 
             deleteReceiptFromDatabase.Name = "deleteReceiptFromDatabase";
             deleteReceiptFromDatabase.Size = new Size(161, 24);
@@ -187,6 +249,7 @@ namespace PersonalFinancialManager
             // 
             // mainPage
             // 
+            mainPage.Controls.Add(sortDatabaseButton);
             mainPage.Controls.Add(textBox1);
             mainPage.Controls.Add(loadQRCodesButton);
             mainPage.Controls.Add(databaseWindow);
@@ -198,10 +261,21 @@ namespace PersonalFinancialManager
             mainPage.Text = "Главная";
             mainPage.UseVisualStyleBackColor = true;
             // 
+            // sortDatabaseButton
+            // 
+            sortDatabaseButton.Font = new Font("Calibri", 12F);
+            sortDatabaseButton.Location = new Point(972, 9);
+            sortDatabaseButton.Name = "sortDatabaseButton";
+            sortDatabaseButton.Size = new Size(127, 27);
+            sortDatabaseButton.TabIndex = 4;
+            sortDatabaseButton.Text = "Сортировать";
+            sortDatabaseButton.UseVisualStyleBackColor = true;
+            sortDatabaseButton.Click += sortDatabaseButton_Click;
+            // 
             // textBox1
             // 
             textBox1.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            textBox1.Location = new Point(285, 9);
+            textBox1.Location = new Point(8, 9);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(816, 32);
             textBox1.TabIndex = 3;
@@ -946,6 +1020,13 @@ namespace PersonalFinancialManager
             allStatisticPageDiffBtwMonthesDateLabel.TabIndex = 20;
             allStatisticPageDiffBtwMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
             // 
+            // changeProductCategoryToolStripMenuItem
+            // 
+            changeProductCategoryToolStripMenuItem.Name = "changeProductCategoryToolStripMenuItem";
+            changeProductCategoryToolStripMenuItem.Size = new Size(217, 24);
+            changeProductCategoryToolStripMenuItem.Text = "Категорию продукта";
+            changeProductCategoryToolStripMenuItem.Click += changeProductCategoryToolStripMenuItem_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(120F, 120F);
@@ -984,15 +1065,14 @@ namespace PersonalFinancialManager
         #endregion
 
         private PrintPreviewDialog printPreviewDialog1;
-        private System.Windows.Forms.Button loadQRCodesButton;
-        private TreeView databaseWindow;
+        private TreeView databaseWindowTreeView;
         private TabControl mainTabControl;
         private TabPage mainPage;
         private TabPage yearChartPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart yearChart;
         private TextBox textBox1;
         private ContextMenuStrip databaseContextMenuStrip;
-        private ToolStripMenuItem deleteReceiptFromDatabase;
+        private ToolStripMenuItem deleteReceiptFromDatabaseToolStripMenuItem;
         private TabPage monthChartPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart monthChart;
         private TabPage specialChartPage;
@@ -1061,5 +1141,16 @@ namespace PersonalFinancialManager
         private ColumnHeader columnHeader1;
         private ColumnHeader columnHeader2;
         private Panel panel4;
+        private Button sortDatabaseButton;
+        private ToolStripMenuItem loadQRCodesToolStripMenuItem;
+        private ToolStripMenuItem loadQRCodesImagesToolStripMenuItem;
+        private ToolStripMenuItem добавитьВРучнуюToolStripMenuItem;
+        private ToolStripMenuItem addUserReceiptToolStripMenuItem;
+        private ToolStripMenuItem loadUsingDataReceiptToolStripMenuItem;
+        private ToolStripMenuItem loadUsingDataStringReceiptToolStripMenuItem;
+        private ToolStripMenuItem changeToolStripMenuItem;
+        private ToolStripMenuItem changeAPIToolStripMenuItem;
+        private ToolStripMenuItem changeReceiptToolStripMenuItem;
+        private ToolStripMenuItem changeProductCategoryToolStripMenuItem;
     }
 }

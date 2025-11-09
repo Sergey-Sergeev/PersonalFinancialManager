@@ -27,7 +27,8 @@ namespace PersonalFinancialManager.source
         private readonly Dictionary<string, SpecialChartInterval> SPECIAL_CHART_INTERVAL_PAIRS = new Dictionary<string, SpecialChartInterval>()
         {
              { "День", SpecialChartInterval.Day },
-             { "Месяц", SpecialChartInterval.Month }
+             { "Месяц", SpecialChartInterval.Month },
+             { "Год", SpecialChartInterval.Year }
         };
 
 
@@ -104,6 +105,7 @@ namespace PersonalFinancialManager.source
             thirdSeries.Color = SPECIAL_CHART_SERIES3_COLOR;
             thirdSeries.BorderWidth = secondSeries.BorderWidth = chart.Series[0].BorderWidth;
 
+
             chart.Series.Add(secondSeries);
             chart.Series.Add(thirdSeries);
 
@@ -145,18 +147,18 @@ namespace PersonalFinancialManager.source
                 SpecialChartInput.CheckBoxes[i].CheckedChanged += Update;
             }
 
-            int year = DateTime.Now.Year;
-            int month = DateTime.Now.Month;
+            DateTime curMonthFrom = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime curMonthUntil = curMonthFrom.AddMonths(1).AddDays(-1);
+            DateTime prevMonthFrom = curMonthFrom.AddMonths(-1);
+            DateTime prevMonthUntil = curMonthFrom.AddDays(-1);
 
-            specialChartSeries1DateFromTextBox.Text = $"01.{month}.{year}";
-            specialChartSeries1DateUntilTextBox.Text = $"31.{month}.{year}";
-            specialChartSeries2DateFromTextBox.Text = $"01.{month - 1}.{year}";
-            specialChartSeries2DateUntilTextBox.Text = $"31.{month - 1}.{year}";
+            specialChartSeries1DateFromTextBox.Text = curMonthFrom.ToString("dd.MM.yyyy");
+            specialChartSeries1DateUntilTextBox.Text = curMonthUntil.ToString("dd.MM.yyyy");
+            specialChartSeries2DateFromTextBox.Text = prevMonthFrom.ToString("dd.MM.yyyy");
+            specialChartSeries2DateUntilTextBox.Text = prevMonthUntil.ToString("dd.MM.yyyy");
 
             specialChartIntervalComboBox.Text = SPECIAL_CHART_INTERVAL_PAIRS.First().Key;
             specialChartIntervalComboBox.TextChanged += Update;
-
-            Update();
         }
 
         public override void Update()
@@ -172,13 +174,12 @@ namespace PersonalFinancialManager.source
 
             for (int i = 0; i < 3; i++)
             {
+                chart.Series[i].Points.Clear();
+
                 if (SpecialChartInput.CheckBoxes[i].Checked)
                 {
-                    chart.Series[i].Points.Clear();
                     continue;
                 }
-
-                chart.Series[i].Points.Clear();
 
                 if (IsDateCorrect(ref SpecialChartInput.FromTextBoxes[i], out DateTime fromDate) &&
                     IsDateCorrect(ref SpecialChartInput.UntilTextBoxes[i], out DateTime untilDate))
@@ -199,6 +200,7 @@ namespace PersonalFinancialManager.source
                     }
 
 
+
                     if (maximum == 0)
                     {
                         moneyInterval = DEFAULT_CHART_AXIS_Y_INTERVAL;
@@ -215,6 +217,7 @@ namespace PersonalFinancialManager.source
                 }
             }
         }
+
 
         private void SpecialChartInputTextBoxEnterPressedEvent(object? sender, KeyPressEventArgs e)
         {
@@ -234,9 +237,12 @@ namespace PersonalFinancialManager.source
                     dateTimeFormatString = "dd";
                     return (1, 0, 0);
                 case SpecialChartInterval.Month:
-                default:
                     dateTimeFormatString = "MMMM";
                     return (0, 1, 0);
+                case SpecialChartInterval.Year:
+                default:
+                    dateTimeFormatString = "yyyy";
+                    return (0, 0, 1);
             }
         }
 
@@ -256,7 +262,8 @@ namespace PersonalFinancialManager.source
         private enum SpecialChartInterval
         {
             Day,
-            Month
+            Month,
+            Year
         }
 
     }

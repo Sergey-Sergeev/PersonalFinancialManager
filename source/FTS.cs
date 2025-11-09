@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
-using static PersonalFinancialManager.source.FTSDecodingReceiptsResult;
+using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
 
 namespace PersonalFinancialManager.source
 {
