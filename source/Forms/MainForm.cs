@@ -21,12 +21,13 @@ namespace PersonalFinancialManager.source.Forms
         private const string TREENODE_ID_START_MARKER = "ID: ";
         private const string TREENODE_ID_STOP_MARKER = ";";
 
-
         private const string MESSAGEBOX_CAPTION_ERROR = "Ошибка";
         private const string MESSAGEBOX_TEXT_CANT_CHANGE_RECEIPT = "Вы не можете изменить этот чек, потому что он не создан пользователем.";
         private const string MESSAGEBOX_TEXT_SURE_DELETE_RECEIPT = "Вы действительно хотите удалить чек?";
         private const string MESSAGEBOX_TEXT_USER_NEED_SELECT_RECEIPT = "Выделите тело или заголовок чека.";
         private const string MESSAGEBOX_TEXT_USER_NEED_SELECT_PRODUCT = "Выделите заголовок или тело продукта.";
+
+
 
         public MainForm()
         {
@@ -37,13 +38,21 @@ namespace PersonalFinancialManager.source.Forms
             if (!isUserAuthorizated)
                 AskUserToken(false);
 
-            UpdateAllReceiptsInDatabaseWindow();
+            UpdateAllEntitiesInDatabaseWindow();
             InitializeStatistic();
+
+            Disposed += MainFormDisposed;
+        }
+
+        private void MainFormDisposed(object? sender, EventArgs e)
+        {
+            dataService.Dispose();
+            yearStatisticChart.Dispose();
         }
 
         private void UpdateAll()
         {
-            UpdateAllReceiptsInDatabaseWindow();
+            UpdateAllEntitiesInDatabaseWindow();
             UpdateStatisticCharts();
             UpdateAllStatisticPage();
         }
@@ -72,7 +81,33 @@ namespace PersonalFinancialManager.source.Forms
             return null;
         }
 
-        private void UpdateAllReceiptsInDatabaseWindow()
+        private void UpdateAllEntitiesInDatabaseWindow()
+        {
+            if (dataService.GetDatabaseCurrentEntityType() == Database.EntityType.Receipt)
+                LoadReceiptsFromDatabase();
+            else LoadProductsFromDatabase();
+        }
+
+        private void LoadProductsFromDatabase()
+        {
+            databaseWindowTreeView.Nodes.Clear();
+
+            foreach (Product product in dataService.GetProductsFromDB())
+            {
+                TreeNode treeNode = new TreeNode($"{product.Name}\n",
+                        new TreeNode[] {
+                            new TreeNode($"Категория:  {product.Category.Name}") { Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Цена:  {product.Price}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Количество:  {product.Quantity}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"Сумма:  {product.Sum}\n"){ Tag = DatabaseWindowTag.ProductData },
+                            new TreeNode($"{TREENODE_ID_START_MARKER}{product.Id}{TREENODE_ID_STOP_MARKER}") { Tag = DatabaseWindowTag.ProductId }
+                        }) { Tag = DatabaseWindowTag.ProductHeader };
+
+                databaseWindowTreeView.Nodes.Add(treeNode);
+            }
+        }
+
+        private void LoadReceiptsFromDatabase()
         {
             databaseWindowTreeView.Nodes.Clear();
 
@@ -117,16 +152,16 @@ namespace PersonalFinancialManager.source.Forms
 
             specialStatisticChart = new SpecialStatisticChart(ref specialChart, Font,
                 dataService.GetReceiptsDuringPeriod,
-                specialChartSeries1DateFromTextBox,
-                specialChartSeries1DateUntilTextBox,
-                specialChartSeries1HideCheckBox,
-                specialChartSeries3HideCheckBox,
-                specialChartSeries3DateUntilTextBox,
-                specialChartSeries3DateFromTextBox,
-                specialChartSeries2HideCheckBox,
-                specialChartSeries2DateUntilTextBox,
-                specialChartSeries2DateFromTextBox,
-                specialChartIntervalComboBox
+                ref specialChartSeries1DateFromTextBox,
+                ref specialChartSeries1DateUntilTextBox,
+                ref specialChartSeries1HideCheckBox,
+                ref specialChartSeries3HideCheckBox,
+                ref specialChartSeries3DateUntilTextBox,
+                ref specialChartSeries3DateFromTextBox,
+                ref specialChartSeries2HideCheckBox,
+                ref specialChartSeries2DateUntilTextBox,
+                ref specialChartSeries2DateFromTextBox,
+                ref specialChartIntervalComboBox
                 );
             specialStatisticChart.Initialize();
 
@@ -138,6 +173,11 @@ namespace PersonalFinancialManager.source.Forms
         {
             ChartArea chartArea = new ChartArea();
             chartArea.BorderColor = Color.WhiteSmoke;
+            chartArea.BackColor = Color.WhiteSmoke;
+            chartArea.Position.X = 0;
+            chartArea.Position.Y = 0;
+            chartArea.Position.Width = 100;
+            chartArea.Position.Height = 100;
 
             allStatisticPageChart.ChartAreas.Add(chartArea);
 
@@ -411,10 +451,12 @@ namespace PersonalFinancialManager.source.Forms
 
             if (receipts.Count != 0)
             {
-                // TO DO: invoke method that user sets categories for every product
+                List<Product> products = new List<Product>();
+                receipts.ForEach((r) => products.AddRange(r.ListOfProducts));
+                SetCategoriesForeachProductForm setCategoriesForm = new SetCategoriesForeachProductForm(ref products);
+                setCategoriesForm.ShowDialog();
 
                 dataService.AddReceiptsInDatabase(receipts);
-
                 UpdateAll();
             }
         }
@@ -498,7 +540,15 @@ namespace PersonalFinancialManager.source.Forms
 
         private void sortDatabaseButton_Click(object sender, EventArgs e)
         {
-            // TO DO: доделать
+            NewSearchConditionForm newSearchConditionForm = new NewSearchConditionForm(Database.Fabric().CurrentConditionTree);
+            newSearchConditionForm.ShowDialog();
+
+            if (newSearchConditionForm.IsOk)
+            {
+                currentDatabaseConditionTextBox.Text = newSearchConditionForm.OutRoot.GetConditionsString();
+                dataService.SetDatabaseCurrentConditionTree(newSearchConditionForm.OutRoot, newSearchConditionForm.OutEntity);
+                UpdateAllEntitiesInDatabaseWindow();
+            }
         }
 
         private void changeProductCategoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -544,6 +594,7 @@ namespace PersonalFinancialManager.source.Forms
 
             }
         }
+
 
         private enum DatabaseWindowTag
         {

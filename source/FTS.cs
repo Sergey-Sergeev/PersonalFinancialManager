@@ -4,12 +4,12 @@ using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
 
 namespace PersonalFinancialManager.source
 {
-    public class FTS
+    public class FTS : IDisposable
     {
         private readonly Uri BASE_URI = new Uri("https://proverkacheka.com/api/v1/check/get");
         private const int REQUEST_TIMEOUT_IN_SECONDS = 30;
 
-        private static HttpClient httpClient = null;
+        private static HttpClient? httpClient = null;
         private static FTS? singleInstance = null;
 
         private string userToken;
@@ -28,6 +28,13 @@ namespace PersonalFinancialManager.source
             singleInstance.userToken = token;
 
             return singleInstance;
+        }
+
+        public void Dispose()
+        {
+            singleInstance = null;
+            httpClient?.Dispose();
+            httpClient = null;
         }
 
         public void UpdateUserToken(string userToken)

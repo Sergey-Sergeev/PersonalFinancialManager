@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
 using static PersonalFinancialManager.source.JsonServerClass;
+using static PersonalFinancialManager.source.Database;
 
 namespace PersonalFinancialManager.source
 {
-    public class DataService
+    public class DataService : IDisposable
     {
         private static FTS? fts = null;
         private static Database? database = null;
@@ -43,6 +44,25 @@ namespace PersonalFinancialManager.source
             return singleInstance;
         }
 
+        public void SetDatabaseCurrentConditionTree(SearchConditionNode condition, Database.EntityType type)
+        {
+            database.SetCurrentConditionString(condition, type);
+        }
+
+        public Database.EntityType GetDatabaseCurrentEntityType()
+        {
+            return database.CurrentEntityType;
+        }
+
+        public void Dispose()
+        {
+            singleInstance = null;
+            database?.Dispose();
+            fts?.Dispose();
+            database = null;
+            fts = null;
+        }
+
         public void SetUserToken(string token)
         {
             fts.UpdateUserToken(token);
@@ -73,8 +93,6 @@ namespace PersonalFinancialManager.source
                     unit = await GetReceiptFromQRData(qRCodeData);
                     if (unit.Fail != null)
                         unit.Fail.FileName = files[i];
-
-
                 }
                 else
                 {
@@ -186,8 +204,14 @@ namespace PersonalFinancialManager.source
 
         public IEnumerable<Receipt> GetReceiptsFromDB()
         {
-            foreach (Receipt receipt in database.GetAllReceipts())
+            foreach (Receipt receipt in database.GetAllReceiptsWithCurrentConditionString())
                 yield return receipt;
+        }
+
+        public IEnumerable<Product> GetProductsFromDB()
+        {
+            foreach (Product product in database.GetAllProductsWithCurrentConditionString())
+                yield return product;
         }
 
         public IEnumerable<StatisticDataUnit> GetReceiptsDuringPeriod(DateTime from, DateTime until, (int day, int month, int year) interval)

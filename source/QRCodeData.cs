@@ -31,6 +31,9 @@ namespace PersonalFinancialManager.source
 
         // example = t=20251002T1530&s=1234.56&fn=9281000100001234&i=12345&fp=678901234&n=1
 
+        private const string ACCEPTABLE_CHARS = "0123456789T.";
+        
+
         private QRCodeData() { }
 
         public QRCodeData(ulong fn, int i, int fp, double s, DateTime t, bool n)
@@ -190,17 +193,29 @@ namespace PersonalFinancialManager.source
         private static bool ParseParameterFromQRData(string paramName, ref string QRData, out string data)
         {
             data = "";
-            for (int i = QRData.IndexOf(paramName) + paramName.Length; i < QRData.Length; i++)
+
+            int index = QRData.IndexOf(paramName);
+
+            if (index == -1)
+                return false;
+
+            for (int i = index + paramName.Length; i < QRData.Length; i++)
             {
-                if (i == 0 || i < 0)
-                {
-                    return false;
-                }
+                if (i == 0 || i < 0)                
+                    return false;                
 
                 if (QRData[i] == '&')
                     break;
+
+                if (!ACCEPTABLE_CHARS.Contains(QRData[i]))
+                    return false;
+
                 data += QRData[i];
             }
+
+            if (data == String.Empty)
+                return false;
+
             return true;
         }
     }

@@ -49,10 +49,11 @@ namespace PersonalFinancialManager.source.Forms
             changeToolStripMenuItem = new ToolStripMenuItem();
             changeAPIToolStripMenuItem = new ToolStripMenuItem();
             changeReceiptToolStripMenuItem = new ToolStripMenuItem();
+            changeProductCategoryToolStripMenuItem = new ToolStripMenuItem();
             mainTabControl = new TabControl();
             mainPage = new TabPage();
             sortDatabaseButton = new Button();
-            textBox1 = new TextBox();
+            currentDatabaseConditionTextBox = new TextBox();
             yearChartPage = new TabPage();
             yearChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             monthChartPage = new TabPage();
@@ -117,7 +118,6 @@ namespace PersonalFinancialManager.source.Forms
             allStatisticPageDiffBtwYearsValueLabel = new Label();
             allStatisticPageDiffBtwMonthesValueLabel = new Label();
             allStatisticPageDiffBtwMonthesDateLabel = new Label();
-            changeProductCategoryToolStripMenuItem = new ToolStripMenuItem();
             databaseContextMenuStrip.SuspendLayout();
             mainTabControl.SuspendLayout();
             mainPage.SuspendLayout();
@@ -147,9 +147,10 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // databaseWindowTreeView
             // 
-            databaseWindowTreeView.BackColor = Color.WhiteSmoke;
+            databaseWindowTreeView.BackColor = Color.White;
             databaseWindowTreeView.ContextMenuStrip = databaseContextMenuStrip;
             databaseWindowTreeView.Font = new Font("Calibri", 12F);
+            databaseWindowTreeView.HotTracking = true;
             databaseWindowTreeView.Location = new Point(8, 42);
             databaseWindowTreeView.Name = "databaseWindowTreeView";
             databaseWindowTreeView.Size = new Size(1091, 511);
@@ -160,7 +161,7 @@ namespace PersonalFinancialManager.source.Forms
             databaseContextMenuStrip.Font = new Font("Calibri", 12F);
             databaseContextMenuStrip.Items.AddRange(new ToolStripItem[] { deleteReceiptFromDatabaseToolStripMenuItem, loadQRCodesToolStripMenuItem, changeToolStripMenuItem });
             databaseContextMenuStrip.Name = "contextMenuStrip1";
-            databaseContextMenuStrip.Size = new Size(181, 98);
+            databaseContextMenuStrip.Size = new Size(181, 76);
             // 
             // deleteReceiptFromDatabaseToolStripMenuItem
             // 
@@ -232,6 +233,13 @@ namespace PersonalFinancialManager.source.Forms
             changeReceiptToolStripMenuItem.Text = "Данные чека";
             changeReceiptToolStripMenuItem.Click += changeReceiptToolStripMenuItem_Click;
             // 
+            // changeProductCategoryToolStripMenuItem
+            // 
+            changeProductCategoryToolStripMenuItem.Name = "changeProductCategoryToolStripMenuItem";
+            changeProductCategoryToolStripMenuItem.Size = new Size(217, 24);
+            changeProductCategoryToolStripMenuItem.Text = "Категорию продукта";
+            changeProductCategoryToolStripMenuItem.Click += changeProductCategoryToolStripMenuItem_Click;
+            // 
             // mainTabControl
             // 
             mainTabControl.Controls.Add(mainPage);
@@ -249,8 +257,9 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // mainPage
             // 
+            mainPage.BackColor = Color.WhiteSmoke;
             mainPage.Controls.Add(sortDatabaseButton);
-            mainPage.Controls.Add(textBox1);
+            mainPage.Controls.Add(currentDatabaseConditionTextBox);
             mainPage.Controls.Add(databaseWindowTreeView);
             mainPage.Location = new Point(4, 28);
             mainPage.Name = "mainPage";
@@ -258,7 +267,6 @@ namespace PersonalFinancialManager.source.Forms
             mainPage.Size = new Size(1107, 559);
             mainPage.TabIndex = 0;
             mainPage.Text = "Главная";
-            mainPage.UseVisualStyleBackColor = true;
             // 
             // sortDatabaseButton
             // 
@@ -271,16 +279,18 @@ namespace PersonalFinancialManager.source.Forms
             sortDatabaseButton.UseVisualStyleBackColor = true;
             sortDatabaseButton.Click += sortDatabaseButton_Click;
             // 
-            // textBox1
+            // currentDatabaseConditionTextBox
             // 
-            textBox1.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            textBox1.Location = new Point(8, 9);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(958, 27);
-            textBox1.TabIndex = 3;
+            currentDatabaseConditionTextBox.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            currentDatabaseConditionTextBox.Location = new Point(8, 9);
+            currentDatabaseConditionTextBox.Name = "currentDatabaseConditionTextBox";
+            currentDatabaseConditionTextBox.ReadOnly = true;
+            currentDatabaseConditionTextBox.Size = new Size(958, 27);
+            currentDatabaseConditionTextBox.TabIndex = 3;
             // 
             // yearChartPage
             // 
+            yearChartPage.BackColor = Color.WhiteSmoke;
             yearChartPage.Controls.Add(yearChart);
             yearChartPage.Location = new Point(4, 24);
             yearChartPage.Name = "yearChartPage";
@@ -288,7 +298,6 @@ namespace PersonalFinancialManager.source.Forms
             yearChartPage.Size = new Size(1107, 563);
             yearChartPage.TabIndex = 1;
             yearChartPage.Text = "График за год";
-            yearChartPage.UseVisualStyleBackColor = true;
             // 
             // yearChart
             // 
@@ -302,6 +311,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // monthChartPage
             // 
+            monthChartPage.BackColor = Color.WhiteSmoke;
             monthChartPage.Controls.Add(monthChart);
             monthChartPage.Location = new Point(4, 24);
             monthChartPage.Name = "monthChartPage";
@@ -309,7 +319,6 @@ namespace PersonalFinancialManager.source.Forms
             monthChartPage.Size = new Size(1107, 563);
             monthChartPage.TabIndex = 2;
             monthChartPage.Text = "График за месяц";
-            monthChartPage.UseVisualStyleBackColor = true;
             // 
             // monthChart
             // 
@@ -323,6 +332,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // specialChartPage
             // 
+            specialChartPage.BackColor = Color.WhiteSmoke;
             specialChartPage.Controls.Add(specialChartIntervalComboBox);
             specialChartPage.Controls.Add(label10);
             specialChartPage.Controls.Add(specialChartSeries3HideCheckBox);
@@ -350,7 +360,6 @@ namespace PersonalFinancialManager.source.Forms
             specialChartPage.Size = new Size(1107, 563);
             specialChartPage.TabIndex = 3;
             specialChartPage.Text = "Специальный график";
-            specialChartPage.UseVisualStyleBackColor = true;
             // 
             // specialChartIntervalComboBox
             // 
@@ -583,6 +592,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPage
             // 
+            allStatisticPage.BackColor = Color.WhiteSmoke;
             allStatisticPage.Controls.Add(panel3);
             allStatisticPage.Controls.Add(panel2);
             allStatisticPage.Controls.Add(panel1);
@@ -594,7 +604,6 @@ namespace PersonalFinancialManager.source.Forms
             allStatisticPage.Size = new Size(1107, 563);
             allStatisticPage.TabIndex = 4;
             allStatisticPage.Text = "Общая статистика";
-            allStatisticPage.UseVisualStyleBackColor = true;
             // 
             // panel3
             // 
@@ -764,10 +773,14 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPageChart
             // 
-            allStatisticPageChart.Location = new Point(518, 61);
+            allStatisticPageChart.BackColor = Color.WhiteSmoke;
+            allStatisticPageChart.BorderlineColor = Color.WhiteSmoke;
+            allStatisticPageChart.BorderlineWidth = 0;
+            allStatisticPageChart.Location = new Point(519, 64);
             allStatisticPageChart.Name = "allStatisticPageChart";
-            allStatisticPageChart.Size = new Size(581, 490);
+            allStatisticPageChart.Size = new Size(580, 487);
             allStatisticPageChart.TabIndex = 36;
+            allStatisticPageChart.TabStop = false;
             allStatisticPageChart.Text = "chart1";
             // 
             // panel4
@@ -1019,13 +1032,6 @@ namespace PersonalFinancialManager.source.Forms
             allStatisticPageDiffBtwMonthesDateLabel.TabIndex = 20;
             allStatisticPageDiffBtwMonthesDateLabel.Text = "Разница между 00.0000 и 00.0000:  ";
             // 
-            // changeProductCategoryToolStripMenuItem
-            // 
-            changeProductCategoryToolStripMenuItem.Name = "changeProductCategoryToolStripMenuItem";
-            changeProductCategoryToolStripMenuItem.Size = new Size(217, 24);
-            changeProductCategoryToolStripMenuItem.Text = "Категорию продукта";
-            changeProductCategoryToolStripMenuItem.Click += changeProductCategoryToolStripMenuItem_Click;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
@@ -1069,7 +1075,7 @@ namespace PersonalFinancialManager.source.Forms
         private TabPage mainPage;
         private TabPage yearChartPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart yearChart;
-        private TextBox textBox1;
+        private TextBox currentDatabaseConditionTextBox;
         private ContextMenuStrip databaseContextMenuStrip;
         private ToolStripMenuItem deleteReceiptFromDatabaseToolStripMenuItem;
         private TabPage monthChartPage;

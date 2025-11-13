@@ -40,16 +40,16 @@ namespace PersonalFinancialManager.source
 
         public SpecialStatisticChart(ref Chart chart, Font font,
             Func<DateTime, DateTime, (int, int, int), IEnumerable<DataService.StatisticDataUnit>> getDataFunc,
-            TextBox specialChartSeries1DateFromTextBox,
-            TextBox specialChartSeries1DateUntilTextBox,
-            CheckBox specialChartSeries1HideCheckBox,
-            CheckBox specialChartSeries3HideCheckBox,
-            TextBox specialChartSeries3DateUntilTextBox,
-            TextBox specialChartSeries3DateFromTextBox,
-            CheckBox specialChartSeries2HideCheckBox,
-            TextBox specialChartSeries2DateUntilTextBox,
-            TextBox specialChartSeries2DateFromTextBox,
-            ComboBox specialChartIntervalComboBox
+            ref TextBox specialChartSeries1DateFromTextBox,
+            ref TextBox specialChartSeries1DateUntilTextBox,
+            ref CheckBox specialChartSeries1HideCheckBox,
+            ref CheckBox specialChartSeries3HideCheckBox,
+            ref TextBox specialChartSeries3DateUntilTextBox,
+            ref TextBox specialChartSeries3DateFromTextBox,
+            ref CheckBox specialChartSeries2HideCheckBox,
+            ref TextBox specialChartSeries2DateUntilTextBox,
+            ref TextBox specialChartSeries2DateFromTextBox,
+            ref ComboBox specialChartIntervalComboBox
             )
             : base(ref chart, String.Empty, font, null, String.Empty)
         {
@@ -200,7 +200,6 @@ namespace PersonalFinancialManager.source
                     }
 
 
-
                     if (maximum == 0)
                     {
                         moneyInterval = DEFAULT_CHART_AXIS_Y_INTERVAL;
@@ -208,7 +207,9 @@ namespace PersonalFinancialManager.source
                     }
                     else
                     {
-                        maximum = GetNearestRoundValue(maximum);
+                        if (maximum < chart.ChartAreas[0].AxisY.Maximum)
+                            maximum = GetNearestRoundValue(maximum);
+
                         chart.ChartAreas[0].AxisY.Maximum = maximum;
                         moneyInterval = Convert.ToInt32(maximum / DEFAULT_CHART_AXIS_Y_INTERVAL_COUNT);
                     }

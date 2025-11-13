@@ -5,16 +5,19 @@ using System.Net;
 
 namespace PersonalFinancialManager.source
 {
-    public class Database
+    public class Database : IDisposable
     {
         private static Database? singleInstance = null;
 
-        private SqliteConnection sqlConnection;
-        private SqliteCommand sqlCommand;
+        private SqliteConnection? sqlConnection;
+        private SqliteCommand? sqlCommand;
+
+        public SearchConditionNode? CurrentConditionTree { get; private set; } = null;
+        public EntityType CurrentEntityType = EntityType.Receipt;
 
         public const int MAX_RECEIPTS_READ_AT_LOAD = 1000;
 
-        public int ReceiptsCountReadAtLoad
+        public int CountReadEntities
         {
             get => receiptsCountReadAtLoad;
             set
@@ -27,15 +30,20 @@ namespace PersonalFinancialManager.source
 
         private const string DATABASE_NAME = "PFMDataBase";
         private const string CONNECTION_STRING = $"Data Source={DATABASE_NAME}.db;";
-        private const string RECEIPTS_DATA_TABLE_NAME = "receipts";
-        private const string PRODUCTS_DATA_TABLE_NAME = "products";
+        public const string RECEIPTS_DATA_TABLE_NAME = "receipts";
+        public const string PRODUCTS_DATA_TABLE_NAME = "products";
         private const string USER_DATA_TABLE_NAME = "user";
         private const int DATABASE_FIXED_STRING_LEN = 160;
 
         private const string DATA_DOESNT_EXIST_MARK = "NULL";
+        
+        public enum EntityType
+        {
+            Receipt,
+            Product
+        }
 
-
-        private class ProductDBNames
+        public class ProductDBNames
         {
             public const string ID = "id";
             public const string RECEIPT_ID = "receiptId";
@@ -45,7 +53,7 @@ namespace PersonalFinancialManager.source
             public const string SUM = "sum";
             public const string CATEGORY = "category";
         }
-        private class ReceiptDBNames
+        public class ReceiptDBNames
         {
             public const string ID = "id";
             public const string DATE_AND_TIME = "date";
@@ -96,10 +104,13 @@ namespace PersonalFinancialManager.source
             SendCommand(CREATE_PRODUCT_TABLE_COMMAND);
         }
 
-        ~Database()
+        public void Dispose()
         {
-            sqlCommand.Dispose();
-            sqlConnection.Close();
+            singleInstance = null;
+            sqlCommand?.Dispose();
+            sqlConnection?.Close();
+            sqlCommand = null;
+            sqlConnection = null;
         }
 
 
@@ -138,6 +149,15 @@ namespace PersonalFinancialManager.source
                     receiptId++;
                 }
             }
+        }
+
+        public void SetCurrentConditionString(SearchConditionNode condition, EntityType type)
+        {
+            CurrentEntityType = type;
+
+            if (condition.IsEmpty())
+                CurrentConditionTree = condition;
+            else CurrentConditionTree = condition;
         }
 
         public List<string> GetAllUniqueProductCategories()
@@ -235,17 +255,39 @@ namespace PersonalFinancialManager.source
                 );
         }
 
-        public IEnumerable<Receipt> GetAllReceipts()
+        public IEnumerable<Receipt> GetAllReceiptsWithCurrentConditionString()
         {
-            sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME};";
+            if (CurrentConditionTree != null && !CurrentConditionTree.IsEmpty())
+                sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {CurrentConditionTree.GetConditionsString()};";
+            else sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME};";
+
             SqliteDataReader reader = sqlCommand.ExecuteReader();
 
             int count = 0;
 
-            while (reader.Read() && count < ReceiptsCountReadAtLoad)
+            while (reader.Read() && count < CountReadEntities)
             {
                 count++;
                 yield return ParseReceiptFromDatabaseReader(reader);
+            }
+
+            reader.Close();
+        }
+
+        public IEnumerable<Product> GetAllProductsWithCurrentConditionString()
+        {
+            if (CurrentConditionTree != null && !CurrentConditionTree.IsEmpty())
+                sqlCommand.CommandText = $"SELECT * FROM {PRODUCTS_DATA_TABLE_NAME} WHERE {CurrentConditionTree.GetConditionsString()};";
+            else sqlCommand.CommandText = $"SELECT * FROM {PRODUCTS_DATA_TABLE_NAME};";
+
+            SqliteDataReader reader = sqlCommand.ExecuteReader();
+
+            int count = 0;
+
+            while (reader.Read() && count < CountReadEntities)
+            {
+                count++;
+                yield return ParseProductFromDatabaseReader(reader);
             }
 
             reader.Close();
@@ -340,7 +382,7 @@ namespace PersonalFinancialManager.source
             }
         }
 
-        private string ConvertDateTimeToSqlFormat(DateTime dateTime)
+        public static string ConvertDateTimeToSqlFormat(DateTime dateTime)
         {
             // DATETIME - format: YYYY-MM-DD HH:MI:SS
             return $"{dateTime.ToString("yyyy")}-{dateTime.ToString("MM")}-{dateTime.ToString("dd")} {dateTime.ToString("HH")}:{dateTime.ToString("mm")}:{dateTime.ToString("ss")}";

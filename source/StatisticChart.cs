@@ -8,17 +8,18 @@ using static PersonalFinancialManager.source.DataService;
 
 namespace PersonalFinancialManager.source
 {
-    public class StatisticChart 
+    public class StatisticChart : IDisposable
     {
-        protected Chart chart;
+        protected Chart? chart;
         protected string titleName;
-        protected Font font;
+        protected Font? font;
         protected Func<IEnumerable<StatisticDataUnit>> getDataFunc;
         protected string dateTimeFormatString;
         protected const int DEFAULT_CHART_AXIS_Y_INTERVAL_COUNT = 10;
         protected const int DEFAULT_CHART_AXIS_Y_INTERVAL = 100;
 
         public static readonly Color DEFAULT_CHART_SERIES_COLOR = Color.Blue;
+
 
         public StatisticChart(ref Chart chart, string titleName, Font font,
             Func<IEnumerable<StatisticDataUnit>> getDataFunc, string dateTimeFormatString
@@ -84,6 +85,7 @@ namespace PersonalFinancialManager.source
             chart.Titles.Add(title);
         }
 
+
         public virtual void Update()
         {
             chart.Series[0].Points.Clear();
@@ -147,5 +149,13 @@ namespace PersonalFinancialManager.source
 
 
 
+
+        public void Dispose()
+        {
+            chart?.Dispose();
+            font?.Dispose();
+            chart = null;
+            font = null;
+        }
     }
 }

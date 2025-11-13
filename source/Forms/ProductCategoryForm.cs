@@ -22,6 +22,8 @@ namespace PersonalFinancialManager.source.Forms
             foreach (string category in ProductCategory.AllCategories)
                 categoryComboBox.Items.Add(category);
 
+
+            productNameTextBox.Text = product.Name;
         }
 
         private void okButton_Click(object sender, EventArgs e)
@@ -38,6 +40,11 @@ namespace PersonalFinancialManager.source.Forms
         private void cancelButton_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void setAutoButton_Click(object sender, EventArgs e)
+        {
+            categoryComboBox.Text = ProductCategory.AutoSetProductCategory(productNameTextBox.Text).Name;
         }
     }
 }

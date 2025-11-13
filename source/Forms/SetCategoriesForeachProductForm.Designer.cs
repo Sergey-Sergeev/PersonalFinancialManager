@@ -1,6 +1,6 @@
 ﻿namespace PersonalFinancialManager.source.Forms
 {
-    partial class ProductCategoryForm
+    partial class SetCategoriesForeachProductForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,108 +28,94 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
-            categoryComboBox = new ComboBox();
+            listOfProductsListView = new ListView();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
             cancelButton = new Button();
             okButton = new Button();
             setAutoButton = new Button();
-            label2 = new Label();
-            productNameTextBox = new TextBox();
             SuspendLayout();
             // 
-            // label1
+            // listOfProductsListView
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(12, 49);
-            label1.Name = "label1";
-            label1.Size = new Size(87, 19);
-            label1.TabIndex = 0;
-            label1.Text = "Категория: ";
+            listOfProductsListView.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
+            listOfProductsListView.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            listOfProductsListView.FullRowSelect = true;
+            listOfProductsListView.GridLines = true;
+            listOfProductsListView.Location = new Point(14, 15);
+            listOfProductsListView.Margin = new Padding(3, 4, 3, 4);
+            listOfProductsListView.Name = "listOfProductsListView";
+            listOfProductsListView.Size = new Size(508, 532);
+            listOfProductsListView.TabIndex = 39;
+            listOfProductsListView.UseCompatibleStateImageBehavior = false;
+            listOfProductsListView.View = View.Details;
+            listOfProductsListView.DoubleClick += listOfProductsListView_DoubleClick;
             // 
-            // categoryComboBox
+            // columnHeader1
             // 
-            categoryComboBox.FormattingEnabled = true;
-            categoryComboBox.Location = new Point(105, 46);
-            categoryComboBox.Margin = new Padding(3, 4, 3, 4);
-            categoryComboBox.Name = "categoryComboBox";
-            categoryComboBox.Size = new Size(375, 27);
-            categoryComboBox.TabIndex = 43;
+            columnHeader1.Text = "Продукт";
+            columnHeader1.Width = 300;
+            // 
+            // columnHeader2
+            // 
+            columnHeader2.Text = "Категория";
+            columnHeader2.Width = 200;
             // 
             // cancelButton
             // 
-            cancelButton.Location = new Point(236, 80);
+            cancelButton.Location = new Point(280, 554);
             cancelButton.Name = "cancelButton";
             cancelButton.Size = new Size(118, 33);
-            cancelButton.TabIndex = 54;
+            cancelButton.TabIndex = 44;
             cancelButton.Text = "Отмена";
             cancelButton.UseVisualStyleBackColor = true;
             cancelButton.Click += cancelButton_Click;
             // 
             // okButton
             // 
-            okButton.Location = new Point(362, 80);
+            okButton.Location = new Point(404, 554);
             okButton.Name = "okButton";
             okButton.Size = new Size(118, 33);
-            okButton.TabIndex = 53;
+            okButton.TabIndex = 43;
             okButton.Text = "ОК";
             okButton.UseVisualStyleBackColor = true;
             okButton.Click += okButton_Click;
             // 
             // setAutoButton
             // 
-            setAutoButton.Location = new Point(12, 80);
+            setAutoButton.Location = new Point(14, 554);
             setAutoButton.Name = "setAutoButton";
-            setAutoButton.Size = new Size(218, 33);
-            setAutoButton.TabIndex = 55;
+            setAutoButton.Size = new Size(260, 33);
+            setAutoButton.TabIndex = 45;
             setAutoButton.Text = "Определить автоматически";
             setAutoButton.UseVisualStyleBackColor = true;
             setAutoButton.Click += setAutoButton_Click;
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(12, 15);
-            label2.Name = "label2";
-            label2.Size = new Size(72, 19);
-            label2.TabIndex = 56;
-            label2.Text = "Продукт: ";
-            // 
-            // productNameTextBox
-            // 
-            productNameTextBox.Location = new Point(90, 12);
-            productNameTextBox.Name = "productNameTextBox";
-            productNameTextBox.ReadOnly = true;
-            productNameTextBox.Size = new Size(390, 27);
-            productNameTextBox.TabIndex = 57;
-            // 
-            // ProductCategoryForm
+            // SetCategoriesForeachProductForm
             // 
             AutoScaleDimensions = new SizeF(8F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(490, 123);
-            Controls.Add(productNameTextBox);
-            Controls.Add(label2);
+            ClientSize = new Size(534, 595);
             Controls.Add(setAutoButton);
             Controls.Add(cancelButton);
             Controls.Add(okButton);
-            Controls.Add(categoryComboBox);
-            Controls.Add(label1);
-            Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            Controls.Add(listOfProductsListView);
+            Font = new Font("Calibri", 12F);
             Margin = new Padding(3, 4, 3, 4);
-            Name = "ProductCategoryForm";
-            Text = "Категория продукта";
+            MaximumSize = new Size(550, 634);
+            MinimumSize = new Size(550, 634);
+            Name = "SetCategoriesForeachProductForm";
+            Text = "Выберите категории для каждого продукта";
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
-        private Label label1;
-        private ComboBox categoryComboBox;
+        private ListView listOfProductsListView;
+        private ColumnHeader columnHeader1;
+        private ColumnHeader columnHeader2;
         private Button cancelButton;
         private Button okButton;
         private Button setAutoButton;
-        private Label label2;
-        private TextBox productNameTextBox;
     }
 }

@@ -91,22 +91,32 @@ namespace PersonalFinancialManager.source
                 receipt.TotalSum = (Double)(jsonClass.data.json.totalSum) / 100;  // convert to rubs
                 receipt.EcashTotalSum = (Double)(jsonClass.data.json.ecashTotalSum) / 100;
                 receipt.CashTotalSum = (Double)(jsonClass.data.json.cashTotalSum) / 100;
-                receipt.RetailPlaceAddress = jsonClass.data.json.retailPlaceAddress.Replace("\"", "'");
+                receipt.RetailPlaceAddress = ChangeQuotations(jsonClass.data.json.retailPlaceAddress);
                 receipt.FullFtsReceiptData = fullFtsReceiptData;
 
                 for (int i = 0; i < jsonClass.data.json.items.Count; i++)
                 {
                     Product product = new Product(
-                        jsonClass.data.json.items[i].name.Replace("\"", "'"),
+                        ChangeQuotations(jsonClass.data.json.items[i].name),
                         (Double)(jsonClass.data.json.items[i].price) / 100,
                         jsonClass.data.json.items[i].quantity,
                         (Double)(jsonClass.data.json.items[i].sum) / 100,
-                        ProductCategory.AutoSetProductCategory(jsonClass.data.json.items[i].name)
+                        new ProductCategory()
                         );
                     receipt.ListOfProducts.Add(product);
                 }
 
             }
+
+            return result;
+        }
+
+        private static string ChangeQuotations(string str)
+        {
+            string result = str.Replace("\"", "'");
+
+            if (result.Count('\'') % 2 != 0)
+                result += "'";
 
             return result;
         }
