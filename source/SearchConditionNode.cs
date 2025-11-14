@@ -40,9 +40,10 @@ namespace PersonalFinancialManager.source
 
         private void SetCondition(string attribute, string operatorString, string value)
         {
-            if (operatorString == SQL_LIKE)
+            /*if (operatorString == SQL_LIKE)
                 Condition = $"{attribute} {operatorString} '%{value}%'";
-            else Condition = $"{attribute} {operatorString} {value}";
+            else */
+            Condition = $"{attribute} {operatorString} {value}";
         }
 
         public void Set(ConditionConnectionType type, string? attribute = null, string? operatorString = null, string? value = null)

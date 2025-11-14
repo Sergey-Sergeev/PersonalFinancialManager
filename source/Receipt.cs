@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Linq;
+using System.Text.Json;
 using System.Xml.Linq;
 using static PersonalFinancialManager.source.JsonServerClass;
 
@@ -115,7 +116,7 @@ namespace PersonalFinancialManager.source
         {
             string result = str.Replace("\"", "'");
 
-            if (result.Count('\'') % 2 != 0)
+            if (result.Count((c) => c == '\'') % 2 != 0)
                 result += "'";
 
             return result;

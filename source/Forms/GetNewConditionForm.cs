@@ -82,6 +82,8 @@ namespace PersonalFinancialManager.source.Forms
                 valueTextBox.Text = curCondition.Value;
             }
 
+            operatorComboBox.Items.Clear();
+
             foreach (KeyValuePair<string, string> pair in operatorsPairs)
                 operatorComboBox.Items.Add(pair.Key);
         }
@@ -111,7 +113,7 @@ namespace PersonalFinancialManager.source.Forms
                 if (GetAttributeType(attributeComboBox.Text) == AttributeType.STRING ||
                     GetAttributeType(attributeComboBox.Text) == AttributeType.DATETIME)
                 {
-                    value = $"'{value}'";
+                    value = $"'%{value}%'";
 
                 }
 

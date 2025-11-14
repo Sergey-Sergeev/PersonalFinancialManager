@@ -18,7 +18,7 @@ namespace PersonalFinancialManager.source.Forms
         private const string PRODUCT_UI_KEY = "Продуктами";
         public bool IsOk = false;
 
-        public SearchConditionNode OutRoot;
+        public SearchConditionNode? OutRoot;
         public Database.EntityType OutEntity = Database.EntityType.Receipt;
 
         private string? prevEntityComboBoxText;
@@ -38,7 +38,10 @@ namespace PersonalFinancialManager.source.Forms
             foreach (KeyValuePair<string, string> pair in entityPairs)
                 entityComboBox.Items.Add(pair.Key);
 
-            prevEntityComboBoxText = entityPairs.First().Key;
+            if (Database.Fabric().CurrentEntityType == Database.EntityType.Receipt)
+                prevEntityComboBoxText = RECEIPT_UI_KEY;
+            else prevEntityComboBoxText = PRODUCT_UI_KEY;
+
             entityComboBox.Text = prevEntityComboBoxText;
 
             if (root != null && !root.IsEmpty())
@@ -77,19 +80,25 @@ namespace PersonalFinancialManager.source.Forms
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            if (conditionsTreeView.Nodes.Count != 0 &&
-                entityComboBox.Text != String.Empty)
-            {
-                IsOk = true;
-                Close();
-            }
+            if (OutRoot == null || OutRoot.IsEmpty())
+                IsOk = false;
+            else IsOk = true;
+
+            Close();
         }
 
         private void changeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (OutRoot != null && conditionsTreeView.SelectedNode != null)
             {
-                SearchConditionNode? node = GetNodeFromTreeView(conditionsTreeView.SelectedNode);
+                Stack<int> indexes = GetNodeFromTreeView(conditionsTreeView.SelectedNode);
+
+                SearchConditionNode node = OutRoot;
+
+                for (int i = 0; i < indexes.Count; i++)
+                {
+                    node = node.SearchConditionNodes[indexes.Pop()];
+                }
 
                 if (node.ConnectionType == SearchConditionNode.ConditionConnectionType.NONE)
                 {
@@ -101,7 +110,7 @@ namespace PersonalFinancialManager.source.Forms
 
                     if (getNewConditionForm.IsOk)
                         node = new SearchConditionNode(getNewConditionForm.OutNode.Attribute,
-                            getNewConditionForm.OutNode.OperatorString, 
+                            getNewConditionForm.OutNode.OperatorString,
                             getNewConditionForm.OutNode.Value);
                 }
                 else
@@ -133,7 +142,15 @@ namespace PersonalFinancialManager.source.Forms
 
             if (conditionsTreeView.SelectedNode != null)
             {
-                SearchConditionNode? node = GetNodeFromTreeView(conditionsTreeView.SelectedNode);
+                Stack<int> indexes = GetNodeFromTreeView(conditionsTreeView.SelectedNode);
+
+                SearchConditionNode node = OutRoot;
+
+                for (int i = 0; i < indexes.Count; i++)
+                {
+                    node = node.SearchConditionNodes[indexes.Pop()];
+                }
+
                 node.Set(type,
                          getNewConditionForm.OutNode.Attribute,
                          getNewConditionForm.OutNode.OperatorString,
@@ -154,7 +171,15 @@ namespace PersonalFinancialManager.source.Forms
         {
             if (OutRoot != null && conditionsTreeView.SelectedNode.Nodes.Count != 0)
             {
-                SearchConditionNode? node = GetNodeFromTreeView(conditionsTreeView.SelectedNode.Nodes[0]);
+                Stack<int> indexes = GetNodeFromTreeView(conditionsTreeView.SelectedNode.Nodes[0]);
+
+                SearchConditionNode node = OutRoot;
+
+                for (int i = 0; i < indexes.Count; i++)
+                {
+                    node = node.SearchConditionNodes[indexes.Pop()];
+                }
+
                 SearchConditionNode.Delete(ref node);
                 UpdateConditionsTreeView();
             }
@@ -165,7 +190,7 @@ namespace PersonalFinancialManager.source.Forms
             Close();
         }
 
-        private SearchConditionNode? GetNodeFromTreeView(TreeNode treeNode)
+        private Stack<int> GetNodeFromTreeView(TreeNode treeNode)
         {
             Stack<int> indexes = new Stack<int>();
 
@@ -174,16 +199,9 @@ namespace PersonalFinancialManager.source.Forms
             {
                 indexes.Push(cur.Index);
                 cur = cur.Parent;
-            }
+            }            
 
-            SearchConditionNode node = OutRoot;
-
-            for (int i = 0; i < indexes.Count; i++)
-            {
-                node = node.SearchConditionNodes[indexes.Pop()];
-            }
-
-            return node;        // ERROR: need to return by reference
+            return indexes;        // ERROR: need to return by reference
         }
 
 

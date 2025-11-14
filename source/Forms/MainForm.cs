@@ -546,9 +546,14 @@ namespace PersonalFinancialManager.source.Forms
             if (newSearchConditionForm.IsOk)
             {
                 currentDatabaseConditionTextBox.Text = newSearchConditionForm.OutRoot.GetConditionsString();
-                dataService.SetDatabaseCurrentConditionTree(newSearchConditionForm.OutRoot, newSearchConditionForm.OutEntity);
-                UpdateAllEntitiesInDatabaseWindow();
+                dataService.SetDatabaseCurrentConditionTree(newSearchConditionForm.OutRoot, newSearchConditionForm.OutEntity);                
             }
+            else
+            {
+                currentDatabaseConditionTextBox.Text = String.Empty;
+                dataService.ClearDatabaseSortConditions(newSearchConditionForm.OutEntity);
+            }
+            UpdateAllEntitiesInDatabaseWindow();
         }
 
         private void changeProductCategoryToolStripMenuItem_Click(object sender, EventArgs e)

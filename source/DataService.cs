@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using static PersonalFinancialManager.source.TryGetReceiptsResultUnit;
 using static PersonalFinancialManager.source.JsonServerClass;
 using static PersonalFinancialManager.source.Database;
+using PersonalFinancialManager.source.Forms;
 
 namespace PersonalFinancialManager.source
 {
@@ -47,6 +48,11 @@ namespace PersonalFinancialManager.source
         public void SetDatabaseCurrentConditionTree(SearchConditionNode condition, Database.EntityType type)
         {
             database.SetCurrentConditionString(condition, type);
+        }
+
+        public void ClearDatabaseSortConditions(Database.EntityType currentType)
+        {
+            database.ClearSortConditions(currentType);
         }
 
         public Database.EntityType GetDatabaseCurrentEntityType()

@@ -12,7 +12,9 @@ namespace PersonalFinancialManager.source
         private SqliteConnection? sqlConnection;
         private SqliteCommand? sqlCommand;
 
-        public SearchConditionNode? CurrentConditionTree { get; private set; } = null;
+        private SearchConditionNode? currentConditionTree = null;
+        public SearchConditionNode? CurrentConditionTree { get => currentConditionTree; }
+
         public EntityType CurrentEntityType = EntityType.Receipt;
 
         public const int MAX_RECEIPTS_READ_AT_LOAD = 1000;
@@ -156,8 +158,14 @@ namespace PersonalFinancialManager.source
             CurrentEntityType = type;
 
             if (condition.IsEmpty())
-                CurrentConditionTree = condition;
-            else CurrentConditionTree = condition;
+                currentConditionTree = null;
+            else currentConditionTree = condition;
+        }
+
+        public void ClearSortConditions(EntityType currentType)
+        {
+            CurrentEntityType = currentType;
+            SearchConditionNode.Delete(ref currentConditionTree);
         }
 
         public List<string> GetAllUniqueProductCategories()
@@ -257,8 +265,8 @@ namespace PersonalFinancialManager.source
 
         public IEnumerable<Receipt> GetAllReceiptsWithCurrentConditionString()
         {
-            if (CurrentConditionTree != null && !CurrentConditionTree.IsEmpty())
-                sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {CurrentConditionTree.GetConditionsString()};";
+            if (currentConditionTree != null && !currentConditionTree.IsEmpty())
+                sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME} WHERE {currentConditionTree.GetConditionsString()};";
             else sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME};";
 
             SqliteDataReader reader = sqlCommand.ExecuteReader();
@@ -276,8 +284,8 @@ namespace PersonalFinancialManager.source
 
         public IEnumerable<Product> GetAllProductsWithCurrentConditionString()
         {
-            if (CurrentConditionTree != null && !CurrentConditionTree.IsEmpty())
-                sqlCommand.CommandText = $"SELECT * FROM {PRODUCTS_DATA_TABLE_NAME} WHERE {CurrentConditionTree.GetConditionsString()};";
+            if (currentConditionTree != null && !currentConditionTree.IsEmpty())
+                sqlCommand.CommandText = $"SELECT * FROM {PRODUCTS_DATA_TABLE_NAME} WHERE {currentConditionTree.GetConditionsString()};";
             else sqlCommand.CommandText = $"SELECT * FROM {PRODUCTS_DATA_TABLE_NAME};";
 
             SqliteDataReader reader = sqlCommand.ExecuteReader();
@@ -427,13 +435,18 @@ namespace PersonalFinancialManager.source
                 $" {ReceiptDBNames.E_CASH_SUM}," +
                 $" {ReceiptDBNames.FULL_FTS_RECEIPT_DATA}) " +
                 $"VALUES " +
-                $"(\"{id}\"," +
+                $"({id}," +
                 $" \"{ConvertDateTimeToSqlFormat(receipt.DateAndTime)}\"," +
                 $" \"{ConvertStringLenToDatabaseFixedStringLen(receipt.RetailPlaceAddress)}\"," +
-                $" \"{receipt.TotalSum}\"," +
-                $" \"{receipt.CashTotalSum}\"," +
-                $" \"{receipt.EcashTotalSum}\"," +
+                $" {ConvertDoubleToSQLFormat(receipt.TotalSum)}," +
+                $" {ConvertDoubleToSQLFormat(receipt.CashTotalSum)}," +
+                $" {ConvertDoubleToSQLFormat(receipt.EcashTotalSum)}," +
                 $" \"{fullftsData}\");");
+        }
+
+        private string ConvertDoubleToSQLFormat(double v)
+        {
+            return v.ToString().Replace(",", ".");
         }
 
         private int AddProduct(int receiptId, Product product)
@@ -446,11 +459,11 @@ namespace PersonalFinancialManager.source
                 $" {ProductDBNames.SUM}," +
                 $" {ProductDBNames.CATEGORY}) " +
                 $"VALUES " +
-                $"(\"{receiptId}\"," +
+                $"({receiptId}," +
                 $" \"{ConvertStringLenToDatabaseFixedStringLen(product.Name)}\"," +
-                $" \"{product.Price}\"," +
-                $" \"{product.Quantity}\"," +
-                $" \"{product.Sum}\"," +
+                $" {ConvertDoubleToSQLFormat(product.Price)}," +
+                $" {ConvertDoubleToSQLFormat(product.Quantity)}," +
+                $" {ConvertDoubleToSQLFormat(product.Sum)}," +
                 $" \"{ConvertStringLenToDatabaseFixedStringLen(product.Category.Name)}\");");
         }
 
