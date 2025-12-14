@@ -75,17 +75,17 @@ namespace PersonalFinancialManager.source.Forms
                     attributeComboBox.Items.Add(pair.Key);
             }
 
-            if (curCondition != null)
-            {
-                attributeComboBox.Text = GetKeyByValue(curCondition.Attribute, curAttributes);
-                operatorComboBox.Text = GetKeyByValue(curCondition.OperatorString, curAttributes);
-                valueTextBox.Text = curCondition.Value;
-            }
-
             operatorComboBox.Items.Clear();
 
             foreach (KeyValuePair<string, string> pair in operatorsPairs)
                 operatorComboBox.Items.Add(pair.Key);
+
+            if (curCondition != null)
+            {
+                attributeComboBox.Text = GetKeyByValue(curCondition.Attribute, curAttributes);
+                operatorComboBox.Text = GetKeyByValue(curCondition.OperatorString, operatorsPairs);
+                valueTextBox.Text = curCondition.Value;
+            }
         }
 
         private string GetKeyByValue(string value, Dictionary<string, string> dictionary)
@@ -110,13 +110,6 @@ namespace PersonalFinancialManager.source.Forms
                 string oper = operatorComboBox.Text;
                 string value = valueTextBox.Text;
 
-                if (GetAttributeType(attributeComboBox.Text) == AttributeType.STRING ||
-                    GetAttributeType(attributeComboBox.Text) == AttributeType.DATETIME)
-                {
-                    value = $"'%{value}%'";
-
-                }
-
                 if (stringOnlyOperatorsPair.Key == oper)
                     oper = stringOnlyOperatorsPair.Value;
                 else
@@ -127,7 +120,8 @@ namespace PersonalFinancialManager.source.Forms
                 OutNode = new SearchConditionNode(
                     curAttributes[attributeComboBox.Text],
                     oper,
-                    value);
+                    value,
+                    GetAttributeType(attributeComboBox.Text));
                 IsOk = true;
                 Close();
             }
@@ -206,7 +200,7 @@ namespace PersonalFinancialManager.source.Forms
                 operatorComboBox.Items.Add(stringOnlyOperatorsPair.Key);
         }
 
-        enum AttributeType
+        public enum AttributeType
         {
             INT,
             DOUBLE,

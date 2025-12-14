@@ -292,10 +292,10 @@ namespace PersonalFinancialManager.source.Forms
             // 
             yearChartPage.BackColor = Color.WhiteSmoke;
             yearChartPage.Controls.Add(yearChart);
-            yearChartPage.Location = new Point(4, 24);
+            yearChartPage.Location = new Point(4, 28);
             yearChartPage.Name = "yearChartPage";
             yearChartPage.Padding = new Padding(3);
-            yearChartPage.Size = new Size(1107, 563);
+            yearChartPage.Size = new Size(1107, 559);
             yearChartPage.TabIndex = 1;
             yearChartPage.Text = "График за год";
             // 
@@ -305,7 +305,7 @@ namespace PersonalFinancialManager.source.Forms
             yearChart.Location = new Point(3, 3);
             yearChart.Margin = new Padding(0);
             yearChart.Name = "yearChart";
-            yearChart.Size = new Size(1101, 557);
+            yearChart.Size = new Size(1101, 553);
             yearChart.TabIndex = 1;
             yearChart.Text = "chart1";
             // 
@@ -313,10 +313,10 @@ namespace PersonalFinancialManager.source.Forms
             // 
             monthChartPage.BackColor = Color.WhiteSmoke;
             monthChartPage.Controls.Add(monthChart);
-            monthChartPage.Location = new Point(4, 24);
+            monthChartPage.Location = new Point(4, 28);
             monthChartPage.Name = "monthChartPage";
             monthChartPage.Padding = new Padding(3);
-            monthChartPage.Size = new Size(1107, 563);
+            monthChartPage.Size = new Size(1107, 559);
             monthChartPage.TabIndex = 2;
             monthChartPage.Text = "График за месяц";
             // 
@@ -326,7 +326,7 @@ namespace PersonalFinancialManager.source.Forms
             monthChart.Location = new Point(3, 3);
             monthChart.Margin = new Padding(0);
             monthChart.Name = "monthChart";
-            monthChart.Size = new Size(1101, 557);
+            monthChart.Size = new Size(1101, 553);
             monthChart.TabIndex = 2;
             monthChart.Text = "chart1";
             // 
@@ -354,10 +354,10 @@ namespace PersonalFinancialManager.source.Forms
             specialChartPage.Controls.Add(specialChartSeries1DateUntilTextBox);
             specialChartPage.Controls.Add(specialChartSeries1DateFromTextBox);
             specialChartPage.Controls.Add(specialChart);
-            specialChartPage.Location = new Point(4, 24);
+            specialChartPage.Location = new Point(4, 28);
             specialChartPage.Name = "specialChartPage";
             specialChartPage.Padding = new Padding(3);
-            specialChartPage.Size = new Size(1107, 563);
+            specialChartPage.Size = new Size(1107, 559);
             specialChartPage.TabIndex = 3;
             specialChartPage.Text = "Специальный график";
             // 
@@ -586,7 +586,7 @@ namespace PersonalFinancialManager.source.Forms
             specialChart.Location = new Point(3, 3);
             specialChart.Margin = new Padding(0);
             specialChart.Name = "specialChart";
-            specialChart.Size = new Size(1101, 557);
+            specialChart.Size = new Size(1101, 553);
             specialChart.TabIndex = 3;
             specialChart.Text = "chart1";
             // 
@@ -598,10 +598,10 @@ namespace PersonalFinancialManager.source.Forms
             allStatisticPage.Controls.Add(panel1);
             allStatisticPage.Controls.Add(allStatisticPageChart);
             allStatisticPage.Controls.Add(panel4);
-            allStatisticPage.Location = new Point(4, 24);
+            allStatisticPage.Location = new Point(4, 28);
             allStatisticPage.Name = "allStatisticPage";
             allStatisticPage.Padding = new Padding(3);
-            allStatisticPage.Size = new Size(1107, 563);
+            allStatisticPage.Size = new Size(1107, 559);
             allStatisticPage.TabIndex = 4;
             allStatisticPage.Text = "Общая статистика";
             // 
@@ -664,7 +664,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPagePastMonthTextBox
             // 
-            allStatisticPagePastMonthTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPagePastMonthTextBox.BackColor = Color.Silver;
             allStatisticPagePastMonthTextBox.BorderStyle = BorderStyle.None;
             allStatisticPagePastMonthTextBox.Font = new Font("Calibri", 14F);
             allStatisticPagePastMonthTextBox.Location = new Point(383, 11);
@@ -688,7 +688,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPagePastYearTextBox
             // 
-            allStatisticPagePastYearTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPagePastYearTextBox.BackColor = Color.Silver;
             allStatisticPagePastYearTextBox.BorderStyle = BorderStyle.None;
             allStatisticPagePastYearTextBox.Font = new Font("Calibri", 14F);
             allStatisticPagePastYearTextBox.Location = new Point(148, 11);
@@ -725,7 +725,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPageMonthTextBox
             // 
-            allStatisticPageMonthTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPageMonthTextBox.BackColor = Color.Silver;
             allStatisticPageMonthTextBox.BorderStyle = BorderStyle.None;
             allStatisticPageMonthTextBox.Font = new Font("Calibri", 14F);
             allStatisticPageMonthTextBox.Location = new Point(206, 11);
@@ -749,7 +749,7 @@ namespace PersonalFinancialManager.source.Forms
             // 
             // allStatisticPageYearTextBox
             // 
-            allStatisticPageYearTextBox.BackColor = Color.WhiteSmoke;
+            allStatisticPageYearTextBox.BackColor = Color.Silver;
             allStatisticPageYearTextBox.BorderStyle = BorderStyle.None;
             allStatisticPageYearTextBox.Font = new Font("Calibri", 14F);
             allStatisticPageYearTextBox.Location = new Point(64, 11);

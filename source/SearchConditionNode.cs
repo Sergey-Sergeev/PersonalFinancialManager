@@ -1,8 +1,10 @@
-﻿using System;
+﻿using PersonalFinancialManager.source.Forms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static OpenCvSharp.ML.DTrees;
 
 namespace PersonalFinancialManager.source
 {
@@ -12,22 +14,25 @@ namespace PersonalFinancialManager.source
         private const string SQL_OR = " OR ";
         private const string SQL_LIKE = "LIKE";
 
+
         public ConditionConnectionType ConnectionType { get; private set; }
-        public List<SearchConditionNode>? SearchConditionNodes { get; private set; }
+        public List<SearchConditionNode>? SearchConditionNodes;
         public string? Condition { get; private set; }
 
-        public string Attribute { get; private set; }
-        public string OperatorString { get; private set; }
-        public string Value { get; private set; }
+        public string? Attribute { get; private set; }
+        public string? OperatorString { get; private set; }
+        public string? Value { get; private set; }
+        public GetNewConditionForm.AttributeType ValueType;
 
-        public SearchConditionNode(string attribute, string operatorString, string value)
+        public SearchConditionNode(string attribute, string operatorString, string value, GetNewConditionForm.AttributeType valueType)
         {
             ConnectionType = ConditionConnectionType.NONE;
             SearchConditionNodes = null;
-            SetCondition(attribute, operatorString, value);
+            ValueType = valueType;
             Attribute = attribute;
             OperatorString = operatorString;
             Value = value;
+            SetCondition(attribute, operatorString, value);
         }
 
         public bool IsEmpty()
@@ -40,22 +45,26 @@ namespace PersonalFinancialManager.source
 
         private void SetCondition(string attribute, string operatorString, string value)
         {
-            /*if (operatorString == SQL_LIKE)
+            if(ValueType == GetNewConditionForm.AttributeType.DATETIME ||
+                ValueType == GetNewConditionForm.AttributeType.STRING)
                 Condition = $"{attribute} {operatorString} '%{value}%'";
-            else */
-            Condition = $"{attribute} {operatorString} {value}";
+            else Condition = $"{attribute} {operatorString} {value}";
         }
 
-        public void Set(ConditionConnectionType type, string? attribute = null, string? operatorString = null, string? value = null)
+        public void Set(ConditionConnectionType type, string? attribute = null, string? operatorString = null, string? value = null,
+            GetNewConditionForm.AttributeType? valueType = null)
         {
             if (type == ConditionConnectionType.NONE)
             {
                 if (attribute != null && operatorString != null && value != null)
                 {
-                    SetCondition(attribute, operatorString, value);
                     SearchConditionNodes?.Clear();
                     ConnectionType = ConditionConnectionType.NONE;
                     SearchConditionNodes = null;
+                    Attribute = attribute;
+                    OperatorString = operatorString;
+                    Value = value;
+                    SetCondition(attribute, operatorString, value);                    
                 }
 
                 return;
@@ -67,39 +76,81 @@ namespace PersonalFinancialManager.source
             {
                 if (attribute != null && operatorString != null && value != null)
                 {
-                    SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value));
+                    SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value, (GetNewConditionForm.AttributeType)valueType));
                 }
 
                 return;
             }
 
             SearchConditionNodes = new List<SearchConditionNode>();
-            SearchConditionNodes.Add(new SearchConditionNode(Attribute, OperatorString, Value));
+            SearchConditionNodes.Add(new SearchConditionNode(Attribute, OperatorString, Value, ValueType));
             Condition = null;
 
             if (attribute != null && operatorString != null && value != null)
-                SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value));
+                SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value, (GetNewConditionForm.AttributeType)valueType));
         }
 
-        public static void Delete(ref SearchConditionNode? node)
+        public static bool Delete(ref SearchConditionNode? root, SearchConditionNode? node = null)
         {
-            if (node == null) return;
-
-            if (node.ConnectionType != ConditionConnectionType.NONE)
+            if (node == null)
             {
-                for (int i = 0; i < node.SearchConditionNodes.Count; i++)
-                {
-                    SearchConditionNode other = node.SearchConditionNodes[i];
-                    Delete(ref other);
-                }
+                root = null;
+                return true;
             }
 
-            node.SearchConditionNodes?.Clear();
-            node.SearchConditionNodes = null;
-            node.Condition = null;
-            node = null;
+            if (root == null)
+                return false;
+
+            if (ReferenceEquals(root, node))
+            {
+                root = null;
+                return true;
+            }
+
+            return DeleteInternal(root, node);
         }
 
+        private static bool DeleteInternal(SearchConditionNode parent, SearchConditionNode target)
+        {
+            if (parent.SearchConditionNodes == null)
+                return false;
+
+            for (int i = 0; i < parent.SearchConditionNodes.Count; i++)
+            {
+                var child = parent.SearchConditionNodes[i];
+
+                if (ReferenceEquals(child, target))
+                {
+                    parent.SearchConditionNodes.RemoveAt(i);
+
+                    if (parent.SearchConditionNodes.Count == 1)
+                    {
+                        if (parent.SearchConditionNodes[0].ConnectionType != ConditionConnectionType.NONE)
+                        {
+                            parent.Attribute = parent.SearchConditionNodes[0].Attribute;
+                            parent.Value = parent.SearchConditionNodes[0].Value;
+                            parent.OperatorString = parent.SearchConditionNodes[0].OperatorString;
+                            parent.ConnectionType = parent.SearchConditionNodes[0].ConnectionType;
+                            parent.SearchConditionNodes = parent.SearchConditionNodes[0].SearchConditionNodes;
+                        }
+                        else
+                        {
+                            parent.Condition = parent.SearchConditionNodes[0].Condition;
+                            parent.SearchConditionNodes.Clear();
+                            parent.SearchConditionNodes = null;
+                            parent.ConnectionType = SearchConditionNode.ConditionConnectionType.NONE;
+                        }
+                    }
+
+                    return true;
+                }
+
+                if (DeleteInternal(child, target))
+                    return true;
+            }
+
+            return false;
+        }
 
         public string GetConditionsString()
         {
