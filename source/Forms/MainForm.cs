@@ -553,7 +553,7 @@ namespace PersonalFinancialManager.source.Forms
                 currentDatabaseConditionTextBox.Text = String.Empty;
                 dataService.ClearDatabaseSortConditions(newSearchConditionForm.OutEntity);
             }
-            UpdateAllEntitiesInDatabaseWindow();
+            UpdateAll();
         }
 
         private void changeProductCategoryToolStripMenuItem_Click(object sender, EventArgs e)

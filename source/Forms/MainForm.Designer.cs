@@ -292,10 +292,10 @@ namespace PersonalFinancialManager.source.Forms
             // 
             yearChartPage.BackColor = Color.WhiteSmoke;
             yearChartPage.Controls.Add(yearChart);
-            yearChartPage.Location = new Point(4, 28);
+            yearChartPage.Location = new Point(4, 24);
             yearChartPage.Name = "yearChartPage";
             yearChartPage.Padding = new Padding(3);
-            yearChartPage.Size = new Size(1107, 559);
+            yearChartPage.Size = new Size(1107, 563);
             yearChartPage.TabIndex = 1;
             yearChartPage.Text = "График за год";
             // 
@@ -305,7 +305,7 @@ namespace PersonalFinancialManager.source.Forms
             yearChart.Location = new Point(3, 3);
             yearChart.Margin = new Padding(0);
             yearChart.Name = "yearChart";
-            yearChart.Size = new Size(1101, 553);
+            yearChart.Size = new Size(1101, 557);
             yearChart.TabIndex = 1;
             yearChart.Text = "chart1";
             // 
@@ -313,10 +313,10 @@ namespace PersonalFinancialManager.source.Forms
             // 
             monthChartPage.BackColor = Color.WhiteSmoke;
             monthChartPage.Controls.Add(monthChart);
-            monthChartPage.Location = new Point(4, 28);
+            monthChartPage.Location = new Point(4, 24);
             monthChartPage.Name = "monthChartPage";
             monthChartPage.Padding = new Padding(3);
-            monthChartPage.Size = new Size(1107, 559);
+            monthChartPage.Size = new Size(1107, 563);
             monthChartPage.TabIndex = 2;
             monthChartPage.Text = "График за месяц";
             // 
@@ -326,7 +326,7 @@ namespace PersonalFinancialManager.source.Forms
             monthChart.Location = new Point(3, 3);
             monthChart.Margin = new Padding(0);
             monthChart.Name = "monthChart";
-            monthChart.Size = new Size(1101, 553);
+            monthChart.Size = new Size(1101, 557);
             monthChart.TabIndex = 2;
             monthChart.Text = "chart1";
             // 
@@ -378,6 +378,7 @@ namespace PersonalFinancialManager.source.Forms
             // label10
             // 
             label10.AutoSize = true;
+            label10.BackColor = Color.White;
             label10.Location = new Point(357, 464);
             label10.Margin = new Padding(0, 0, 3, 0);
             label10.Name = "label10";
@@ -388,17 +389,19 @@ namespace PersonalFinancialManager.source.Forms
             // specialChartSeries3HideCheckBox
             // 
             specialChartSeries3HideCheckBox.AutoSize = true;
+            specialChartSeries3HideCheckBox.BackColor = Color.White;
             specialChartSeries3HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries3HideCheckBox.Location = new Point(952, 514);
             specialChartSeries3HideCheckBox.Name = "specialChartSeries3HideCheckBox";
             specialChartSeries3HideCheckBox.Size = new Size(129, 23);
             specialChartSeries3HideCheckBox.TabIndex = 14;
             specialChartSeries3HideCheckBox.Text = "Скрыть график";
-            specialChartSeries3HideCheckBox.UseVisualStyleBackColor = true;
+            specialChartSeries3HideCheckBox.UseVisualStyleBackColor = false;
             // 
             // label7
             // 
             label7.AutoSize = true;
+            label7.BackColor = Color.White;
             label7.Location = new Point(893, 515);
             label7.Name = "label7";
             label7.Size = new Size(53, 19);
@@ -408,6 +411,7 @@ namespace PersonalFinancialManager.source.Forms
             // label8
             // 
             label8.AutoSize = true;
+            label8.BackColor = Color.White;
             label8.Location = new Point(737, 515);
             label8.Name = "label8";
             label8.Size = new Size(44, 19);
@@ -417,6 +421,7 @@ namespace PersonalFinancialManager.source.Forms
             // label9
             // 
             label9.AutoSize = true;
+            label9.BackColor = Color.White;
             label9.Location = new Point(472, 515);
             label9.Margin = new Padding(0, 0, 3, 0);
             label9.Name = "label9";
@@ -453,17 +458,19 @@ namespace PersonalFinancialManager.source.Forms
             // specialChartSeries2HideCheckBox
             // 
             specialChartSeries2HideCheckBox.AutoSize = true;
+            specialChartSeries2HideCheckBox.BackColor = Color.White;
             specialChartSeries2HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries2HideCheckBox.Location = new Point(952, 488);
             specialChartSeries2HideCheckBox.Name = "specialChartSeries2HideCheckBox";
             specialChartSeries2HideCheckBox.Size = new Size(129, 23);
             specialChartSeries2HideCheckBox.TabIndex = 8;
             specialChartSeries2HideCheckBox.Text = "Скрыть график";
-            specialChartSeries2HideCheckBox.UseVisualStyleBackColor = true;
+            specialChartSeries2HideCheckBox.UseVisualStyleBackColor = false;
             // 
             // label4
             // 
             label4.AutoSize = true;
+            label4.BackColor = Color.White;
             label4.Location = new Point(893, 489);
             label4.Name = "label4";
             label4.Size = new Size(53, 19);
@@ -473,6 +480,7 @@ namespace PersonalFinancialManager.source.Forms
             // label5
             // 
             label5.AutoSize = true;
+            label5.BackColor = Color.White;
             label5.Location = new Point(737, 489);
             label5.Name = "label5";
             label5.Size = new Size(44, 19);
@@ -482,6 +490,7 @@ namespace PersonalFinancialManager.source.Forms
             // label6
             // 
             label6.AutoSize = true;
+            label6.BackColor = Color.White;
             label6.Location = new Point(472, 489);
             label6.Margin = new Padding(0, 0, 3, 0);
             label6.Name = "label6";
@@ -518,17 +527,19 @@ namespace PersonalFinancialManager.source.Forms
             // specialChartSeries1HideCheckBox
             // 
             specialChartSeries1HideCheckBox.AutoSize = true;
+            specialChartSeries1HideCheckBox.BackColor = Color.White;
             specialChartSeries1HideCheckBox.CheckAlign = ContentAlignment.MiddleRight;
             specialChartSeries1HideCheckBox.Location = new Point(952, 462);
             specialChartSeries1HideCheckBox.Name = "specialChartSeries1HideCheckBox";
             specialChartSeries1HideCheckBox.Size = new Size(129, 23);
             specialChartSeries1HideCheckBox.TabIndex = 4;
             specialChartSeries1HideCheckBox.Text = "Скрыть график";
-            specialChartSeries1HideCheckBox.UseVisualStyleBackColor = true;
+            specialChartSeries1HideCheckBox.UseVisualStyleBackColor = false;
             // 
             // label3
             // 
             label3.AutoSize = true;
+            label3.BackColor = Color.White;
             label3.Location = new Point(893, 463);
             label3.Name = "label3";
             label3.Size = new Size(53, 19);
@@ -538,6 +549,7 @@ namespace PersonalFinancialManager.source.Forms
             // label2
             // 
             label2.AutoSize = true;
+            label2.BackColor = Color.White;
             label2.Location = new Point(737, 463);
             label2.Name = "label2";
             label2.Size = new Size(44, 19);
@@ -547,6 +559,7 @@ namespace PersonalFinancialManager.source.Forms
             // label1
             // 
             label1.AutoSize = true;
+            label1.BackColor = Color.White;
             label1.Location = new Point(472, 463);
             label1.Margin = new Padding(0, 0, 3, 0);
             label1.Name = "label1";
@@ -598,10 +611,10 @@ namespace PersonalFinancialManager.source.Forms
             allStatisticPage.Controls.Add(panel1);
             allStatisticPage.Controls.Add(allStatisticPageChart);
             allStatisticPage.Controls.Add(panel4);
-            allStatisticPage.Location = new Point(4, 28);
+            allStatisticPage.Location = new Point(4, 24);
             allStatisticPage.Name = "allStatisticPage";
             allStatisticPage.Padding = new Padding(3);
-            allStatisticPage.Size = new Size(1107, 559);
+            allStatisticPage.Size = new Size(1107, 563);
             allStatisticPage.TabIndex = 4;
             allStatisticPage.Text = "Общая статистика";
             // 

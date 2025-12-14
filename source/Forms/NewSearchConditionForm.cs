@@ -103,9 +103,11 @@ namespace PersonalFinancialManager.source.Forms
 
                     if (getNewConditionForm.IsOk)
                         node.Set(SearchConditionNode.ConditionConnectionType.NONE,
+                            new SearchConditionNode(
                             getNewConditionForm.OutNode.Attribute,
                             getNewConditionForm.OutNode.OperatorString,
-                            getNewConditionForm.OutNode.Value);
+                            getNewConditionForm.OutNode.Value,
+                            getNewConditionForm.OutNode.ValueType));
                 }
                 else
                 {
@@ -139,9 +141,11 @@ namespace PersonalFinancialManager.source.Forms
                 SearchConditionNode node = GetNodeFromTreeView(conditionsTreeView.SelectedNode);
 
                 node.Set(type,
+                    new SearchConditionNode(
                          getNewConditionForm.OutNode.Attribute,
                          getNewConditionForm.OutNode.OperatorString,
-                         getNewConditionForm.OutNode.Value);
+                         getNewConditionForm.OutNode.Value,
+                         getNewConditionForm.OutNode.ValueType));
             }
             else
             {

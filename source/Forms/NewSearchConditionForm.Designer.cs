@@ -67,33 +67,33 @@
             // 
             conditionsTreeViewContextMenuStrip.Items.AddRange(new ToolStripItem[] { changeToolStripMenuItem, addConditionANDToolStripMenuItem, addConditionORToolStripMenuItem, deleteToolStripMenuItem });
             conditionsTreeViewContextMenuStrip.Name = "conditionsTreeViewContextMenuStrip";
-            conditionsTreeViewContextMenuStrip.Size = new Size(191, 92);
+            conditionsTreeViewContextMenuStrip.Size = new Size(188, 114);
             // 
             // changeToolStripMenuItem
             // 
             changeToolStripMenuItem.Name = "changeToolStripMenuItem";
-            changeToolStripMenuItem.Size = new Size(190, 22);
+            changeToolStripMenuItem.Size = new Size(187, 22);
             changeToolStripMenuItem.Text = "Изменить";
             changeToolStripMenuItem.Click += changeToolStripMenuItem_Click;
             // 
             // addConditionANDToolStripMenuItem
             // 
             addConditionANDToolStripMenuItem.Name = "addConditionANDToolStripMenuItem";
-            addConditionANDToolStripMenuItem.Size = new Size(190, 22);
-            addConditionANDToolStripMenuItem.Text = "Добавить, связь И";
+            addConditionANDToolStripMenuItem.Size = new Size(187, 22);
+            addConditionANDToolStripMenuItem.Text = "Добавить связь И";
             addConditionANDToolStripMenuItem.Click += addConditionANDToolStripMenuItem_Click;
             // 
             // addConditionORToolStripMenuItem
             // 
             addConditionORToolStripMenuItem.Name = "addConditionORToolStripMenuItem";
-            addConditionORToolStripMenuItem.Size = new Size(190, 22);
-            addConditionORToolStripMenuItem.Text = "Добавить, связь ИЛИ";
+            addConditionORToolStripMenuItem.Size = new Size(187, 22);
+            addConditionORToolStripMenuItem.Text = "Добавить связь ИЛИ";
             addConditionORToolStripMenuItem.Click += addConditionORToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(190, 22);
+            deleteToolStripMenuItem.Size = new Size(187, 22);
             deleteToolStripMenuItem.Text = "Удалить";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 

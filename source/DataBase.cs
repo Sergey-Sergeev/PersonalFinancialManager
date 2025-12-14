@@ -38,7 +38,7 @@ namespace PersonalFinancialManager.source
         private const int DATABASE_FIXED_STRING_LEN = 160;
 
         private const string DATA_DOESNT_EXIST_MARK = "NULL";
-        
+
         public enum EntityType
         {
             Receipt,
@@ -303,9 +303,14 @@ namespace PersonalFinancialManager.source
 
         public IEnumerable<Receipt> GetReceiptsDuringPeriod(DateTime from, DateTime until)
         {
-            sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
+            if (currentConditionTree != null && !currentConditionTree.IsEmpty() && CurrentEntityType == EntityType.Receipt)
+                sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
+                    $" WHERE ({ReceiptDBNames.DATE_AND_TIME} BETWEEN '{ConvertDateTimeToSqlFormat(from)}' AND '{ConvertDateTimeToSqlFormat(until)}')" +
+                    $" AND ({currentConditionTree.GetConditionsString()});";
+            else sqlCommand.CommandText = $"SELECT * FROM {RECEIPTS_DATA_TABLE_NAME}" +
                 $" WHERE {ReceiptDBNames.DATE_AND_TIME}" +
                 $" BETWEEN '{ConvertDateTimeToSqlFormat(from)}' AND '{ConvertDateTimeToSqlFormat(until)}';";
+
 
             SqliteDataReader reader = sqlCommand.ExecuteReader();
 

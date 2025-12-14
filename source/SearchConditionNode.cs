@@ -39,32 +39,33 @@ namespace PersonalFinancialManager.source
         {
             return (ConnectionType == SearchConditionNode.ConditionConnectionType.NONE && Condition == null) ||
                 (ConnectionType != SearchConditionNode.ConditionConnectionType.NONE &&
-                (SearchConditionNodes == null || SearchConditionNodes?.Count == 0));
+                (SearchConditionNodes == null || SearchConditionNodes?.Count == 1));
         }
 
 
         private void SetCondition(string attribute, string operatorString, string value)
         {
-            if(ValueType == GetNewConditionForm.AttributeType.DATETIME ||
-                ValueType == GetNewConditionForm.AttributeType.STRING)
+            if(ValueType == GetNewConditionForm.AttributeType.DATETIME)
+                Condition = $"{attribute} {operatorString} '{value}'";
+            else if(ValueType == GetNewConditionForm.AttributeType.STRING)
                 Condition = $"{attribute} {operatorString} '%{value}%'";
             else Condition = $"{attribute} {operatorString} {value}";
         }
 
-        public void Set(ConditionConnectionType type, string? attribute = null, string? operatorString = null, string? value = null,
-            GetNewConditionForm.AttributeType? valueType = null)
+        public void Set(ConditionConnectionType type, SearchConditionNode? node = null)
         {
             if (type == ConditionConnectionType.NONE)
             {
-                if (attribute != null && operatorString != null && value != null)
+                if (node != null)
                 {
                     SearchConditionNodes?.Clear();
                     ConnectionType = ConditionConnectionType.NONE;
                     SearchConditionNodes = null;
-                    Attribute = attribute;
-                    OperatorString = operatorString;
-                    Value = value;
-                    SetCondition(attribute, operatorString, value);                    
+                    Attribute = node.Attribute;
+                    OperatorString = node.OperatorString;
+                    Value = node.Value;
+                    ValueType = node.ValueType;
+                    SetCondition(node.Attribute, node.OperatorString, node.Value);                    
                 }
 
                 return;
@@ -74,9 +75,9 @@ namespace PersonalFinancialManager.source
 
             if (SearchConditionNodes != null)
             {
-                if (attribute != null && operatorString != null && value != null)
+                if (node != null)
                 {
-                    SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value, (GetNewConditionForm.AttributeType)valueType));
+                    SearchConditionNodes.Add(node);
                 }
 
                 return;
@@ -86,8 +87,8 @@ namespace PersonalFinancialManager.source
             SearchConditionNodes.Add(new SearchConditionNode(Attribute, OperatorString, Value, ValueType));
             Condition = null;
 
-            if (attribute != null && operatorString != null && value != null)
-                SearchConditionNodes.Add(new SearchConditionNode(attribute, operatorString, value, (GetNewConditionForm.AttributeType)valueType));
+            if (node != null)
+                SearchConditionNodes.Add(node);
         }
 
         public static bool Delete(ref SearchConditionNode? root, SearchConditionNode? node = null)
