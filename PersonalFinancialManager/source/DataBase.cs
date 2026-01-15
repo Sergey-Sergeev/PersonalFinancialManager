@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Bogus;
+using Microsoft.Data.Sqlite;
+using Microsoft.VisualBasic.ApplicationServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -104,6 +106,29 @@ namespace PersonalFinancialManager.source
             CreateUserTable();
             SendCommand(CREATE_RECEIPT_TABLE_COMMAND);
             SendCommand(CREATE_PRODUCT_TABLE_COMMAND);
+
+#if DEBUG
+            var productFaker = new Faker<Product>("ru")
+                .RuleFor(p => p.Id, -1)
+                .RuleFor(p => p.Category, f => new ProductCategory(f.Name.FirstName()))
+                .RuleFor(p => p.Name, f => f.Name.FirstName())
+                .RuleFor(p => p.Price, f => f.Random.Double(10,10000))
+                .RuleFor(p => p.Quantity, f => f.Random.Double(10, 10000))
+                .RuleFor(p => p.Sum, (f, p) => p.Quantity * p.Price);
+
+            var receiptFaker = new Faker<Receipt>("ru")
+                .RuleFor(r => r.Id, -1)
+                .RuleFor(r => r.DateAndTime, f => f.Date.Between(DateTime.Now.AddDays(-10000), DateTime.Now.AddDays(10000)))
+                .RuleFor(r => r.RetailPlaceAddress, f => f.Address.FullAddress())
+                .RuleFor(r => r.FullFtsReceiptData, f => f.Random.String(100, '0', 'z'))
+                .RuleFor(r => r.CashTotalSum, f => f.Random.Double(10, 10000))
+                .RuleFor(r => r.EcashTotalSum, f => f.Random.Double(10, 10000))
+                .RuleFor(r => r.TotalSum, (f, r) => r.EcashTotalSum + r.CashTotalSum)
+                .RuleFor(r => r.ListOfProducts, f => productFaker.Generate(5));
+
+            var fakeReceipts = receiptFaker.Generate(100);
+            AddNewReceipts(fakeReceipts);
+#endif
         }
 
         public void Dispose()

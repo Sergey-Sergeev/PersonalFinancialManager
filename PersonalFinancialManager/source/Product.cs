@@ -16,6 +16,18 @@ namespace PersonalFinancialManager.source
 
         public int Id { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="price"></param>
+        /// <param name="quantity"></param>
+        /// <param name="sum"></param>
+        /// <param name="category"></param>
+        /// <param name="id">This parameter can set only database.</param>
+
+        public Product() { }
+        
         public Product(string name, double price, double quantity, double sum, ProductCategory category, int id = -1)
         {
             Name = name;

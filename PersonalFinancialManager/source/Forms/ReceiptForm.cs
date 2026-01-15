@@ -20,6 +20,7 @@ namespace PersonalFinancialManager.source.Forms
 
         private Receipt? inputReceipt;
 
+
         public ReceiptForm(Receipt? receipt = null)
         {
             InitializeComponent();

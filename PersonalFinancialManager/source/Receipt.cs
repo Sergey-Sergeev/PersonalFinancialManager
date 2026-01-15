@@ -7,7 +7,7 @@ namespace PersonalFinancialManager.source
 {
     public class Receipt
     {
-        public List<Product> ListOfProducts { get; private set; }
+        public List<Product> ListOfProducts { get; set; }
         public double TotalSum { get; private set; }
 
         public DateTime DateAndTime { get; private set; }
@@ -19,11 +19,21 @@ namespace PersonalFinancialManager.source
 
         public int Id { get; private set; }
 
-        private Receipt()
+        public Receipt()
         {
             ListOfProducts = new List<Product>();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="listOfProducts"></param>
+        /// <param name="totalPrice"></param>
+        /// <param name="dateTime"></param>
+        /// <param name="cashTotalSum"></param>
+        /// <param name="ecashTotalSum"></param>
+        /// <param name="retailPlaceAddress"></param>
+        /// <param name="fullFtsReceiptData"></param>
+        /// <param name="id">This parasmeter can set only DataBase.</param>
         public Receipt(List<Product> listOfProducts, double totalPrice, DateTime dateTime, double cashTotalSum, double ecashTotalSum, string retailPlaceAddress, string? fullFtsReceiptData, int id = -1)
         {
             ListOfProducts = listOfProducts;
