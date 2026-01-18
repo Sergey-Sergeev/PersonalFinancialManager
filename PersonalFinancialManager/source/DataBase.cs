@@ -118,7 +118,7 @@ namespace PersonalFinancialManager.source
 
             var receiptFaker = new Faker<Receipt>("ru")
                 .RuleFor(r => r.Id, -1)
-                .RuleFor(r => r.DateAndTime, f => f.Date.Between(DateTime.Now.AddDays(-10000), DateTime.Now.AddDays(10000)))
+                .RuleFor(r => r.DateAndTime, f => f.Date.Between(DateTime.Now.AddDays(-10), DateTime.Now.AddDays(0)))
                 .RuleFor(r => r.RetailPlaceAddress, f => f.Address.FullAddress())
                 .RuleFor(r => r.FullFtsReceiptData, f => f.Random.String(100, '0', 'z'))
                 .RuleFor(r => r.ListOfProducts, f => productFaker.Generate(5))
